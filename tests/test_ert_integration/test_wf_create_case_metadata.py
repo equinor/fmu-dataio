@@ -187,7 +187,7 @@ def test_create_case_metadata_caseroot_not_defined(
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
-        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH> <CASE_DIR>",
+        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH>",
         encoding="utf-8",
     )
 
@@ -204,6 +204,33 @@ def test_create_case_metadata_caseroot_not_defined(
 
     _stdout, stderr = capsys.readouterr()
     assert "ValueError: Ert variable for case root is not defined" in stderr
+
+
+def test_create_case_metadata_casename_deprecated_warns(
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    capsys: CaptureFixture[str],
+) -> None:
+    """Now deprecated 'ert_casename' argument issues a warning."""
+    pathlib.Path(
+        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
+    ).write_text(
+        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH> <CASE_DIR>",
+        encoding="utf-8",
+    )
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+
+    mocker.patch(
+        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
+    )
+    with pytest.warns(FutureWarning, match="The argument 'ert_casename' is deprecated"):
+        ert.__main__.main()
 
 
 @pytest.mark.skipif(

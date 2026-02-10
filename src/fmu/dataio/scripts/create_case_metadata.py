@@ -39,16 +39,15 @@ and on Sumo.
 """
 
 EXAMPLES = """
-Create an ERT workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with::
+Create an Ert workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with::
 
-  WF_CREATE_CASE_METADATA <ert_caseroot> <ert_config_path> <ert_casename> "--sumo"
+  WF_CREATE_CASE_METADATA <casepath> <ert_config_path> "--sumo"
 
 Arguments:
-    <ert_caseroot> (Path): Absolute path to root of the case, typically <SCRATCH>/<US...
-    <ert_config_path> (Path): Absolute path to ERT config, typically /project/etc/etc
-    <ert_casename> (str): The ERT case name, typically <CASE_DIR>
+    <casepath>: Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
+    <ert_config_path>: Absolute path to the Ert config, typically <CONFIG_PATH>
     --sumo: Register case on Sumo
-"""
+"""  # noqa: E501
 
 ErtParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
     ErtParameterMetadata
@@ -59,26 +58,29 @@ ErtParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
 class WorkflowConfig:
     """Validated workflow configuration."""
 
-    ert_caseroot: Path
+    casepath: Path
     ert_config_path: Path
-    ert_casename: str
     global_variables_path: Path
     register_on_sumo: bool
     verbosity: str
+
+    @property
+    def casename(self) -> str:
+        return self.casepath.name
 
     @property
     def global_config_path(self) -> Path:
         return self.ert_config_path / self.global_variables_path
 
     def validate(self) -> None:
-        casepath_str = str(self.ert_caseroot)
-        if not self.ert_caseroot.is_absolute():
+        casepath_str = str(self.casepath)
+        if not self.casepath.is_absolute():
             if casepath_str.startswith("<") and casepath_str.endswith(">"):
                 raise ValueError(
-                    f"Ert variable for case root is not defined: {self.ert_caseroot}"
+                    f"Ert variable for case root is not defined: {self.casepath}"
                 )
             raise ValueError(
-                f"'ert_caseroot' must be an absolute path. Got: {self.ert_caseroot}"
+                f"'casepath' must be an absolute path. Got: {self.casepath}"
             )
 
 
@@ -90,19 +92,16 @@ def _load_global_config(global_config_path: Path) -> dict[str, Any]:
 
 
 def create_case_metadata(
-    global_config: dict[str, Any],
-    ert_caseroot: Path,
-    ert_casename: str,
-    register_on_sumo: bool,
+    workflow_config: WorkflowConfig, global_config: dict[str, Any]
 ) -> str:
     """Create the case metadata and print them to the disk"""
     case_metadata_path = CreateCaseMetadata(
         config=global_config,
-        rootfolder=ert_caseroot,
-        casename=ert_casename,
+        rootfolder=workflow_config.casepath,
+        casename=workflow_config.casename,
     ).export()
 
-    if register_on_sumo:
+    if workflow_config.register_on_sumo:
         _register_on_sumo(case_metadata_path)
 
     return case_metadata_path
@@ -249,12 +248,36 @@ def get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "ert_caseroot", type=Path, help="Absolute path to the case root"
+        "casepath",
+        type=Path,
+        help="Absolute path to the case",
     )
     parser.add_argument(
-        "ert_config_path", type=Path, help="ERT config path (<CONFIG_PATH>)"
+        "ert_config_path",
+        type=Path,
+        help="Ert config path (<CONFIG_PATH>)",
     )
-    parser.add_argument("ert_casename", type=str, help="ERT case name (<CASE>)")
+    parser.add_argument(
+        "--sumo",
+        action="store_true",
+        help="If passed, register the case on Sumo.",
+    )
+    parser.add_argument(
+        "--global_variables_path",
+        type=Path,
+        help="Path to global variables file relative to Ert config path.",
+        default="../../fmuconfig/output/global_variables.yml",
+    )
+
+    # Deprecated/unneeded below
+
+    parser.add_argument(
+        "ert_casename",
+        type=str,
+        help="Deprecated and can safely be removed",
+        nargs="?",  # Makes it optional
+        default=None,
+    )
     parser.add_argument(
         "ert_username",
         type=str,
@@ -263,21 +286,10 @@ def get_parser() -> argparse.ArgumentParser:
         default=None,
     )
     parser.add_argument(
-        "--sumo",
-        action="store_true",
-        help="If passed, register the case on Sumo.",
-    )
-    parser.add_argument(
         "--sumo_env",
         type=str,
         help="Deprecated and can safely be removed",
         default=None,
-    )
-    parser.add_argument(
-        "--global_variables_path",
-        type=Path,
-        help="Directly specify path to global variables relative to ert config path",
-        default="../../fmuconfig/output/global_variables.yml",
     )
     parser.add_argument(
         "--verbosity", type=str, help="Set log level", default="WARNING"
@@ -289,6 +301,12 @@ def _parse_config(args: argparse.Namespace) -> WorkflowConfig:
     """Convert parsed args to config.
 
     Also handles deprecations."""
+    if args.ert_casename:
+        warnings.warn(
+            "The argument 'ert_casename' is deprecated. It is no "
+            "longer used and can safely be removed.",
+            FutureWarning,
+        )
     if args.ert_username:
         warnings.warn(
             "The argument 'ert_username' is deprecated. It is no "
@@ -307,9 +325,8 @@ def _parse_config(args: argparse.Namespace) -> WorkflowConfig:
             )
 
     return WorkflowConfig(
-        ert_caseroot=args.ert_caseroot,
+        casepath=args.casepath,
         ert_config_path=args.ert_config_path,
-        ert_casename=args.ert_casename,
         global_variables_path=args.global_variables_path,
         register_on_sumo=args.sumo,
         verbosity=args.verbosity,
@@ -339,12 +356,12 @@ def _run_workflow(
     args: argparse.Namespace, ensemble: ert.Ensemble, run_paths: ert.Runpaths
 ) -> None:
     """Main workflow entry point."""
-    config = _parse_config(args)
-    config.validate()
+    workflow_config = _parse_config(args)
+    workflow_config.validate()
     logger.setLevel(args.verbosity)
 
     # TODO: Load to validated dict and pass to case object
-    global_config_dict = _load_global_config(config.global_config_path)
+    global_config_dict = _load_global_config(workflow_config.global_config_path)
     try:
         global_config = global_configuration.GlobalConfiguration.model_validate(
             global_config_dict
@@ -353,16 +370,13 @@ def _run_workflow(
         global_configuration.validation_error_warning(e)
         raise
 
-    metadata_path = create_case_metadata(
-        global_config_dict,
-        config.ert_caseroot,
-        config.ert_casename,
-        config.register_on_sumo,
-    )
+    metadata_path = create_case_metadata(workflow_config, global_config_dict)
     logger.debug(f"Case metadata exported to {metadata_path}")
 
-    export_ert_parameters(ensemble, run_paths, config.ert_caseroot, global_config)
-    logger.debug("create_case_metadata.py has finished.")
+    parameters_path = export_ert_parameters(
+        ensemble, run_paths, workflow_config.casepath, global_config
+    )
+    logger.debug(f"Parameters exported to {parameters_path}")
 
 
 @ert.plugin(name="fmu_dataio")
