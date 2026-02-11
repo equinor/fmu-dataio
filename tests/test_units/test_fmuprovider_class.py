@@ -13,6 +13,7 @@ from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio._runcontext import FMUEnvironment, RunContext
+from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
     DEFAULT_ENSMEBLE_NAME,
@@ -184,7 +185,7 @@ def test_fmuprovider_prehook_case(
     caseroot.mkdir(parents=True)
     monkeypatch.chdir(caseroot)
 
-    icase = dataio.CreateCaseMetadata(
+    icase = ExportCaseMetadata(
         config=drogon_global_config,
         rootfolder=caseroot,
         casename="MyCaseName",

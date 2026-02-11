@@ -1,6 +1,7 @@
 """Test the dataio re-export of preprocessed data through ExportDataPreprocessed."""
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -8,14 +9,11 @@ import pytest
 import xtgeo
 import yaml
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
-from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio._export import export_metadata_file
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
-
-from ..conftest import remove_ert_env, set_ert_env_forward, set_ert_env_prehook
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +47,8 @@ def test_export_preprocessed_surfacefile(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test re-exporting a preprocessed surface in a fmu run, and check that the
@@ -57,7 +56,7 @@ def test_export_preprocessed_surfacefile(
     the _preprocessed flag is removed.
     """
     # mock being outside of FMU and export preprocessed surface
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, metafile = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     existing_meta = read_metadata(metafile)
@@ -66,7 +65,7 @@ def test_export_preprocessed_surfacefile(
     assert "_preprocessed" in existing_meta
 
     # run the re-export of the preprocessed data inside an mocked FMU run
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
     # generate the updated metadata
     metadata = edata.generate_metadata(surfacepath)
@@ -106,18 +105,19 @@ def test_export_to_results_folder(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test re-exporting a preprocessed surface in a fmu run, and see that it works
     storing to the case/share/results folder
     """
     # mock being outside of FMU and export preprocessed surface
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, _ = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     # run the re-export of the preprocessed data inside an mocked FMU run
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     edata = dataio.ExportPreprocessedData(is_observation=False, casepath=fmurun_prehook)
 
     # check that the export has been to the case/share/results folder
@@ -134,7 +134,8 @@ def test_outdated_metadata(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test that a warning is given when trying to re-export preprocessed data
@@ -142,7 +143,7 @@ def test_outdated_metadata(
     Also test that if using generate_metadata directly an error is raised.
     """
     # mock being outside of FMU and export preprocessed surface
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, metafile = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     # modify existing metadata file to make it 'outdated'
@@ -151,7 +152,7 @@ def test_outdated_metadata(
     export_metadata_file(file=metafile, metadata=metadata)
 
     # run the re-export of the preprocessed data inside an mocked FMU run
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
 
     edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
     # error should be raised when trying to use the generate_metadata function
@@ -167,18 +168,19 @@ def test_export_without_existing_meta(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test that a warning is raised if metadata is not existing for a file
     and that the file is copied anyway
     """
     # mock being outside of FMU and export preprocessed surface
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, metafile = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     # run the re-export of the preprocessed data inside an mocked FMU run
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
 
     # delete the metafile
     metafile.unlink()
@@ -200,14 +202,15 @@ def test_preprocessed_surface_modified_post_export(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test that a warning is raised if the md5sum for the file does not match
     the 'file.checksum_md5' in the existing metadata
     """
     # mock being outside of FMU and export preprocessed surface
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, metafile = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     # modify existing metadata file to make the md5sum inconsistent
@@ -216,7 +219,7 @@ def test_preprocessed_surface_modified_post_export(
     export_metadata_file(file=metafile, metadata=metadata)
 
     # run the re-export of the preprocessed data inside an mocked FMU run
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
 
     # should issue warning
     with pytest.warns(UserWarning, match="seem to have been modified"):
@@ -225,7 +228,9 @@ def test_preprocessed_surface_modified_post_export(
         ).export(surfacepath)
 
 
-def test_preprocessed_surface_fmucontext_not_case(monkeypatch: MonkeyPatch) -> None:
+def test_preprocessed_surface_fmucontext_not_case(
+    set_ert_env_forward: Callable[[], None],
+) -> None:
     """
     Test that an error is raised if ExportPreprocessedData is used
     in other fmu_context than 'case'
@@ -236,7 +241,7 @@ def test_preprocessed_surface_fmucontext_not_case(monkeypatch: MonkeyPatch) -> N
         dataio.ExportPreprocessedData(casepath="dummy")
 
     # error should be raised when running on forward_model in FMU
-    set_ert_env_forward(monkeypatch)
+    set_ert_env_forward()
     with (
         pytest.warns(UserWarning, match="Could not detect the case metadata"),
         pytest.raises(RuntimeError, match="Only possible to run re-export"),
@@ -272,11 +277,12 @@ def test_export_non_preprocessed_data(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """Test that if not exported with fmu_context='preprocessed' error is raised"""
     # mock being outside of FMU
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath = dataio.ExportData(
         config=rmsglobalconfig,
         fmu_context=None,
@@ -287,7 +293,7 @@ def test_export_non_preprocessed_data(
     assert "share/results" in surfacepath
 
     # mock being inside of FMU
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
 
     # check that the error is given
     with pytest.raises(RuntimeError, match="is not supported"):
@@ -300,7 +306,8 @@ def test_export_preprocessed_file_exportdata_futurewarning(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test that using the ExportData class to export preprocessed files
@@ -308,11 +315,11 @@ def test_export_preprocessed_file_exportdata_futurewarning(
     a future warning is issued.
     """
     # mock being outside of FMU
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, _ = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     # mock being inside of FMU
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
 
     # Use the ExportData class instead of the ExportPreprocessedData
     edata = dataio.ExportData(
@@ -337,18 +344,19 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
     fmurun_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Test that using the ExportData class to export preprocessed files
     works also if arguments have been given on the export/generate_metadata methods
     """
     # mock being outside of FMU
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath, _ = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     # mock being inside of FMU
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
 
     # Use the ExportData class instead of the ExportPreprocessedData
     with pytest.warns(UserWarning, match="case metadata"):

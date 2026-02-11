@@ -5,7 +5,8 @@ from ert.plugins.plugin_manager import ErtPluginManager
 from packaging.version import Version
 
 import fmu.dataio.hook_implementations.jobs
-from fmu.dataio.scripts import copy_preprocessed, create_case_metadata
+from fmu.dataio._workflows import copy_preprocessed
+from fmu.dataio._workflows.case import main as create_case_metadata
 
 
 def test_hook_implementations() -> None:

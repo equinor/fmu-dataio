@@ -11,6 +11,7 @@ and are typically used to compare results.
 """
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -20,8 +21,6 @@ from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio import _utils as utils
-
-from ..conftest import remove_ert_env, set_ert_env_prehook
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +64,8 @@ def test_regsurf_preprocessed_observation(
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """Test generating pre-realization surfaces that comes to share/preprocessed.
 
@@ -147,9 +148,9 @@ def test_regsurf_preprocessed_observation(
         ).exists()
 
     # run two stage process
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf, monkeypatch)
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
 
     logger.info("Preprocessed surface is %s", mysurf)
@@ -180,6 +181,8 @@ def test_regsurf_preprocessed_filename_retained(
     tagname: str,
     exproot: str,
     monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """
     Check that current name and/or tagname are propegated and
@@ -243,11 +246,11 @@ def test_regsurf_preprocessed_filename_retained(
         metadata = edata.generate_metadata(surfacepath)
         assert metadata["file"]["relative_path"] == f"{prefix}/{exproot}--{dates}.gri"
 
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     mysurf = _export_data_from_rms(
         rmssetup, rmsglobalconfig, regsurf, parent, name, tagname, exproot, monkeypatch
     )
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     _run_case_fmu(fmurun_prehook, mysurf, exproot, monkeypatch)
 
 
@@ -257,6 +260,8 @@ def test_regsurf_preprocessed_observation_subfolder(
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """As previous test, but with data using subfolder option.
 
@@ -317,10 +322,10 @@ def test_regsurf_preprocessed_observation_subfolder(
         assert "merged" in metadata["tracklog"][-1]["event"]
 
     # run two stage process
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     mysurf = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf, monkeypatch)
 
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
 
 
@@ -380,6 +385,8 @@ def test_access_settings_retained(
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """Test that access level put on pre-processed data are retained when the
     metadata is being completed during later FMU run.
@@ -431,7 +438,7 @@ def test_access_settings_retained(
         assert metadata["access"]["classification"] == "restricted"
 
     # run two stage process
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     surfacepath = _export_data_from_rms(rmssetup, rmsglobalconfig, regsurf, monkeypatch)
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     _run_case_fmu(fmurun_prehook, surfacepath, monkeypatch)
