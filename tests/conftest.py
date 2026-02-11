@@ -7,7 +7,7 @@ import os
 import shutil
 import sys
 import uuid
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -111,19 +111,31 @@ def _fmu_run1_env_variables(
         logger.debug("Setting env %s as %s", key, env_value)
 
 
-def remove_ert_env(monkeypatch: MonkeyPatch) -> None:
-    for key in ERTRUN_ENV_FULLRUN:
-        monkeypatch.delenv(key, raising=False)
+@pytest.fixture
+def remove_ert_env(monkeypatch: MonkeyPatch) -> Callable[[], None]:
+    def _remove_ert_env() -> None:
+        for key in ERTRUN_ENV_FULLRUN:
+            monkeypatch.delenv(key, raising=False)
+
+    return _remove_ert_env
 
 
-def set_ert_env_forward(monkeypatch: MonkeyPatch) -> None:
-    for key, val in ERTRUN_ENV_FORWARD.items():
-        monkeypatch.setenv(key, val)
+@pytest.fixture
+def set_ert_env_forward(monkeypatch: MonkeyPatch) -> Callable[[], None]:
+    def _set_ert_env_forward() -> None:
+        for key, val in ERTRUN_ENV_FORWARD.items():
+            monkeypatch.setenv(key, val)
+
+    return _set_ert_env_forward
 
 
-def set_ert_env_prehook(monkeypatch: MonkeyPatch) -> None:
-    for key, val in ERTRUN_ENV_PREHOOK.items():
-        monkeypatch.setenv(key, val)
+@pytest.fixture
+def set_ert_env_prehook(monkeypatch: MonkeyPatch) -> Callable[[], None]:
+    def _set_ert_env_prehook() -> None:
+        for key, val in ERTRUN_ENV_PREHOOK.items():
+            monkeypatch.setenv(key, val)
+
+    return _set_ert_env_prehook
 
 
 @pytest.fixture(scope="function")

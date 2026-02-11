@@ -17,7 +17,6 @@ import ert
 import yaml
 from pydantic import TypeAdapter, ValidationError
 
-from fmu.dataio import CreateCaseMetadata
 from fmu.dataio._export import export_with_metadata
 from fmu.dataio._export_config import ExportConfig
 from fmu.datamodels import ErtParameterMetadata
@@ -25,6 +24,8 @@ from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.datamodels.standard_results.enums import StandardResultName
+
+from .export_case_metadata import ExportCaseMetadata
 
 if TYPE_CHECKING:
     import polars as pl
@@ -340,7 +341,7 @@ def _run_workflow(
     workflow_config = CaseWorkflowConfig.from_args(args)
     logger.setLevel(workflow_config.verbosity)
 
-    case_metadata_path = CreateCaseMetadata(
+    case_metadata_path = ExportCaseMetadata(
         config=workflow_config.global_config,
         rootfolder=workflow_config.casepath,
         casename=workflow_config.casename,
@@ -355,7 +356,7 @@ def _run_workflow(
     logger.debug(f"Parameters exported to {parameters_path}")
 
 
-class WfCreateCaseMetadata(ert.ErtScript):
+class WfExportCaseMetadata(ert.ErtScript):
     """A class with a run() function that can be registered as an ERT plugin.
 
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
@@ -376,9 +377,9 @@ class WfCreateCaseMetadata(ert.ErtScript):
 
 @ert.plugin(name="fmu_dataio")
 def ertscript_workflow(config: ert.CaseWorkflowConfigs) -> None:
-    """Hook the WfCreateCaseMetadata class with documentation into ERT."""
+    """Hook the WfExportCaseMetadata class with documentation into ERT."""
     config.add_workflow(
-        WfCreateCaseMetadata,
+        WfExportCaseMetadata,
         "WF_CREATE_CASE_METADATA",
         parser=get_parser,
         description=DESCRIPTION,

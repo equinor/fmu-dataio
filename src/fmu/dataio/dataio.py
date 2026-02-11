@@ -24,7 +24,6 @@ from ._export import export_with_metadata, export_without_metadata, generate_met
 from ._export_config import ExportConfig
 from ._logging import null_logger
 from ._utils import read_metadata_from_file, some_config_from_env
-from .case import CreateCaseMetadata
 from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
 
@@ -37,7 +36,6 @@ GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 logger: Final = null_logger(__name__)
 
 AggregatedData: Final = AggregatedData  # Backwards compatibility alias
-CreateCaseMetadata: Final = CreateCaseMetadata  # Backwards compatibility alias
 
 
 # ======================================================================================
