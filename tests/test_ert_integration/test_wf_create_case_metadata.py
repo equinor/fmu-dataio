@@ -29,7 +29,7 @@ from fmu.datamodels.standard_results.ert_parameters import (
 )
 from pytest import CaptureFixture, MonkeyPatch
 
-from fmu.dataio.scripts.create_case_metadata import (
+from fmu.dataio._workflows.case.main import (
     CaseWorkflowConfig,
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
@@ -472,7 +472,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
     )
     with patch(
-        "fmu.dataio.scripts.create_case_metadata.export_ert_parameters",
+        "fmu.dataio._workflows.case.main.export_ert_parameters",
         side_effect=capture_params,
     ):
         ert.__main__.main()

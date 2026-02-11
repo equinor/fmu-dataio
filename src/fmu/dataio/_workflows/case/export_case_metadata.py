@@ -9,27 +9,25 @@ from typing import Any, Final
 
 from pydantic import ValidationError
 
+from fmu.dataio._export import export_metadata_file
+from fmu.dataio._logging import null_logger
 from fmu.dataio.version import __version__
-from fmu.datamodels.common.access import Access
-from fmu.datamodels.common.tracklog import Tracklog, User
+from fmu.datamodels.common import Access, Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
-
-from ._export import export_metadata_file
-from ._logging import null_logger
 
 logger: Final = null_logger(__name__)
 
 # ######################################################################################
-# CreateCaseMetadata.
+# ExportCaseMetadata.
 #
-# The CreateCaseMetadata is used for making the case matadata prior to any other
+# The ExportCaseMetadata is used for making the case matadata prior to any other
 # actions, e.g. forward jobs. However, case metadata file may already exist,
 # and in that case this class should only emit a message or warning.
 # ######################################################################################
 
 
-class CreateCaseMetadata:
+class ExportCaseMetadata:
     """Create metadata for an FMU Case.
 
     In ERT this is typically ran as an hook workflow in advance.
@@ -52,7 +50,7 @@ class CreateCaseMetadata:
         casename: str,
         description: str | list | None = None,  # deprecated
     ) -> None:
-        """Initialize the CreateCaseMetadata class."""
+        """Initialize the ExportCaseMetadata class."""
 
         # TODO: Receive only validated config
         if isinstance(config, dict):
@@ -78,7 +76,7 @@ class CreateCaseMetadata:
         self._casepath = Path(self.rootfolder)
         self._metafile = self._casepath / "share/metadata/fmu_case.yml"
         self._metadata: dict = {}
-        logger.info("Ran __init__ for CreateCaseMetadata")
+        logger.info("Ran __init__ for ExportCaseMetadata")
 
     def _establish_metadata_files(self) -> bool:
         """Checks if the metadata files and directories are established and creates
