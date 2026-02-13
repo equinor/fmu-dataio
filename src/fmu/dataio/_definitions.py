@@ -8,7 +8,7 @@ from typing import Final
 from pydantic import BaseModel, model_validator
 
 from fmu.datamodels.fmu_results.enums import Content
-from fmu.datamodels.standard_results.enums import InplaceVolumes
+from fmu.datamodels.standard_results.enums import InplaceVolumes, SimulatorTables
 
 ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 
@@ -60,32 +60,40 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
         required=InplaceVolumes.required_index_columns(),
     ),
     Content.production_network: StandardTableIndex(
-        columns=["DATE", "CHILD", "PARENT", "KEYWORD"],
-        required=["DATE", "CHILD", "PARENT", "KEYWORD"],
+        columns=SimulatorTables.ProductionNetworkColumns.index_columns(),
+        required=SimulatorTables.ProductionNetworkColumns.index_columns(),
+    ),
+    Content.pvt: StandardTableIndex(
+        columns=SimulatorTables.PvtColumns.index_columns(),
+        required=SimulatorTables.PvtColumns.index_columns(),
     ),
     Content.rft: StandardTableIndex(
-        columns=["WELL", "DATE"],
-        required=["WELL", "DATE"],
+        columns=SimulatorTables.RftColumns.index_columns(),
+        required=SimulatorTables.RftColumns.index_columns(),
     ),
     Content.timeseries: StandardTableIndex(
-        columns=["DATE"],
-        required=["DATE"],
+        columns=SimulatorTables.SimulationTimeseriesColumns.index_columns(),
+        required=SimulatorTables.SimulationTimeseriesColumns.index_columns(),
     ),
     Content.simulationtimeseries: StandardTableIndex(
-        columns=["DATE"],
-        required=["DATE"],
+        columns=SimulatorTables.SimulationTimeseriesColumns.index_columns(),
+        required=SimulatorTables.SimulationTimeseriesColumns.index_columns(),
     ),
     Content.wellpicks: StandardTableIndex(
         columns=["WELL", "HORIZON"],
         required=["WELL", "HORIZON"],
     ),
     Content.relperm: StandardTableIndex(
-        columns=["SATNUM"],
-        required=["SATNUM"],
+        columns=SimulatorTables.RelpermColumns.index_columns(),
+        required=SimulatorTables.RelpermColumns.index_columns(),
     ),
     Content.well_completions: StandardTableIndex(
-        columns=["WELL", "DATE", "ZONE"],
-        required=["WELL", "DATE", "ZONE"],
+        columns=SimulatorTables.WellCompletionsColumns.index_columns(),
+        required=SimulatorTables.WellCompletionsColumns.index_columns(),
+    ),
+    Content.transmissibilities: StandardTableIndex(
+        columns=SimulatorTables.TransmissibilitiesColumns.index_columns(),
+        required=SimulatorTables.TransmissibilitiesColumns.index_columns(),
     ),
 }
 
