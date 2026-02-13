@@ -8,23 +8,19 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import warnings
-from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Self
+from typing import TYPE_CHECKING, Final
 
 import ert
-import yaml
-from pydantic import TypeAdapter, ValidationError
+from pydantic import TypeAdapter
 
 from fmu.dataio._export import export_with_metadata
 from fmu.dataio._export_config import ExportConfig
 from fmu.datamodels import ErtParameterMetadata
-from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
-from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.datamodels.standard_results.enums import StandardResultName
 
+from ._config import CaseWorkflowConfig
 from .export_case_metadata import ExportCaseMetadata
 
 if TYPE_CHECKING:
@@ -54,93 +50,6 @@ Arguments:
 ErtParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
     ErtParameterMetadata
 )
-
-
-def _load_global_config(global_config_path: Path) -> GlobalConfiguration:
-    """Load this simulation's global config."""
-    logger.debug(f"Loading global config from {global_config_path}")
-    with open(global_config_path, encoding="utf-8") as f:
-        global_config_dict = yaml.safe_load(f)
-    try:
-        return global_configuration.GlobalConfiguration.model_validate(
-            global_config_dict
-        )
-    except ValidationError as e:
-        global_configuration.validation_error_warning(e)
-        raise
-
-
-@dataclass(frozen=True)
-class CaseWorkflowConfig:
-    """Validated workflow configuration."""
-
-    casepath: Path
-    ert_config_path: Path
-    register_on_sumo: bool
-    verbosity: str
-    global_config: GlobalConfiguration
-
-    def __post_init__(self) -> None:
-        """Run validation."""
-        self.validate()
-
-    @property
-    def casename(self) -> str:
-        return self.casepath.name
-
-    def validate(self) -> None:
-        casepath_str = str(self.casepath)
-        if not self.casepath.is_absolute():
-            if casepath_str.startswith("<") and casepath_str.endswith(">"):
-                raise ValueError(
-                    f"Ert variable for case root is not defined: {self.casepath}"
-                )
-            raise ValueError(
-                f"'casepath' must be an absolute path. Got: {self.casepath}"
-            )
-
-    @classmethod
-    def from_args(cls, args: argparse.Namespace) -> Self:
-        """Create an instance from Ert workflow arguments."""
-        _warn_deprecations(args)
-
-        config_path = args.ert_config_path / args.global_variables_path
-        global_config = _load_global_config(config_path)
-
-        return cls(
-            casepath=args.casepath,
-            ert_config_path=args.ert_config_path,
-            register_on_sumo=args.sumo,
-            verbosity=args.verbosity,
-            global_config=global_config,
-        )
-
-
-def _warn_deprecations(args: argparse.Namespace) -> None:
-    """Warn on deprecated arguments passed to Ert workflow."""
-
-    if args.ert_casename:
-        warnings.warn(
-            "The argument 'ert_casename' is deprecated. It is no "
-            "longer used and can safely be removed.",
-            FutureWarning,
-        )
-    if args.ert_username:
-        warnings.warn(
-            "The argument 'ert_username' is deprecated. It is no "
-            "longer used and can safely be removed.",
-            FutureWarning,
-        )
-    if args.sumo_env:
-        warnings.warn(
-            "The argument 'sumo_env' is ignored and can safely be removed.",
-            FutureWarning,
-        )
-        if args.sumo_env != "prod" and os.getenv("SUMO_ENV") is None:
-            raise ValueError(
-                "Setting sumo environment through argument input is not allowed. "
-                "It must be set as an environment variable SUMO_ENV"
-            )
 
 
 def _register_on_sumo(case_metadata_path: str) -> str:
@@ -338,21 +247,17 @@ def _run_workflow(
     run_paths: ert.Runpaths,
 ) -> None:
     """Main workflow entry point."""
-    workflow_config = CaseWorkflowConfig.from_args(args)
-    logger.setLevel(workflow_config.verbosity)
+    cfg = CaseWorkflowConfig.from_args(args)
+    logger.setLevel(cfg.verbosity)
 
-    case_metadata_path = ExportCaseMetadata(
-        config=workflow_config.global_config,
-        rootfolder=workflow_config.casepath,
-        casename=workflow_config.casename,
-    ).export()
+    case_metadata_path = ExportCaseMetadata.from_workflow_config(cfg).export()
 
-    if workflow_config.register_on_sumo:
+    if cfg.register_on_sumo:
         _register_on_sumo(case_metadata_path)
 
     logger.debug(f"Case metadata exported to {case_metadata_path}")
 
-    parameters_path = export_ert_parameters(ensemble, run_paths, workflow_config)
+    parameters_path = export_ert_parameters(ensemble, run_paths, cfg)
     logger.debug(f"Parameters exported to {parameters_path}")
 
 
