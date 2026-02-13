@@ -5,7 +5,7 @@ import getpass
 import uuid
 import warnings
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Self
 
 from pydantic import ValidationError
 
@@ -16,31 +16,23 @@ from fmu.datamodels.common import Access, Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
-logger: Final = null_logger(__name__)
+from ._config import CaseWorkflowConfig
 
-# ######################################################################################
-# ExportCaseMetadata.
-#
-# The ExportCaseMetadata is used for making the case matadata prior to any other
-# actions, e.g. forward jobs. However, case metadata file may already exist,
-# and in that case this class should only emit a message or warning.
-# ######################################################################################
+logger: Final = null_logger(__name__)
 
 
 class ExportCaseMetadata:
-    """Create metadata for an FMU Case.
+    """Creates and exports metadata for an FMU Case.
 
-    In ERT this is typically ran as an hook workflow in advance.
+    This class is used for exporting the case metadata before the simulation begins.
+    If the case metadata file may already exists a warning is emitted.
+
+    The metadata and uuid are used to register the case on Sumo, if Sumo is enabled.
 
     Args:
-        config: A configuration dictionary. In the standard case this is read
-            from FMU global variables (via fmuconfig). The dictionary must contain
-            some predefined main level keys. If config is None or the env variable
-            FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to
-            parse that file instead.
+        config: An object representing the global configuration.
         rootfolder: Absolute path to the case root, including case name.
         casename: Name of case (experiment)
-        description (Optional): Description text as string or list of strings.
     """
 
     def __init__(
@@ -48,7 +40,6 @@ class ExportCaseMetadata:
         config: global_configuration.GlobalConfiguration | dict[str, Any],
         rootfolder: str | Path,
         casename: str,
-        description: str | list | None = None,  # deprecated
     ) -> None:
         """Initialize the ExportCaseMetadata class."""
 
@@ -66,13 +57,6 @@ class ExportCaseMetadata:
 
         self.rootfolder = rootfolder
         self.casename = casename
-
-        if description:
-            warnings.warn(
-                "The 'description' argument is deprecated and no longer used.",
-                FutureWarning,
-            )
-
         self._casepath = Path(self.rootfolder)
         self._metafile = self._casepath / "share/metadata/fmu_case.yml"
         self._metadata: dict = {}
@@ -101,10 +85,6 @@ class ExportCaseMetadata:
         identifiers into file metadata.
         """
         return uuid.uuid4()
-
-    # ==================================================================================
-    # Public methods:
-    # ==================================================================================
 
     def generate_metadata(self) -> dict:
         """Generate case metadata.
@@ -159,3 +139,12 @@ class ExportCaseMetadata:
             export_metadata_file(self._metafile, self._metadata)
             logger.info("METAFILE %s", self._metafile)
         return str(self._metafile)
+
+    @classmethod
+    def from_workflow_config(cls, workflow_config: CaseWorkflowConfig) -> Self:
+        """Instantiate from a workflow configuration."""
+        return cls(
+            config=workflow_config.global_config,
+            rootfolder=workflow_config.casepath,
+            casename=workflow_config.casename,
+        )

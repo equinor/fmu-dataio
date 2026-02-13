@@ -198,7 +198,7 @@ def test_create_case_metadata_caseroot_not_defined(
     mocker: MockerFixture,
     capsys: CaptureFixture[str],
 ) -> None:
-    """Test that a proper error message is given if the case root is
+    """Test that a proper error message is given if the case path is
     input as an undefined ERT variable"""
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
@@ -219,7 +219,7 @@ def test_create_case_metadata_caseroot_not_defined(
     ert.__main__.main()
 
     _stdout, stderr = capsys.readouterr()
-    assert "ValueError: Ert variable for case root is not defined" in stderr
+    assert "ValueError: Ert variable for case path is not defined" in stderr
 
 
 def test_create_case_metadata_casename_deprecated_warns(

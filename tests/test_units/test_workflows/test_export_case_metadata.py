@@ -36,13 +36,11 @@ def test_export_case_metadata_post_init(
     caseroot = fmurun.parent.parent
     logger.info("Active folder is %s", fmurun)
 
-    with pytest.warns(FutureWarning, match="description"):
-        icase = ExportCaseMetadata(
-            config=drogon_global_config,
-            rootfolder=caseroot,
-            casename="mycase",
-            description="Some description",
-        )
+    icase = ExportCaseMetadata(
+        config=drogon_global_config,
+        rootfolder=caseroot,
+        casename="mycase",
+    )
     logger.info("Casepath is %s", icase._casepath)
 
     assert icase._casepath == caseroot
