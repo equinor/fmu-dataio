@@ -137,7 +137,7 @@ class FmuProvider(Provider):
 
     def _get_ert_meta(self) -> fields.Ert | None:
         """Constructs the `Ert` Pydantic object for the `ert` metadata field."""
-        if not self._env.experiment_id:
+        if not self._env.experiment_id or not self._env.simulation_mode:
             return None
 
         ensemble: fields.Ensemble | None = None
@@ -147,6 +147,7 @@ class FmuProvider(Provider):
                 uuid=uuid.UUID(self._env.ensemble_id),
                 id=self._iteration_number,
             )
+
         return fields.Ert(
             experiment=fields.Experiment(id=uuid.UUID(self._env.experiment_id)),
             simulation_mode=ErtSimulationMode(self._env.simulation_mode),
