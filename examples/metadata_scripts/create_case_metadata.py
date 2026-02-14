@@ -4,7 +4,7 @@ import logging
 
 from fmu.config import utilities as utils
 
-from fmu.dataio.case import CreateCaseMetadata
+from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -15,7 +15,7 @@ CFG = utils.yaml_load("fmuconfig/output/global_variables.yml")
 def create_case_metadata():
     """Create case metadata"""
 
-    case = CreateCaseMetadata(
+    case = ExportCaseMetadata(
         config=CFG,
         rootfolder="",
         casename="MyCase",
