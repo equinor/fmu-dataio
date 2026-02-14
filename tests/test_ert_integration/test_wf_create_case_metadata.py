@@ -29,7 +29,7 @@ from fmu.datamodels.standard_results.ert_parameters import (
 )
 from pytest import CaptureFixture, MonkeyPatch
 
-from fmu.dataio.scripts.create_case_metadata import (
+from fmu.dataio._workflows.case.main import (
     CaseWorkflowConfig,
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
@@ -198,7 +198,7 @@ def test_create_case_metadata_caseroot_not_defined(
     mocker: MockerFixture,
     capsys: CaptureFixture[str],
 ) -> None:
-    """Test that a proper error message is given if the case root is
+    """Test that a proper error message is given if the case path is
     input as an undefined ERT variable"""
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
@@ -219,7 +219,7 @@ def test_create_case_metadata_caseroot_not_defined(
     ert.__main__.main()
 
     _stdout, stderr = capsys.readouterr()
-    assert "ValueError: Ert variable for case root is not defined" in stderr
+    assert "ValueError: Ert variable for case path is not defined" in stderr
 
 
 def test_create_case_metadata_casename_deprecated_warns(
@@ -472,7 +472,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
     )
     with patch(
-        "fmu.dataio.scripts.create_case_metadata.export_ert_parameters",
+        "fmu.dataio._workflows.case.main.export_ert_parameters",
         side_effect=capture_params,
     ):
         ert.__main__.main()

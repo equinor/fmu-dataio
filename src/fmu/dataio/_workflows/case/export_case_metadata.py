@@ -5,41 +5,32 @@ import getpass
 import uuid
 import warnings
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Self
 
 from pydantic import ValidationError
 
+from fmu.dataio._export import export_metadata_file
+from fmu.dataio._logging import null_logger
 from fmu.dataio.version import __version__
-from fmu.datamodels.common.access import Access
-from fmu.datamodels.common.tracklog import Tracklog, User
+from fmu.datamodels.common import Access, Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
-from ._export import export_metadata_file
-from ._logging import null_logger
+from ._config import CaseWorkflowConfig
 
 logger: Final = null_logger(__name__)
 
-# ######################################################################################
-# CreateCaseMetadata.
-#
-# The CreateCaseMetadata is used for making the case matadata prior to any other
-# actions, e.g. forward jobs. However, case metadata file may already exist,
-# and in that case this class should only emit a message or warning.
-# ######################################################################################
 
+class ExportCaseMetadata:
+    """Creates and exports metadata for an FMU Case.
 
-class CreateCaseMetadata:
-    """Create metadata for an FMU Case.
+    This class is used for exporting the case metadata before the simulation begins.
+    If the case metadata file may already exists a warning is emitted.
 
-    In ERT this is typically ran as an hook workflow in advance.
+    The metadata and uuid are used to register the case on Sumo, if Sumo is enabled.
 
     Args:
-        config: A configuration dictionary. In the standard case this is read
-            from FMU global variables (via fmuconfig). The dictionary must contain
-            some predefined main level keys. If config is None or the env variable
-            FMU_GLOBAL_CONFIG pointing to a file is provided, then it will attempt to
-            parse that file instead.
+        config: An object representing the global configuration.
         rootfolder: Absolute path to the case root, including case name.
         casename: Name of case (experiment)
         description (Optional): Description text as string or list of strings.
@@ -52,7 +43,7 @@ class CreateCaseMetadata:
         casename: str,
         description: str | list | None = None,  # deprecated
     ) -> None:
-        """Initialize the CreateCaseMetadata class."""
+        """Initialize the ExportCaseMetadata class."""
 
         # TODO: Receive only validated config
         if isinstance(config, dict):
@@ -78,7 +69,7 @@ class CreateCaseMetadata:
         self._casepath = Path(self.rootfolder)
         self._metafile = self._casepath / "share/metadata/fmu_case.yml"
         self._metadata: dict = {}
-        logger.info("Ran __init__ for CreateCaseMetadata")
+        logger.info("Ran __init__ for ExportCaseMetadata")
 
     def _establish_metadata_files(self) -> bool:
         """Checks if the metadata files and directories are established and creates
@@ -103,10 +94,6 @@ class CreateCaseMetadata:
         identifiers into file metadata.
         """
         return uuid.uuid4()
-
-    # ==================================================================================
-    # Public methods:
-    # ==================================================================================
 
     def generate_metadata(self) -> dict:
         """Generate case metadata.
@@ -161,3 +148,12 @@ class CreateCaseMetadata:
             export_metadata_file(self._metafile, self._metadata)
             logger.info("METAFILE %s", self._metafile)
         return str(self._metafile)
+
+    @classmethod
+    def from_workflow_config(cls, workflow_config: CaseWorkflowConfig) -> Self:
+        """Instantiate from a workflow configuration."""
+        return cls(
+            config=workflow_config.global_config,
+            rootfolder=workflow_config.casepath,
+            casename=workflow_config.casename,
+        )

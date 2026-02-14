@@ -84,8 +84,8 @@ docs = [
 ]
 
 [project.entry-points.ert]
-dataio_case_metadata = "fmu.dataio.scripts.create_case_metadata"
-dataio_copy_preprocessed = "fmu.dataio.scripts.copy_preprocessed"
+dataio_case_metadata = "fmu.dataio._workflows.case.main"
+dataio_copy_preprocessed = "fmu.dataio._workflows.copy_preprocessed"
 
 [tool.setuptools_scm]
 write_to = "src/fmu/dataio/version.py"

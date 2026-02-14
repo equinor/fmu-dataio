@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +13,6 @@ from fmu.dataio.manifest._manifest import (
     load_export_manifest,
 )
 from fmu.dataio.manifest._models import ExportManifest
-
-from ..conftest import remove_ert_env, set_ert_env_prehook
 
 
 def test_export_manifest_from_file(tmp_path: Path) -> None:
@@ -228,11 +227,13 @@ def test_export_preprocessed_surface_appends_to_case_manifest(
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     casepath = fmurun_prehook
     monkeypatch.chdir(casepath)
 
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     export_data = ExportData(
         config=mock_global_config,
         preprocessed=True,
@@ -245,7 +246,7 @@ def test_export_preprocessed_surface_appends_to_case_manifest(
     with pytest.raises(FileNotFoundError, match="manifest file not found"):
         load_export_manifest(casepath)
 
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     preprocessed_surface_path = ExportPreprocessedData(
         is_observation=False, casepath=casepath
     ).export(surface_path)

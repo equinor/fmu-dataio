@@ -1,5 +1,6 @@
 """Test the ObjectDataProvider and its derived classes."""
 
+from collections.abc import Callable
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
@@ -28,8 +29,6 @@ from fmu.dataio.providers.objectdata._triangulated_surface import (
     TriangulatedSurfaceProvider,
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
-
-from ..conftest import remove_ert_env, set_ert_env_prehook
 
 
 def test_resolve_stratigraphy_named_from_config(
@@ -404,6 +403,8 @@ def test_preprocessed_observation_workflow(
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
 ) -> None:
     """Test generating pre-realization surfaces that comes to share/preprocessed.
 
@@ -450,11 +451,11 @@ def test_preprocessed_observation_workflow(
         return edata.generate_metadata(surfacepath)
 
     # run two stage process
-    remove_ert_env(monkeypatch)
+    remove_ert_env()
     edata, mysurf = _export_data_from_rms(
         rmssetup, rmsglobalconfig, regsurf, monkeypatch
     )
-    set_ert_env_prehook(monkeypatch)
+    set_ert_env_prehook()
     case_meta = _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
 
     out = Path(mysurf)
