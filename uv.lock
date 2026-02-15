@@ -1094,14 +1094,14 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "fmu-datamodels"
-version = "0.19.1"
+version = "0.19.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7e/8f/22513cbc89e73881a392c162347ac39f04940848a887a68a4329694f9a61/fmu_datamodels-0.19.1.tar.gz", hash = "sha256:e56aa3f3f40ceaf2dde421b070a0efde20e63df2a20ba41ba0916a0e40900f24", size = 391404, upload-time = "2026-02-13T07:45:06.713Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/7b/b73807b855ea50fa23981d1d277bcafde1037d4339f228a43bad757ec53a/fmu_datamodels-0.19.2.tar.gz", hash = "sha256:cba16a32a11f98f2b871693da58a35079844d25ec07a4d2a7304caeadf5f08bb", size = 367509, upload-time = "2026-02-19T14:18:42.659Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/a3/b8ed3134cf2aebe4716efd8854a78fcb9e0c56fe8f06c7f1eb30822f282f/fmu_datamodels-0.19.1-py3-none-any.whl", hash = "sha256:c760c4eda96b49307d2b6a78fe10c604c2967d1df260ac1df2ef5343ec4986f5", size = 48881, upload-time = "2026-02-13T07:45:05.275Z" },
+    { url = "https://files.pythonhosted.org/packages/82/b3/952b0c4d6d1c5596d4c63eb2868ca6c040aa0645ce224710be4e71b2edb2/fmu_datamodels-0.19.2-py3-none-any.whl", hash = "sha256:9f4c8c6574bc6bd8dd010a9795e1cd6f723828072b01d26ddfd38a7e7ff28a3f", size = 50415, upload-time = "2026-02-19T14:18:40.797Z" },
 ]
 
 [[package]]
@@ -3310,16 +3310,16 @@ wheels = [
 
 [[package]]
 name = "pydantic-settings"
-version = "2.13.0"
+version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/96/a1/ae859ffac5a3338a66b74c5e29e244fd3a3cc483c89feaf9f56c39898d75/pydantic_settings-2.13.0.tar.gz", hash = "sha256:95d875514610e8595672800a5c40b073e99e4aae467fa7c8f9c263061ea2e1fe", size = 222450, upload-time = "2026-02-15T12:11:23.476Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/6d/fffca34caecc4a3f97bda81b2098da5e8ab7efc9a66e819074a11955d87e/pydantic_settings-2.13.1.tar.gz", hash = "sha256:b4c11847b15237fb0171e1462bf540e294affb9b86db4d9aa5c01730bdbe4025", size = 223826, upload-time = "2026-02-19T13:45:08.055Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b0/1a/dd1b9d7e627486cf8e7523d09b70010e05a4bc41414f4ae6ce184cf0afb6/pydantic_settings-2.13.0-py3-none-any.whl", hash = "sha256:d67b576fff39cd086b595441bf9c75d4193ca9c0ed643b90360694d0f1240246", size = 58429, upload-time = "2026-02-15T12:11:22.133Z" },
+    { url = "https://files.pythonhosted.org/packages/00/4b/ccc026168948fec4f7555b9164c724cf4125eac006e176541483d2c959be/pydantic_settings-2.13.1-py3-none-any.whl", hash = "sha256:d56fd801823dbeae7f0975e1f8c8e25c258eb75d278ea7abb5d9cebb01b56237", size = 58929, upload-time = "2026-02-19T13:45:06.034Z" },
 ]
 
 [[package]]

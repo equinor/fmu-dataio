@@ -1,3 +1,4 @@
+from .create_fipnum_property import create_fipnum_property
 from .field_outline import export_field_outline
 from .fluid_contact_outlines import export_fluid_contact_outlines
 from .fluid_contact_surfaces import export_fluid_contact_surfaces
@@ -19,4 +20,5 @@ __all__ = [
     "export_field_outline",
     "export_fluid_contact_surfaces",
     "export_fluid_contact_outlines",
+    "create_fipnum_property",
 ]
