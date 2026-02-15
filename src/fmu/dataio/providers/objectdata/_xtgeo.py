@@ -622,6 +622,7 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             nrow=self.obj.nrow,
             ncol=self.obj.ncol,
             nlay=self.obj.nlay,
+            codenames=self.obj.codes if self.obj.isdiscrete else None,
         )
 
     def get_geometry(self) -> Geometry | None:
