@@ -1945,3 +1945,68 @@ def test_no_mutation_warning_during_init(
 
     assert edata.vertical_domain == {"depth": "msl"}
     assert edata.domain_reference == "msl"
+
+
+def test_codenames_for_continuous_property(
+    gridproperty: xtgeo.GridProperty, drogon_global_config: dict[str, Any]
+) -> None:
+    """Test codenames are not present in the metadata for a continuous grid property."""
+
+    assert gridproperty.isdiscrete is False
+
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        meta = ExportData(
+            config=drogon_global_config,
+            name="MyName",
+            content="property",
+            content_metadata={"attribute": "porosity"},
+        ).generate_metadata(gridproperty)
+
+    assert "codenames" not in meta["data"]["spec"]
+
+
+def test_codenames_for_continuous_property_with_codes(
+    gridproperty: xtgeo.GridProperty, drogon_global_config: dict[str, Any]
+) -> None:
+    """
+    Test codenames are not present in metadata for a continuous property
+    even though codes are set on the object.
+    """
+    assert gridproperty.isdiscrete is False
+
+    # xtgeo allows setting codes on a continuous property - bug?
+    gridproperty.codes = {1: "dummy"}
+
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        meta = ExportData(
+            config=drogon_global_config,
+            content="property",
+            content_metadata={"attribute": "porosity"},
+        ).generate_metadata(gridproperty)
+
+    # check that codenames are not included in the spec
+    assert "codenames" not in meta["data"]["spec"]
+
+
+def test_codenames_for_discrete_property(
+    gridproperty: xtgeo.GridProperty, drogon_global_config: dict[str, Any]
+) -> None:
+    """Test codenames are set in the metadata for a discrete grid property."""
+    from fmu.datamodels.fmu_results.specification import CPGridPropertySpecification
+
+    gridproperty.continuous_to_discrete()
+    assert gridproperty.isdiscrete is True
+
+    codenames = {1: "Sandstone", 2: "Shale", 3: "Limestone"}
+    gridproperty.codes = codenames
+
+    with pytest.warns(FutureWarning, match="linking it to a geometry"):
+        meta = ExportData(
+            config=drogon_global_config,
+            content="property",
+            content_metadata={"attribute": "facies"},
+        ).generate_metadata(gridproperty)
+
+    # check that discrete and codenames are taken from the property itself
+    spec = CPGridPropertySpecification.model_validate(meta["data"]["spec"])
+    assert spec.codenames == codenames
