@@ -3,19 +3,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Final
 
 import yaml
 
 from ._logging import null_logger
-from ._metadata import generate_export_metadata
+from ._metadata import _generate_metadata
 from .exceptions import ValidationError
 from .manifest._manifest import update_export_manifest
 from .providers._filedata import SharePathConstructor
-from .providers.objectdata._provider import (
-    ObjectDataProvider,
-    objectdata_provider_factory,
-)
+from .providers.objectdata._provider import objectdata_provider_factory
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -60,22 +57,6 @@ def export_with_metadata(export_config: ExportConfig, obj: Inferrable) -> Path:
     _update_manifest_if_needed(export_config, outfile)
 
     return outfile
-
-
-def generate_metadata(export_config: ExportConfig, obj: Inferrable) -> dict[str, Any]:
-    """Generate metadata without exporting."""
-    objdata = objectdata_provider_factory(obj, export_config)
-    return _generate_metadata(export_config, objdata)
-
-
-def _generate_metadata(
-    export_config: ExportConfig, objdata: ObjectDataProvider
-) -> dict[str, Any]:
-    """Generate metadata dict from object data provider."""
-    return generate_export_metadata(
-        objdata=objdata,
-        export_config=export_config,
-    ).model_dump(mode="json", exclude_none=True, by_alias=True)
 
 
 def _update_manifest_if_needed(export_config: ExportConfig, outfile: Path) -> None:

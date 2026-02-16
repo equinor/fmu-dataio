@@ -11,7 +11,7 @@ dependencies on the internals.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final
 
 from pydantic import Field
 
@@ -19,9 +19,7 @@ from fmu.datamodels.common.access import Asset, Ssdl, SsdlAccess
 from fmu.datamodels.common.masterdata import Masterdata
 from fmu.datamodels.common.tracklog import Tracklog
 from fmu.datamodels.fmu_results import data, fields
-from fmu.datamodels.fmu_results.fmu_results import (
-    ObjectMetadata,
-)
+from fmu.datamodels.fmu_results.fmu_results import ObjectMetadata
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._export_config import ExportConfig
@@ -30,11 +28,17 @@ from .exceptions import InvalidMetadataError
 from .providers._filedata import FileDataProvider, SharePathConstructor
 from .providers._fmu import FmuProvider
 from .providers.objectdata._base import UnsetData
+from .providers.objectdata._provider import (
+    ObjectDataProvider,
+    objectdata_provider_factory,
+)
 from .version import __version__
 
 if TYPE_CHECKING:
+    from ._export_config import ExportConfig
     from ._runcontext import RunContext
     from .providers.objectdata._base import ObjectDataProvider
+    from .types import Inferrable
 
 logger: Final = null_logger(__name__)
 
@@ -145,3 +149,19 @@ def generate_export_metadata(
         display=_get_meta_display(export_config, objdata),
         preprocessed=export_config.preprocessed,
     )
+
+
+def generate_metadata(export_config: ExportConfig, obj: Inferrable) -> dict[str, Any]:
+    """Generate metadata without exporting."""
+    objdata = objectdata_provider_factory(obj, export_config)
+    return _generate_metadata(export_config, objdata)
+
+
+def _generate_metadata(
+    export_config: ExportConfig, objdata: ObjectDataProvider
+) -> dict[str, Any]:
+    """Generate metadata dict from object data provider."""
+    return generate_export_metadata(
+        objdata=objdata,
+        export_config=export_config,
+    ).model_dump(mode="json", exclude_none=True, by_alias=True)
