@@ -20,9 +20,10 @@ from ._deprecations import (
     future_warning_preprocessed,
     resolve_deprecations,
 )
-from ._export import export_with_metadata, export_without_metadata, generate_metadata
+from ._export import export_with_metadata, export_without_metadata
 from ._export_config import ExportConfig
 from ._logging import null_logger
+from ._metadata import generate_metadata
 from ._utils import read_metadata_from_file, some_config_from_env
 from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
