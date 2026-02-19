@@ -5,7 +5,6 @@ import importlib
 import json
 import os
 import pathlib
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -250,10 +249,6 @@ def test_create_case_metadata_casename_deprecated_warns(
 
 
 @pytest.mark.skipif(
-    sys.version_info[:2] == (3, 12),
-    reason="fmu-sumo-uploader not compatible with Python 3.12",
-)
-@pytest.mark.skipif(
     not importlib.util.find_spec("fmu.sumo.uploader"),
     reason="fmu-sumo-uploader is not installed",
 )
@@ -287,10 +282,6 @@ def test_create_case_metadata_enable_mocked_sumo(
         assert f.read() == "1"
 
 
-@pytest.mark.skipif(
-    sys.version_info[:2] == (3, 12),
-    reason="fmu-sumo-uploader not compatible with Python 3.12",
-)
 @pytest.mark.skipif(
     not importlib.util.find_spec("fmu.sumo.uploader"),
     reason="fmu-sumo-uploader is not installed",
@@ -327,10 +318,6 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
 
 
 @pytest.mark.skipif(
-    sys.version_info[:2] == (3, 12),
-    reason="fmu-sumo-uploader not compatible with Python 3.12",
-)
-@pytest.mark.skipif(
     not importlib.util.find_spec("fmu.sumo.uploader"),
     reason="fmu-sumo-uploader is not installed",
 )
@@ -366,10 +353,6 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
 
 
 @pytest.mark.skipif(
-    sys.version_info[:2] == (3, 12),
-    reason="fmu-sumo-uploader not compatible with Python 3.12",
-)
-@pytest.mark.skipif(
     not importlib.util.find_spec("fmu.sumo.uploader"),
     reason="fmu-sumo-uploader is not installed",
 )
@@ -402,10 +385,6 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     mock_sumo_uploader["SumoConnection"].assert_called_once_with("prod")
 
 
-@pytest.mark.skipif(
-    sys.version_info[:2] == (3, 12),
-    reason="fmu-sumo-uploader not compatible with Python 3.12",
-)
 @pytest.mark.skipif(
     not importlib.util.find_spec("fmu.sumo.uploader"),
     reason="fmu-sumo-uploader is not installed",

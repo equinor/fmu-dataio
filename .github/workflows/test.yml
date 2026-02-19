@@ -47,9 +47,9 @@ jobs:
           uv pip install \
             "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
 
-      # fmu-sumo-uploader blocked by OpenVDS on Python 3.12
-      - name: Install fmu-sumo-uploader for Python 3.11
-        if: matrix.python-version == '3.11'
+      # fmu-sumo-uploader blocked by OpenVDS on Python 3.14
+      - name: Install fmu-sumo-uploader
+        if: matrix.python-version != '3.14'
         run: uv pip install \
           "fmu-sumo-uploader @ git+https://github.com/equinor/fmu-sumo-uploader.git"
 
