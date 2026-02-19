@@ -97,6 +97,7 @@ suppress_warnings = ["config.cache"]
 autosummary_generate = True
 autosummary_imported_members = True
 add_module_names = False
+pydantic_autosummary_packages = ["fmu.datamodels"]
 
 togglebutton_hint = "Expand"
 

@@ -88,6 +88,7 @@ class DummyApplication:
         self.config.add("autosummary_context", {}, "env", ())
         self.config.add("autosummary_filename_map", {}, "env", ())
         self.config.add("autosummary_ignore_module_all", True, "env", bool)
+        self.config.add("pydantic_autosummary_packages", [], "env", ())
 
     def emit_firstresult(self, *args: Any) -> None:
         pass
@@ -450,7 +451,9 @@ def generate_autosummary_content(
 
     # ----------- pydantic_autosummary change
     if doc.objtype == "pydantic_model":
-        set_pydantic_model_fields(ns, obj)
+        set_pydantic_model_fields(
+            ns, obj, packages=config.pydantic_autosummary_packages
+        )
     # ----------/ pydantic_autosummary change
 
     shortname = qualname if doc.objtype == "class" else qualname.rsplit(".", 1)[-1]

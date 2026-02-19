@@ -2,18 +2,19 @@
 
 .. currentmodule:: {{ module }}
 
+   {% if model_fields or model_enums %}
 .. autosummary::
    :toctree: {{ name }}
    :recursive:
 
-   .. toctree::
-      :maxdepth: -1
-
-   {% block model_fields %}
    {% for field in model_fields %}
       ~{{ field }}
    {% endfor %}
-   {% endblock %}
+   {% for enum in model_enums %}
+      ~{{ enum }}
+   {% endfor %}
+
+   {% endif %}
 
 .. autopydantic_model:: {{ objname }}
    :members:
@@ -48,4 +49,3 @@
    {%- endfor %}
    {% endif %}
    {% endblock %}
-
