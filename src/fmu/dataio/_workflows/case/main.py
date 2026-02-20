@@ -42,8 +42,6 @@ Create an Ert workflow e.g. called ``ert/bin/workflows/create_case_metadata`` wi
   WF_CREATE_CASE_METADATA <casepath> <ert_config_path> "--sumo"
 
 Arguments:
-    <casepath>: Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
-    <ert_config_path>: Absolute path to the Ert config, typically <CONFIG_PATH>
     --sumo: Register case on Sumo
 """  # noqa: E501
 
@@ -189,65 +187,57 @@ def get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "casepath",
-        type=Path,
-        help="Absolute path to the case",
-    )
-    parser.add_argument(
-        "ert_config_path",
-        type=Path,
-        help="Ert config path (<CONFIG_PATH>)",
-    )
-    parser.add_argument(
         "--sumo",
         action="store_true",
         help="If passed, register the case on Sumo.",
     )
 
-    # Undocumented
-
-    parser.add_argument(
-        "--global_variables_path",
-        type=Path,
-        help="Path to global variables file relative to Ert config path.",
-        default="../../fmuconfig/output/global_variables.yml",
-    )
-
     # Deprecated/unneeded
 
+    parser.add_argument(
+        "casepath",
+        type=Path,
+        help="Absolute path to the case",
+        nargs="?",  # Optional
+    )
+    parser.add_argument(
+        "ert_config_path",
+        type=Path,
+        nargs="?",  # Optional
+        help="Ert config path (<CONFIG_PATH>)",
+    )
     parser.add_argument(
         "ert_casename",
         type=str,
         help="Deprecated and can safely be removed",
-        nargs="?",  # Makes it optional
+        nargs="?",  # Optional
         default=None,
     )
     parser.add_argument(
         "ert_username",
         type=str,
         help="Deprecated and can safely be removed",
-        nargs="?",  # Makes it optional
-        default=None,
+        nargs="?",  # Optional
     )
     parser.add_argument(
-        "--sumo_env",
-        type=str,
-        help="Deprecated and can safely be removed",
-        default=None,
+        "--global_variables_path",
+        type=Path,
+        help="Path to global variables file relative to Ert config path.",
     )
+
     parser.add_argument(
-        "--verbosity", type=str, help="Set log level", default="WARNING"
+        "--sumo_env", type=str, help="Deprecated and can safely be removed"
     )
+    parser.add_argument("--verbosity", type=str, help="Set log level")
     return parser
 
 
 def _run_workflow(
-    args: argparse.Namespace,
     ensemble: ert.Ensemble,
     run_paths: ert.Runpaths,
+    cfg: CaseWorkflowConfig,
 ) -> None:
     """Main workflow entry point."""
-    cfg = CaseWorkflowConfig.from_args(args)
     logger.setLevel(cfg.verbosity)
 
     case_metadata_path = ExportCaseMetadata.from_workflow_config(cfg).export()
@@ -277,7 +267,8 @@ class WfExportCaseMetadata(ert.ErtScript):
         """Parse arguments and run the workflow."""
         parser = get_parser()
         args = parser.parse_args(workflow_args)
-        _run_workflow(args, ensemble, run_paths)
+        cfg = CaseWorkflowConfig.from_presim_workflow(ensemble, run_paths, args)
+        _run_workflow(ensemble, run_paths, cfg)
 
 
 @ert.plugin(name="fmu_dataio")
