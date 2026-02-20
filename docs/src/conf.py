@@ -74,7 +74,7 @@ def _myst_substitutions() -> dict[str, type[SchemaBase]]:
             ```{{eval-rst}}
                .. toggle::
 
-                  .. literalinclude:: ../../../{s.PATH}
+                  .. literalinclude:: ../../../../fmu-datamodels/{s.PATH}
                      :language: json
 
             ```

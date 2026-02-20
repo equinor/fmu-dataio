@@ -5,8 +5,8 @@ on:
     branches: [main]
   push:
     branches: [main]
-  schedule: 
-     - cron: "0 0 * * *" 
+  schedule:
+     - cron: "0 0 * * *"
 
 permissions:
   contents: read
@@ -39,10 +39,10 @@ jobs:
 
       - name: Install fmu-datamodels
         run: |
-          uv pip install \
-            "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
+          git clone https://github.com/equinor/fmu-datamodels ../fmu-datamodels
+          uv pip install ../fmu-datamodels
 
-      - name: Generate updated examples 
+      - name: Generate updated examples
         run: uv run sh examples/update_examples.sh
 
       - name: Build documentation with sphinx

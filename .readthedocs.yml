@@ -5,7 +5,10 @@ build:
   tools:
     python: "3.11"
   jobs:
+    pre_install:
+      - git clone https://github.com/equinor/fmu-datamodels ../fmu-datamodels
     post_install:
+      - pip install ../fmu-datamodels
       - bash examples/update_examples.sh
 
 python:
