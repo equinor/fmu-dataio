@@ -15,27 +15,6 @@ means, in practice, that outgoing metadata from FMU needs to comply with the sch
 If data is uploaded to e.g. Sumo, validation will be done on the incoming data to ensure
 consistency.
 
-
-## Data model documentation
-
-There are two closely related data models represented here: metadata generated from
-an FMU realization and metadata generated on a case level. The structure and
-documentation of these two models can be inspected from here.
-
-```{eval-rst}
-.. autosummary::
-   :toctree: model/
-   :recursive:
-
-
-   .. toctree::
-      :maxdepth: -1
-
-      ~fmu.datamodels.fmu_results.fmu_results.ObjectMetadata
-      ~fmu.datamodels.fmu_results.fmu_results.CaseMetadata
-```
-
-
 ## About the data model
 
 ### Why is it made?
