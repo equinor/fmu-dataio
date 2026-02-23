@@ -16,7 +16,6 @@ from fmu.dataio.export.rms._utils import (
     validate_name_in_stratigraphy,
 )
 from fmu.datamodels.common.enums import Classification
-from fmu.datamodels.fmu_results import standard_result
 from fmu.datamodels.fmu_results.data import FluidContact
 from fmu.datamodels.fmu_results.enums import (
     Content,
@@ -43,28 +42,6 @@ class _ExportFluidContactSurfaces(SimpleExportRMSBase):
         self._contact_surfaces = self._get_contact_surfaces()
         self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
         _logger.debug("Process data... DONE")
-
-    @property
-    def _standard_result(self) -> standard_result.FluidContactSurfaceStandardResult:
-        """Standard result type for the exported data."""
-        return standard_result.FluidContactSurfaceStandardResult(
-            name=StandardResultName.fluid_contact_surface
-        )
-
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.fluid_contact
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.internal
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return True
 
     def _get_contacts(self) -> list[FluidContactType]:
         """
@@ -114,24 +91,30 @@ class _ExportFluidContactSurfaces(SimpleExportRMSBase):
             "contact surfaces should be contained inside these subfolders."
         )
 
-    def _export_contact_surface(
-        self, contact: FluidContactType, surf: xtgeo.RegularSurface
-    ) -> ExportResultItem:
-        """Export a fluid contact surface as a standard result"""
-        export_config = (
+    def _get_export_config(self, contact: FluidContactType, name: str) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content, FluidContact(contact=contact, truncated=False))
+            .content(
+                Content.fluid_contact, FluidContact(contact=contact, truncated=False)
+            )
             .domain(VerticalDomain.depth, DomainReference.msl)
             .unit(self._unit)
             .file_config(
-                name=surf.name,
-                subfolder=f"{self._subfolder}/{contact.value}",
+                name=name,
+                subfolder=f"{StandardResultName.fluid_contact_surface.value}/{contact.value}",
             )
-            .access(self._classification, self._rep_include)
+            .access(Classification.internal, rep_include=True)
             .global_config(self._config)
             .standard_result(StandardResultName.fluid_contact_surface)
             .build()
         )
+
+    def _export_contact_surface(
+        self, contact: FluidContactType, surf: xtgeo.RegularSurface
+    ) -> ExportResultItem:
+        """Export a fluid contact surface as a standard result"""
+        export_config = self._get_export_config(contact, surf.name)
 
         absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)

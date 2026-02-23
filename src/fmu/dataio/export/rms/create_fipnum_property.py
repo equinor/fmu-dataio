@@ -14,9 +14,6 @@ from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.datamodels import SimulatorFipregionsMappingResult
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content
-from fmu.datamodels.fmu_results.standard_result import (
-    SimulatorFipregionsMappingStandardResult,
-)
 from fmu.datamodels.standard_results.enums import (
     SimulatorFipregionsMapping,
     StandardResultName,
@@ -33,42 +30,25 @@ class _ExportFipZoneRegionMapping(SimpleExportRMSBase):
 
         self._mapping_table = mapping_table
 
-    @property
-    def _standard_result(self) -> SimulatorFipregionsMappingStandardResult:
-        """Standard result type for the exported data."""
-        return SimulatorFipregionsMappingStandardResult(
-            name=StandardResultName.simulator_fipregions_mapping
-        )
+    def _get_export_config(self) -> ExportConfig:
+        """Export config for the standard result."""
 
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.mapping
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.internal
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return False
-
-    def _export_data_as_standard_result(self) -> ExportResult:
-        export_config = (
+        return (
             ExportConfig.builder()
-            .content(self._content)
+            .content(Content.mapping)
             .file_config(
                 name=FIPNAME,
-                subfolder=self._subfolder,
+                subfolder=StandardResultName.simulator_fipregions_mapping.value,
             )
-            .access(self._classification, self._rep_include)
+            .access(Classification.internal, rep_include=False)
             .global_config(self._config)
             .standard_result(StandardResultName.simulator_fipregions_mapping)
             .table_config(table_index=SimulatorFipregionsMapping.index_columns())
             .build()
         )
+
+    def _export_data_as_standard_result(self) -> ExportResult:
+        export_config = self._get_export_config()
 
         absolute_export_path = export_with_metadata(export_config, self._mapping_table)
         _logger.debug("Fip mapping table exported to: %s", absolute_export_path)

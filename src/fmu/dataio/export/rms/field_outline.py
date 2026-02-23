@@ -20,7 +20,6 @@ from fmu.datamodels.fmu_results.enums import (
     FluidContactType,
     VerticalDomain,
 )
-from fmu.datamodels.fmu_results.standard_result import FieldOutlineStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
 
 _logger: Final = null_logger(__name__)
@@ -35,26 +34,6 @@ class _ExportFieldOutline(SimpleExportRMSBase):
 
         _logger.debug("Process data... DONE")
 
-    @property
-    def _standard_result(self) -> FieldOutlineStandardResult:
-        """Standard result type for the exported data."""
-        return FieldOutlineStandardResult(name=StandardResultName.field_outline)
-
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.field_outline
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.internal
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return True
-
     def _get_field_outline_from_rms(self, project: Any) -> xtgeo.Polygons:
         """Fetch the field outline polygon from RMS."""
         try:
@@ -68,20 +47,24 @@ class _ExportFieldOutline(SimpleExportRMSBase):
                 "of the 'General 2D data' folder."
             ) from err
 
-    def _export_data_as_standard_result(self) -> ExportResult:
-        export_config = (
+    def _get_export_config(self) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content, FieldOutline(contact=FluidContactType.fwl))
+            .content(Content.field_outline, FieldOutline(contact=FluidContactType.fwl))
             .domain(VerticalDomain.depth, DomainReference.msl)
             .file_config(
                 name=StandardResultName.field_outline.value,
-                subfolder=self._subfolder,
+                subfolder=StandardResultName.field_outline.value,
             )
-            .access(self._classification, self._rep_include)
+            .access(Classification.internal, rep_include=True)
             .global_config(self._config)
             .standard_result(StandardResultName.field_outline)
             .build()
         )
+
+    def _export_data_as_standard_result(self) -> ExportResult:
+        export_config = self._get_export_config()
 
         absolute_export_path = export_with_metadata(export_config, self._field_outline)
         _logger.debug("Field outline exported to: %s", absolute_export_path)
