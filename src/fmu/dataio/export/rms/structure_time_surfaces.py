@@ -14,7 +14,6 @@ from fmu.dataio.export.rms._utils import (
     validate_name_in_stratigraphy,
 )
 from fmu.datamodels.common.enums import Classification
-from fmu.datamodels.fmu_results import standard_result
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -37,40 +36,24 @@ class _ExportStructureTimeSurfaces(SimpleExportRMSBase):
         self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
         _logger.debug("Process data... DONE")
 
-    @property
-    def _standard_result(self) -> standard_result.StructureTimeSurfaceStandardResult:
-        """Standard result type for the exported data."""
-        return standard_result.StructureTimeSurfaceStandardResult(
-            name=StandardResultName.structure_time_surface
-        )
-
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.time
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.internal
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return True
-
-    def _export_surface(self, surf: xtgeo.RegularSurface) -> ExportResultItem:
-        export_config = (
+    def _get_export_config(self, name: str) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content)
+            .content(Content.time)
             .domain(VerticalDomain.time, DomainReference.msl)
             .unit(self._unit)
-            .file_config(name=surf.name, subfolder=self._subfolder)
-            .access(self._classification, self._rep_include)
+            .file_config(
+                name=name, subfolder=StandardResultName.structure_time_surface.name
+            )
+            .access(Classification.internal, rep_include=True)
             .global_config(self._config)
             .standard_result(StandardResultName.structure_time_surface)
             .build()
         )
+
+    def _export_surface(self, surf: xtgeo.RegularSurface) -> ExportResultItem:
+        export_config = self._get_export_config(name=surf.name)
         absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)
 

@@ -59,18 +59,25 @@ class _ExportStructureDepthSurfaces(SimpleExportRMSBase):
         """rep_include status"""
         return True
 
-    def _export_surface(self, surf: xtgeo.RegularSurface) -> ExportResultItem:
-        export_config = (
+    def _get_export_config(self, name: str) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content)
+            .content(Content.depth)
             .domain(VerticalDomain.depth, DomainReference.msl)
             .unit(self._unit)
-            .file_config(name=surf.name, subfolder=self._subfolder)
-            .access(self._classification, self._rep_include)
+            .file_config(
+                name=name, subfolder=StandardResultName.structure_depth_surface.name
+            )
+            .access(Classification.internal, rep_include=True)
             .global_config(self._config)
             .standard_result(StandardResultName.structure_depth_surface)
             .build()
         )
+
+    def _export_surface(self, surf: xtgeo.RegularSurface) -> ExportResultItem:
+        export_config = self._get_export_config(name=surf.name)
+
         absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)
 

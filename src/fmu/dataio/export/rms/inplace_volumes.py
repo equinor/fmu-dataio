@@ -20,7 +20,6 @@ from fmu.dataio.export.rms._utils import (
 )
 from fmu.datamodels import InplaceVolumesResult
 from fmu.datamodels.common.enums import Classification
-from fmu.datamodels.fmu_results import standard_result
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -81,28 +80,6 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         self._volume_table_name = self._read_volume_table_name_from_job()
         self._dataframe = self._get_table_with_volumes()
         _logger.debug("Process data... DONE")
-
-    @property
-    def _standard_result(self) -> standard_result.InplaceVolumesStandardResult:
-        """Standard result type for the exported data."""
-        return standard_result.InplaceVolumesStandardResult(
-            name=enums.StandardResultName.inplace_volumes
-        )
-
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.volumes
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.restricted
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return False
 
     def _get_rms_volume_job_settings(self) -> dict:
         """Get information out from the RMS job API."""
@@ -356,20 +333,27 @@ class _ExportVolumetricsRMS(SimpleExportRMSBase):
         df = self._dataframe.replace(np.nan, None).to_dict(orient="records")
         InplaceVolumesResult.model_validate(df)
 
-    def _export_data_as_standard_result(self) -> ExportResult:
-        """Do the actual volume table export using dataio setup."""
-        export_config = (
+    def _get_export_config(self) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content)
+            .content(Content.volumes)
             .domain(VerticalDomain.depth, DomainReference.msl)
             .unit("m3" if get_rms_project_units(self.project) == "metric" else "ft3")
-            .file_config(name=self.grid_name, subfolder=self._subfolder)
+            .file_config(
+                name=self.grid_name,
+                subfolder=enums.StandardResultName.inplace_volumes.value,
+            )
             .table_config(table_index=self._get_table_index(self._dataframe))
-            .access(self._classification, self._rep_include)
+            .access(Classification.restricted, rep_include=False)
             .global_config(self._config)
             .standard_result(enums.StandardResultName.inplace_volumes)
             .build()
         )
+
+    def _export_data_as_standard_result(self) -> ExportResult:
+        """Do the actual volume table export using dataio setup."""
+        export_config = self._get_export_config()
 
         volume_table = pa.Table.from_pandas(self._dataframe)
         absolute_export_path = export_with_metadata(export_config, volume_table)

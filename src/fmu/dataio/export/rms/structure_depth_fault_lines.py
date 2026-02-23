@@ -21,9 +21,6 @@ from fmu.datamodels.fmu_results.enums import (
     DomainReference,
     VerticalDomain,
 )
-from fmu.datamodels.fmu_results.standard_result import (
-    StructureDepthFaultLinesStandardResult,
-)
 from fmu.datamodels.standard_results import enums
 from fmu.datamodels.standard_results.enums import StandardResultName
 
@@ -43,41 +40,26 @@ class _ExportStructureDepthFaultLines(SimpleExportRMSBase):
         self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
         _logger.debug("Process data... DONE")
 
-    @property
-    def _standard_result(self) -> StructureDepthFaultLinesStandardResult:
-        """Standard result type for the exported data."""
-        return StructureDepthFaultLinesStandardResult(
-            name=StandardResultName.structure_depth_fault_lines
-        )
-
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.fault_lines
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.internal
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return True
-
-    def _export_fault_line(self, pol: xtgeo.Polygons) -> ExportResultItem:
-        export_config = (
+    def _get_export_config(self, name: str) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content)
+            .content(Content.fault_lines)
             .domain(VerticalDomain.depth, DomainReference.msl)
             .unit(self._unit)
-            .file_config(name=pol.name, subfolder=self._subfolder)
+            .file_config(
+                name=name,
+                subfolder=StandardResultName.structure_depth_fault_lines.value,
+            )
             .table_config(table_index=enums.FaultLines.index_columns())
-            .access(self._classification, self._rep_include)
+            .access(Classification.internal, rep_include=True)
             .global_config(self._config)
             .standard_result(StandardResultName.structure_depth_fault_lines)
             .build()
         )
+
+    def _export_fault_line(self, pol: xtgeo.Polygons) -> ExportResultItem:
+        export_config = self._get_export_config(name=pol.name)
         absolute_export_path = export_with_metadata(export_config, pol)
         _logger.debug("Fault_lines exported to: %s", absolute_export_path)
 

@@ -23,9 +23,6 @@ from fmu.datamodels.fmu_results.enums import (
     DomainReference,
     VerticalDomain,
 )
-from fmu.datamodels.fmu_results.standard_result import (
-    StructureDepthFaultSurfaceStandardResult,
-)
 from fmu.datamodels.standard_results.enums import StandardResultName
 
 _logger: Final = null_logger(__name__)
@@ -47,40 +44,25 @@ class _ExportStructureDepthFaultSurfaces(SimpleExportRMSBase):
 
         _logger.debug("Process data... DONE")
 
-    @property
-    def _standard_result(self) -> StructureDepthFaultSurfaceStandardResult:
-        """Standard result type for the exported data."""
-        return StructureDepthFaultSurfaceStandardResult(
-            name=StandardResultName.structure_depth_fault_surface
-        )
-
-    @property
-    def _content(self) -> Content:
-        """Get content for the exported data."""
-        return Content.fault_surface
-
-    @property
-    def _classification(self) -> Classification:
-        """Get default classification."""
-        return Classification.internal
-
-    @property
-    def _rep_include(self) -> bool:
-        """rep_include status"""
-        return True
-
-    def _export_surface(self: Self, surf: TSurfData) -> ExportResultItem:
-        export_config = (
+    def _get_export_config(self, name: str) -> ExportConfig:
+        """Export config for the standard result."""
+        return (
             ExportConfig.builder()
-            .content(self._content)
+            .content(Content.fault_surface)
             .domain(VerticalDomain.depth, DomainReference.msl)
             .unit(self._unit)
-            .file_config(name=surf.header.name, subfolder=self._subfolder)
-            .access(self._classification, self._rep_include)
+            .file_config(
+                name=name,
+                subfolder=StandardResultName.structure_depth_fault_surface.value,
+            )
+            .access(Classification.internal, rep_include=True)
             .global_config(self._config)
             .standard_result(StandardResultName.structure_depth_fault_surface)
             .build()
         )
+
+    def _export_surface(self: Self, surf: TSurfData) -> ExportResultItem:
+        export_config = self._get_export_config(name=surf.header.name)
         absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)
 

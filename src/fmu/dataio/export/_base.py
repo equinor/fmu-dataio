@@ -10,14 +10,11 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import load_config_from_path
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._export_result import ExportResult
-from fmu.datamodels.fmu_results.enums import Content
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 if TYPE_CHECKING:
     from fmu.dataio.export._export_result import ExportResult
-    from fmu.datamodels.fmu_results.standard_result import StandardResult
 
-from fmu.datamodels.common.enums import Classification
 
 logger: Final = null_logger(__name__)
 
@@ -28,35 +25,6 @@ class SimpleExportBase(ABC):
     def __init__(self, config_path: Path) -> None:
         self._config = self._load_global_config(config_path)
         logger.debug("SimpleExportBase class initialized")
-
-    @property
-    @abstractmethod
-    def _standard_result(self) -> StandardResult:
-        """Standard result class for the exported data."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def _content(self) -> Content:
-        """Content for the exported data."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def _classification(self) -> Classification:
-        """Access classification for the exported data."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def _rep_include(self) -> bool:
-        """rep_include status for the exported data."""
-        raise NotImplementedError
-
-    @property
-    def _subfolder(self) -> str:
-        """Subfolder used for the exported data, equal to the standard result name."""
-        return self._standard_result.name.value
 
     @abstractmethod
     def _export_data_as_standard_result(self) -> ExportResult:
