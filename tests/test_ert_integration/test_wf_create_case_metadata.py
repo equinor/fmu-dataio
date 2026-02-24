@@ -349,7 +349,7 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     )
     ert.__main__.main()
 
-    mock_sumo_uploader["SumoConnection"].assert_called_once_with(sumo_env)
+    mock_sumo_uploader["SumoClient"].assert_called_once_with(sumo_env)
 
 
 @pytest.mark.skipif(
@@ -382,7 +382,7 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     ert.__main__.main()
 
     # should default to prod when not set
-    mock_sumo_uploader["SumoConnection"].assert_called_once_with("prod")
+    mock_sumo_uploader["SumoClient"].assert_called_once_with("prod")
 
 
 @pytest.mark.skipif(
@@ -418,7 +418,7 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     with pytest.warns(FutureWarning, match="'sumo_env' is ignored"):
         ert.__main__.main()
 
-    mock_sumo_uploader["SumoConnection"].assert_called_once_with(sumo_env_expected)
+    mock_sumo_uploader["SumoClient"].assert_called_once_with(sumo_env_expected)
 
 
 def test_create_case_metadata_collects_ert_parameters_as_expected(

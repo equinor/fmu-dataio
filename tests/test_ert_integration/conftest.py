@@ -109,11 +109,11 @@ def mock_sumo_uploader() -> Generator[dict[str, MagicMock | AsyncMock]]:
         return 1
 
     with (
-        patch("fmu.sumo.uploader.SumoConnection", spec=True) as mock_sumo_connection,
+        patch("fmu.sumo.uploader.SumoClient", spec=True) as mock_sumo_connection,
         patch(
             "fmu.sumo.uploader.CaseOnDisk.register", side_effect=register_side_effect
         ),
     ):
         yield {
-            "SumoConnection": mock_sumo_connection,
+            "SumoClient": mock_sumo_connection,
         }
