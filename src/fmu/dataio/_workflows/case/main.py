@@ -27,6 +27,12 @@ if TYPE_CHECKING:
     import polars as pl
     import pyarrow as pa
 
+
+# client id for fmu-sumo-uploader. Use this when setting up the SumoClient,
+# so that we can identify traffic that originates from FMU uploads.
+uploader_client_id = "a65dc4cc-3dec-43df-9599-e66d3abc4dca"
+
+
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
@@ -54,12 +60,12 @@ ErtParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
 
 def _register_on_sumo(case_metadata_path: str) -> str:
     """Register the case on Sumo by sending the case metadata"""
-    from fmu.sumo.uploader import CaseOnDisk, SumoConnection
+    from fmu.sumo.uploader import CaseOnDisk, SumoClient
 
     sumo_env = os.environ.get("SUMO_ENV", "prod")
     logger.info(f"Registering case on Sumo ({sumo_env})")
 
-    sumo_conn = SumoConnection(sumo_env)
+    sumo_conn = SumoClient(sumo_env, client_id=uploader_client_id)
     logger.debug("Sumo connection established")
     case = CaseOnDisk(case_metadata_path, sumo_conn)
     sumo_id = case.register()
