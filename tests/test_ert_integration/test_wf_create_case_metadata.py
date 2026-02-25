@@ -422,7 +422,6 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     with pytest.warns(FutureWarning, match="'sumo_env' is ignored"):
         ert.__main__.main()
 
-    mock_sumo_uploader["SumoConnection"].assert_called_once_with(sumo_env_expected)
     mock_sumo_uploader["SumoConnection"].assert_called_once()
     assert mock_sumo_uploader["SumoConnection"].call_args.args == ((sumo_env_expected,))
     assert "client_id" in mock_sumo_uploader["SumoConnection"].call_args.kwargs
