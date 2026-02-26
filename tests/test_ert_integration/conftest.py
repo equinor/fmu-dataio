@@ -57,9 +57,7 @@ def fmu_snakeoil_project(
 
     os.makedirs(tmp_path / "ert/bin/workflows")
     pathlib.Path(tmp_path / "ert/bin/workflows/xhook_create_case_metadata").write_text(
-        "WF_CREATE_CASE_METADATA "
-        "<SCRATCH>/<USER>/<CASE_DIR> "  # ert case root
-        "<CONFIG_PATH> ",  # ert config path,
+        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR>",
         encoding="utf-8",
     )
     pathlib.Path(

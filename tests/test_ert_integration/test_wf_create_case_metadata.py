@@ -202,7 +202,7 @@ def test_create_case_metadata_caseroot_not_defined(
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
-        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH>",
+        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED>",
         encoding="utf-8",
     )
 
@@ -221,13 +221,13 @@ def test_create_case_metadata_caseroot_not_defined(
     assert "ValueError: Ert variable for case path is not defined" in stderr
 
 
-def test_create_case_metadata_casename_deprecated_warns(
+def test_create_case_metadata_deprecated_arguments_warn(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
     mocker: MockerFixture,
     capsys: CaptureFixture[str],
 ) -> None:
-    """Now deprecated 'ert_casename' argument issues a warning."""
+    """Now deprecated arguments issue warnings."""
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
@@ -244,7 +244,12 @@ def test_create_case_metadata_casename_deprecated_warns(
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
     )
-    with pytest.warns(FutureWarning, match="The argument 'ert_casename' is deprecated"):
+    with (
+        pytest.warns(
+            FutureWarning, match="The argument 'ert_config_path' is deprecated"
+        ),
+        pytest.warns(FutureWarning, match="The argument 'ert_casename' is deprecated"),
+    ):
         ert.__main__.main()
 
 
@@ -274,7 +279,7 @@ def test_create_case_metadata_enable_mocked_sumo(
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
     )
-    with pytest.warns(FutureWarning, match="'sumo_env' is ignored"):
+    with pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"):
         ert.__main__.main()
 
     # Verifies case.register() was run
@@ -419,7 +424,7 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     mocker.patch(
         "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
     )
-    with pytest.warns(FutureWarning, match="'sumo_env' is ignored"):
+    with pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"):
         ert.__main__.main()
 
     mock_sumo_uploader["SumoConnection"].assert_called_once()

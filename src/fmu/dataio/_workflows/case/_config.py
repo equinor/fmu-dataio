@@ -6,13 +6,16 @@ import os
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, Self
+from typing import TYPE_CHECKING, Final, Self
 
 import yaml
 from pydantic import ValidationError
 
 from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+
+if TYPE_CHECKING:
+    import ert
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -62,18 +65,26 @@ class CaseWorkflowConfig:
             )
 
     @classmethod
-    def from_args(cls, args: argparse.Namespace) -> Self:
+    def from_presim_workflow(
+        cls,
+        run_paths: ert.Runpaths,
+        args: argparse.Namespace,
+    ) -> Self:
         """Create an instance from Ert workflow arguments."""
         _warn_deprecations(args)
 
-        config_path = args.ert_config_path / args.global_variables_path
+        # /../ert/model/
+        ert_config_path = Path(run_paths.substitutions["<CONFIG_PATH>"])
+        config_path = (
+            ert_config_path.parent.parent / "fmuconfig/output/global_variables.yml"
+        )
         global_config = _load_global_config(config_path)
 
         return cls(
             casepath=args.casepath,
-            ert_config_path=args.ert_config_path,
+            ert_config_path=ert_config_path,
             register_on_sumo=args.sumo,
-            verbosity=args.verbosity,
+            verbosity="WARNING",
             global_config=global_config,
         )
 
@@ -81,21 +92,40 @@ class CaseWorkflowConfig:
 def _warn_deprecations(args: argparse.Namespace) -> None:
     """Warn on deprecated arguments passed to Ert workflow."""
 
+    if args.ert_config_path:
+        warnings.warn(
+            "The argument 'ert_config_path' is deprecated. It is no "
+            "longer used and can safely be removed from WF_CREATE_CASE_METADATA.",
+            FutureWarning,
+        )
     if args.ert_casename:
         warnings.warn(
             "The argument 'ert_casename' is deprecated. It is no "
-            "longer used and can safely be removed.",
+            "longer used and can safely be removed from WF_CREATE_CASE_METADATA.",
             FutureWarning,
         )
     if args.ert_username:
         warnings.warn(
             "The argument 'ert_username' is deprecated. It is no "
-            "longer used and can safely be removed.",
+            "longer used and can safely be removed from WF_CREATE_CASE_METADATA.",
+            FutureWarning,
+        )
+    if args.global_variables_path:
+        warnings.warn(
+            "The argument '--global_variables_path' is deprecated. It is no "
+            "longer used and can safely be removed from WF_CREATE_CASE_METADATA.",
+            FutureWarning,
+        )
+    if args.verbosity:
+        warnings.warn(
+            "The argument '--verbosity' is deprecated. It is no "
+            "longer used and can safely be removed from WF_CREATE_CASE_METADATA.",
             FutureWarning,
         )
     if args.sumo_env:
         warnings.warn(
-            "The argument 'sumo_env' is ignored and can safely be removed.",
+            "The argument '--sumo_env' is deprecated. It is no "
+            "longer used and can safely be removed from WF_CREATE_CASE_METADATA.",
             FutureWarning,
         )
         if args.sumo_env != "prod" and os.getenv("SUMO_ENV") is None:
