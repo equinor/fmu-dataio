@@ -68,10 +68,11 @@ def test_simple_export_ert_environment_variables(snakeoil_export_surface: Path) 
     assert avg_poro.root.fmu.ert.experiment.id is not None
 
 
-def test_snakeoil_wf_case_metadata_includes_user_and_casename(
+def test_snakeoil_wf_case_metadata_includes_config_user_and_casename(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
 ) -> None:
-    """If 'ert_username' and 'ert_casename' arguments are given, warnings are raised.
+    """If 'ert_config_path, 'ert_username', and 'ert_casename' arguments are given,
+    warnings are raised.
 
     The input should also be ignored.
     """
@@ -80,7 +81,8 @@ def test_snakeoil_wf_case_metadata_includes_user_and_casename(
     Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
-        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> "
+        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> "
+        "foo.yml "  # ert_config_path (now deprecated)
         "foo "  # ert_casename (now deprecated)
         "<USER>",  # ert_user (now deprecated)
         encoding="utf-8",
@@ -93,6 +95,7 @@ def test_snakeoil_wf_case_metadata_includes_user_and_casename(
         ["ert", "ensemble_experiment", "snakeoil.ert", "--disable-monitoring"],
     )
     with (
+        pytest.warns(FutureWarning, match="'ert_config_path' is deprecated"),
         pytest.warns(FutureWarning, match="'ert_casename' is deprecated"),
         pytest.warns(FutureWarning, match="'ert_username' is deprecated"),
     ):
