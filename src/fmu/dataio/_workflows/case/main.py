@@ -7,30 +7,20 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Final
+from typing import Final
 
 import ert
-from pydantic import TypeAdapter
 
-from fmu.dataio._export import export_with_metadata
 from fmu.dataio._export_config import ExportConfig
-from fmu.datamodels import ErtParameterMetadata
+from fmu.dataio._interfaces import SumoUploaderInterface
+from fmu.dataio._metadata import generate_metadata
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
 from fmu.datamodels.standard_results.enums import StandardResultName
 
 from ._config import CaseWorkflowConfig
+from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
-
-if TYPE_CHECKING:
-    import polars as pl
-    import pyarrow as pa
-
-# client id for fmu-sumo-uploader. Use this when setting up the SumoClient,
-# so that we can identify traffic that originates from FMU uploads.
-uploader_client_id = "a65dc4cc-3dec-43df-9599-e66d3abc4dca"
-
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -50,46 +40,6 @@ Arguments:
     <casepath>: Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
     --sumo: Register case on Sumo
 """  # noqa: E501
-
-ErtParameterMetadataAdapter: TypeAdapter[ErtParameterMetadata] = TypeAdapter(
-    ErtParameterMetadata
-)
-
-
-def _register_on_sumo(case_metadata_path: str) -> str:
-    """Register the case on Sumo by sending the case metadata"""
-    from fmu.sumo.uploader import CaseOnDisk, SumoConnection
-
-    sumo_env = os.environ.get("SUMO_ENV", "prod")
-    logger.info(f"Registering case on Sumo ({sumo_env})")
-
-    sumo_conn = SumoConnection(sumo_env, client_id=uploader_client_id)
-    logger.debug("Sumo connection established")
-    case = CaseOnDisk(case_metadata_path, sumo_conn)
-    sumo_id = case.register()
-
-    logger.info("Case registered on Sumo with ID: %s", sumo_id)
-    return sumo_id
-
-
-def export_ert_parameters(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
-    workflow_config: CaseWorkflowConfig,
-) -> Path:
-    """Exports Ert parameters as a Parquet file as the ensemble level."""
-
-    scalars_df = ensemble.load_scalars()
-    if scalars_df.is_empty():
-        logger.warning("No scalar parameters found in ensemble")
-        return workflow_config.casepath
-
-    ensemble_name = _get_ensemble_name(ensemble, run_paths, workflow_config.casepath)
-    table, realizations = _process_parameters(scalars_df, ensemble)
-
-    export_path = _export_parameters_table(table, ensemble_name, workflow_config)
-    logger.info(f"Exported parameters for realizations {realizations} to {export_path}")
-    return export_path
 
 
 def _get_ensemble_name(
@@ -111,67 +61,18 @@ def _get_ensemble_name(
     return str(runpath.name) if runpath.parent != casepath else "iter-0"
 
 
-def _process_parameters(
-    scalars_df: pl.DataFrame, ensemble: ert.Ensemble
-) -> tuple[pa.Table, list[int]]:
-    """Process parameters into an Arrow table with metadata."""
-    import pyarrow as pa
-
-    param_configs = ensemble.experiment.parameter_configuration
-    realizations = scalars_df.get_column("realization").to_list()
-
-    columns_to_drop: list[str] = []
-    metadata_map: dict[str, dict[bytes, bytes]] = {}
-    rename_map: dict[str, str] = {
-        "realization": "REAL",
-    }
-
-    for col_name in scalars_df.columns:
-        if col_name == "realization":
-            continue
-
-        param_name: str = col_name.split(":", 1)[-1] if ":" in col_name else col_name
-        config = param_configs.get(param_name)
-
-        if isinstance(config, ert.config.GenKwConfig):
-            metadata = _genkw_to_metadata(config)
-            metadata_map[param_name] = metadata.to_pa_metadata()
-            rename_map[col_name] = param_name
-        else:
-            columns_to_drop.append(col_name)
-            logger.warning(f"Skipping '{col_name}': no valid GenKwConfig found")
-
-    scalars_df = scalars_df.drop(columns_to_drop).rename(rename_map)
-    arrow_table = scalars_df.to_arrow()
-
-    fields = [
-        pa.field(f.name, f.type, metadata=metadata_map.get(f.name))
-        for f in arrow_table.schema
-    ]
-    table = arrow_table.cast(pa.schema(fields))
-
-    return table, realizations
-
-
-def _genkw_to_metadata(config: ert.config.GenKwConfig) -> ErtParameterMetadata:
-    """Convert GenKwConfig to parameter metadata."""
-    distribution_dict = config.distribution.model_dump(exclude={"name"})
-    return ErtParameterMetadataAdapter.validate_python(
-        {
-            "group": config.group or "DEFAULT",
-            "input_source": config.input_source,
-            "distribution": config.distribution.name.lower(),
-            **distribution_dict,
-        }
-    )
-
-
-def _export_parameters_table(
-    table: pa.Table,
-    ensemble_name: str,
+def _queue_ert_parameters(
+    ensemble: ert.Ensemble,
+    run_paths: ert.Runpaths,
     workflow_config: CaseWorkflowConfig,
-) -> Path:
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
     """Export parameter table using fmu-dataio."""
+    table = get_ert_parameters_table(ensemble, run_paths, workflow_config)
+    if table is None:
+        return
+
+    ensemble_name = _get_ensemble_name(ensemble, run_paths, workflow_config.casepath)
     export_config = (
         ExportConfig.builder()
         .content(Content.parameters)
@@ -186,7 +87,39 @@ def _export_parameters_table(
         .standard_result(StandardResultName.parameters)
         .build()
     )
-    return export_with_metadata(export_config, table)
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
+def _upload_files(
+    ensemble: ert.Ensemble,
+    run_paths: ert.Runpaths,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Establishes a case on Sumo, uploading initial case and ensemble data as well."""
+    _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
+    sumo_uploader.upload()
+
+
+def _run_workflow(
+    ensemble: ert.Ensemble,
+    run_paths: ert.Runpaths,
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """Main workflow entry point."""
+    logger.setLevel(workflow_config.verbosity)
+
+    case_metadata_path = ExportCaseMetadata.from_workflow_config(
+        workflow_config
+    ).export()
+    logger.debug(f"Case metadata exported to {case_metadata_path}")
+
+    if workflow_config.register_on_sumo:
+        sumo_uploader = SumoUploaderInterface.from_new_case(
+            Path(case_metadata_path), workflow_config.global_config_path
+        )
+        _upload_files(ensemble, run_paths, workflow_config, sumo_uploader)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -245,25 +178,6 @@ def get_parser() -> argparse.ArgumentParser:
         default=None,
     )
     return parser
-
-
-def _run_workflow(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
-    cfg: CaseWorkflowConfig,
-) -> None:
-    """Main workflow entry point."""
-    logger.setLevel(cfg.verbosity)
-
-    case_metadata_path = ExportCaseMetadata.from_workflow_config(cfg).export()
-
-    if cfg.register_on_sumo:
-        _register_on_sumo(case_metadata_path)
-
-    logger.debug(f"Case metadata exported to {case_metadata_path}")
-
-    parameters_path = export_ert_parameters(ensemble, run_paths, cfg)
-    logger.debug(f"Parameters exported to {parameters_path}")
 
 
 class WfExportCaseMetadata(ert.ErtScript):

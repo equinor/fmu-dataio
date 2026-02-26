@@ -11,10 +11,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import ert.__main__
-import pandas as pd
 import polars as pl
 import pyarrow as pa
-import pyarrow.parquet as pq
 import pytest
 import yaml
 from ert.config import GenKwConfig
@@ -28,12 +26,13 @@ from fmu.datamodels.standard_results.ert_parameters import (
 )
 from pytest import CaptureFixture, MonkeyPatch
 
-from fmu.dataio._workflows.case.main import (
-    CaseWorkflowConfig,
+from fmu.dataio._interfaces import SumoUploaderInterface
+from fmu.dataio._workflows.case._parameters import (
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
-    export_ert_parameters,
+    get_ert_parameters_table,
 )
+from fmu.dataio._workflows.case.main import CaseWorkflowConfig
 
 from .ert_config_utils import (
     add_create_case_workflow,
@@ -44,7 +43,6 @@ from .ert_config_utils import (
 
 if TYPE_CHECKING:
     from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
-    from pytest_mock import MockerFixture
 
 
 @pytest.fixture
@@ -112,10 +110,11 @@ def workflow_config(
     """Create a mock CaseWorkflowConfig."""
     return CaseWorkflowConfig(
         casepath=fmurun_prehook,
-        ert_config_path=Path("../../fmuconfig/output/global_variables.yml"),
+        ert_config_path=Path("../../ert/model/"),
         register_on_sumo=True,
         verbosity="WARNING",
         global_config=mock_global_config_validated,
+        global_config_path=Path("../../fmuconfig/output/global_variables.yml"),
     )
 
 
@@ -130,7 +129,7 @@ def parse_field_metadata(field: pa.Field) -> ErtParameterMetadata:
 
 
 def test_create_case_metadata_runs_successfully(
-    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
@@ -138,10 +137,8 @@ def test_create_case_metadata_runs_successfully(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    ert.__main__.main()
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
 
     fmu_case_yml = (
         fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
@@ -159,7 +156,7 @@ def test_create_case_metadata_runs_successfully(
 
 
 def test_create_case_metadata_warns_without_overwriting(
-    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
@@ -170,16 +167,17 @@ def test_create_case_metadata_warns_without_overwriting(
     share_metadata = fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata"
     fmu_case_yml = share_metadata / "fmu_case.yml"
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    ert.__main__.main()
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
 
     assert fmu_case_yml.exists()
     with open(fmu_case_yml, encoding="utf-8") as f:
         first_run = yaml.safe_load(f)
 
-    with pytest.warns(UserWarning, match="Using existing case metadata from casepath:"):
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(UserWarning, match="Using existing case metadata from casepath:"),
+    ):
         ert.__main__.main()
 
     ls_share_metadata = os.listdir(share_metadata)
@@ -194,7 +192,6 @@ def test_create_case_metadata_warns_without_overwriting(
 def test_create_case_metadata_caseroot_not_defined(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     capsys: CaptureFixture[str],
 ) -> None:
     """Test that a proper error message is given if the case path is
@@ -212,10 +209,8 @@ def test_create_case_metadata_caseroot_not_defined(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    ert.__main__.main()
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
 
     _stdout, stderr = capsys.readouterr()
     assert "ValueError: Ert variable for case path is not defined" in stderr
@@ -224,7 +219,6 @@ def test_create_case_metadata_caseroot_not_defined(
 def test_create_case_metadata_deprecated_arguments_warn(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     capsys: CaptureFixture[str],
 ) -> None:
     """Now deprecated arguments issue warnings."""
@@ -241,10 +235,8 @@ def test_create_case_metadata_deprecated_arguments_warn(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
     with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
         pytest.warns(
             FutureWarning, match="The argument 'ert_config_path' is deprecated"
         ),
@@ -260,7 +252,6 @@ def test_create_case_metadata_deprecated_arguments_warn(
 def test_create_case_metadata_enable_mocked_sumo(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     with open(
@@ -276,10 +267,10 @@ def test_create_case_metadata_enable_mocked_sumo(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    with pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"):
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
+    ):
         ert.__main__.main()
 
     # Verifies case.register() was run
@@ -294,7 +285,6 @@ def test_create_case_metadata_enable_mocked_sumo(
 def test_create_case_metadata_sumo_env_dev_input_fails(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
     capsys: CaptureFixture[str],
 ) -> None:
@@ -312,10 +302,11 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    ert.__main__.main()
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
+    ):
+        ert.__main__.main()
 
     _stdout, stderr = capsys.readouterr()
     assert "ValueError: Setting sumo environment through argument" in stderr
@@ -329,7 +320,6 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
 def test_create_case_metadata_sumo_env_reads_from_environment(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that sumo_env is set through the 'SUMO_ENV' environment variable"""
@@ -349,12 +339,10 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    ert.__main__.main()
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
 
-    mock_sumo_uploader["SumoConnection"].assert_called_once()
+    mock_sumo_uploader["SumoConnection"].assert_called()
     assert mock_sumo_uploader["SumoConnection"].call_args.args == ((sumo_env,))
     assert "client_id" in mock_sumo_uploader["SumoConnection"].call_args.kwargs
 
@@ -366,7 +354,6 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
 def test_create_case_metadata_sumo_env_defaults_to_prod(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that sumo_env is defaulted to 'prod' when not set through the environment"""
@@ -383,13 +370,11 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    ert.__main__.main()
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
 
     # should default to prod when not set
-    mock_sumo_uploader["SumoConnection"].assert_called_once()
+    mock_sumo_uploader["SumoConnection"].assert_called()
     assert mock_sumo_uploader["SumoConnection"].call_args.args == (("prod",))
     assert "client_id" in mock_sumo_uploader["SumoConnection"].call_args.kwargs
 
@@ -401,7 +386,6 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
 def test_create_case_metadata_sumo_env_input_is_ignored(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
-    mocker: MockerFixture,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that the environment variable is used over the sumo_env argument"""
@@ -421,21 +405,21 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
 
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    with pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"):
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
+    ):
         ert.__main__.main()
 
-    mock_sumo_uploader["SumoConnection"].assert_called_once()
+    mock_sumo_uploader["SumoConnection"].assert_called()
     assert mock_sumo_uploader["SumoConnection"].call_args.args == ((sumo_env_expected,))
     assert "client_id" in mock_sumo_uploader["SumoConnection"].call_args.kwargs
 
 
 def test_create_case_metadata_collects_ert_parameters_as_expected(
-    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    ert_model_path = fmu_snakeoil_project / "ert/model"
+    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
@@ -451,6 +435,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
         ensemble: ert.Ensemble,
         run_paths: ert.Runpaths,
         workflow_config: CaseWorkflowConfig,
+        sumo_uploader: SumoUploaderInterface,
     ) -> None:
         """Captures params from Ert run.
 
@@ -458,12 +443,16 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
         scalars_and_config.append(ensemble.load_scalars())
         scalars_and_config.append(ensemble.experiment.parameter_configuration)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
-    )
-    with patch(
-        "fmu.dataio._workflows.case.main.export_ert_parameters",
-        side_effect=capture_params,
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main._queue_ert_parameters",
+            side_effect=capture_params,
+        ),
     ):
         ert.__main__.main()
 
@@ -576,62 +565,41 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     assert ert_models == datamodels_models
 
 
-def test_export_ert_parameters(
+def test_get_ert_parameters_table(
     fmurun_prehook: Path,
     monkeypatch: MonkeyPatch,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
-    """Export Ert parameters at ensemble level."""
-    export_path = export_ert_parameters(
+    """Ert parameters table returned as expected."""
+    table = get_ert_parameters_table(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_runpaths,
         workflow_config=workflow_config,
     )
-
-    assert export_path.exists()
-    assert "iter-0" in str(export_path)
-    assert fmurun_prehook / "share" / "ensemble" / "iter-0" in export_path.parents
+    assert isinstance(table, pa.Table)
+    assert len(table) == 3
 
 
-def test_export_ert_parameters_empty_scalars(
+def test_get_ert_parameters_table_empty_scalars(
     fmurun_prehook: Path,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
-    """Empty scalars returns early."""
+    """Empty scalars returns None."""
     ensemble = MagicMock()
     ensemble.load_scalars.return_value = pl.DataFrame()
 
-    result = export_ert_parameters(
+    table = get_ert_parameters_table(
         ensemble=ensemble,
         run_paths=mock_ert_runpaths,
         workflow_config=workflow_config,
     )
-
-    assert result == fmurun_prehook
-
-
-def test_export_ert_parameters_prediction_ensemble(
-    fmurun_prehook: Path,
-    monkeypatch: MonkeyPatch,
-    mock_ert_ensemble: MagicMock,
-    mock_ert_pred_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
-) -> None:
-    """Export with a prediction ensemble name."""
-    export_path = export_ert_parameters(
-        ensemble=mock_ert_ensemble,
-        run_paths=mock_ert_pred_runpaths,
-        workflow_config=workflow_config,
-    )
-
-    assert export_path.exists()
-    assert "pred-dg3" in str(export_path)
+    assert table is None
 
 
-def test_export_ert_parameters_subset_realizations(
+def test_get_ert_parameters_table_subset_realizations(
     fmurun_prehook: Path,
     monkeypatch: MonkeyPatch,
     mock_ert_ensemble: MagicMock,
@@ -649,32 +617,31 @@ def test_export_ert_parameters_subset_realizations(
     )
     mock_ert_ensemble.load_scalars.return_value = scalars_df
 
-    export_path = export_ert_parameters(
+    table = get_ert_parameters_table(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_runpaths,
         workflow_config=workflow_config,
     )
 
-    assert export_path.exists()
-
-    exported_df = pl.read_parquet(export_path)
-    assert exported_df.get_column("REAL").to_list() == [1, 3]
+    assert table is not None
+    assert table.column("REAL").to_pylist() == [1, 3]
 
 
-def test_export_ert_parameters_schema_columns(
+def test_get_ert_parameters_table_schema_columns(
     fmurun_prehook: Path,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Exported parquet has expected columns with correct types."""
-    export_path = export_ert_parameters(
+    table = get_ert_parameters_table(
         ensemble=mock_ert_ensemble,
         run_paths=mock_ert_runpaths,
         workflow_config=workflow_config,
     )
 
-    schema = pq.read_schema(export_path)
+    assert table is not None
+    schema = table.schema
 
     assert schema.field("REAL").type == pa.int64()
     assert schema.field("param_a").type == pa.float64()
@@ -688,7 +655,7 @@ def test_export_ert_parameters_schema_columns(
     assert len(schema.names) == 5
 
 
-def test_export_ert_parameters_missing_config(
+def test_get_ert_parameters_table_missing_config(
     fmurun_prehook: Path,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
@@ -707,17 +674,17 @@ def test_export_ert_parameters_missing_config(
     ensemble.load_scalars.return_value = scalars_df
     ensemble.experiment.parameter_configuration = {}  # Empty config
 
-    export_path = export_ert_parameters(
+    table = get_ert_parameters_table(
         ensemble=ensemble,
         run_paths=mock_ert_runpaths,
         workflow_config=workflow_config,
     )
 
-    schema = pq.read_schema(export_path)
-    assert schema.names == ["REAL"]
+    assert table is not None
+    assert table.schema.names == ["REAL"]
 
 
-def test_export_ert_parameters_non_genkw_config_skipped(
+def test_get_ert_parameters_table_non_genkw_config_skipped(
     fmurun_prehook: Path,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
@@ -739,21 +706,21 @@ def test_export_ert_parameters_non_genkw_config_skipped(
         "some_param": MagicMock(spec=[])  # Not a GenKwConfig
     }
 
-    export_path = export_ert_parameters(
+    table = get_ert_parameters_table(
         ensemble=ensemble,
         run_paths=mock_ert_runpaths,
         workflow_config=workflow_config,
     )
 
-    schema = pq.read_schema(export_path)
-    assert schema.names == ["REAL"]
+    assert table is not None
+    assert table.schema.names == ["REAL"]
 
 
 def test_create_case_metadata_expects_parameters_standard_result_integration(
-    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch, mocker: MockerFixture
+    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Full integration test with the snakeoil Ert model."""
-    ert_model_path = fmu_snakeoil_project / "ert/model"
+    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
@@ -762,22 +729,27 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
     add_multregt_parameters(ert_config_path)
     add_create_case_workflow(ert_config_path)
 
-    mocker.patch(
-        "sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_called_once()
+
+        parameters_table, parameters_metadata = (
+            from_new_case.return_value.queue_table.call_args.args
+        )
+
+    assert parameters_table.column("REAL")[0].as_py() == 0
+    assert parameters_table.column("globvar_a")[0].as_py() == pytest.approx(
+        0.6725254375492808
     )
-    ert.__main__.main()
-
-    ensemble_path = fmu_snakeoil_project / "scratch/user/snakeoil/share/ensemble/iter-0"
-    assert ensemble_path.exists()
-
-    parameters_parquet = ensemble_path / "share/results/tables/parameters.parquet"
-    parameters_metadata = ensemble_path / "share/results/tables/.parameters.parquet.yml"
-    assert parameters_parquet.exists()
-    assert parameters_metadata.exists()
-
-    df = pd.read_parquet(parameters_parquet)
-    assert df["REAL"].iloc[0] == 0
-    assert df["globvar_a"].iloc[0] == pytest.approx(0.6725254375492808)
 
     expected_design_values = {
         "design_a": 1.0,
@@ -785,9 +757,9 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
         "design_c": 7.0,
     }
     for name, expected_value in expected_design_values.items():
-        assert df[f"{name}"].iloc[0] == expected_value
+        assert parameters_table.column(f"{name}")[0].as_py() == expected_value
 
-    schema = pq.read_schema(parameters_parquet)
+    schema = parameters_table.schema
 
     globvar_a_meta = parse_field_metadata(schema.field("globvar_a"))
     assert globvar_a_meta.group == "GLOBVAR"
@@ -813,13 +785,10 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
     assert multregt_a_meta.group == "MULTREGT"
     assert multregt_a_meta.distribution == "logunif"
 
-    with open(parameters_metadata) as f:
-        metadata_dict = yaml.safe_load(f)
-
-    assert metadata_dict["data"]["content"] == "parameters"
-    assert metadata_dict["data"]["standard_result"]["name"] == "parameters"
-    assert metadata_dict["data"]["table_index"] == ["REAL"]
-    assert "fmu" in metadata_dict
-    assert metadata_dict["fmu"]["context"]["stage"] == "ensemble"
-    assert metadata_dict["fmu"]["ensemble"] is not None
-    assert metadata_dict["fmu"]["ensemble"]["name"] == "iter-0"
+    assert parameters_metadata["data"]["content"] == "parameters"
+    assert parameters_metadata["data"]["standard_result"]["name"] == "parameters"
+    assert parameters_metadata["data"]["table_index"] == ["REAL"]
+    assert "fmu" in parameters_metadata
+    assert parameters_metadata["fmu"]["context"]["stage"] == "ensemble"
+    assert parameters_metadata["fmu"]["ensemble"] is not None
+    assert parameters_metadata["fmu"]["ensemble"]["name"] == "iter-0"
