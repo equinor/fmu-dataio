@@ -103,39 +103,3 @@ metadata.
 The current JSON schema is embedded here.
 
 {{ InplaceVolumesSchema.literalinclude }}
-
-## Load initial inplace volumes
-
-Use the below loader function, loader object and interface to load and
-interact with the exported initial inplace volumes standard results.
-
-```{hint}
-For more information about the purpose of these loader functions, see [Loading
-Data](../overview.md#loading-data) in the [Overview](../overview.md).
-```
-
-### Usage
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.load_inplace_volumes
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader.list_realizations
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader.get_realization
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader.get_blobs
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.InplaceVolumesLoader.save_realization
-```

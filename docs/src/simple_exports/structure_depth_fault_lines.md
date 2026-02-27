@@ -80,8 +80,3 @@ metadata.
 The current JSON schema is embedded here.
 
 {{ StructureDepthFaultLinesSchema.literalinclude }}
-
-## Load structure depth fault lines
-
-The loader interface for structure depth fault lines standard results is still
-under development and not supported yet.

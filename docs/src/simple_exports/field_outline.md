@@ -90,38 +90,3 @@ metadata.
 The current JSON schema is embedded here.
 
 {{ FieldOutlineSchema.literalinclude }}
-
-## Load field outlines
-
-Use the below loader function, loader object, and interface to load and
-interact with the exported field outlines standard results.
-
-```{hint}
-For more information about the purpose of these loader functions, see [Loading
-Data](../overview.md#loading-data) in the [Overview](../overview.md).
-```
-
-### Usage
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.load_field_outlines
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader.list_realizations
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader.get_realization
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader.get_blobs
-```
-
-```{eval-rst}
-.. autofunction:: fmu.dataio.load.load_standard_results.FieldOutlinesLoader.save_realization
-```
