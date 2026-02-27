@@ -46,8 +46,3 @@ TSurf data.
 
 This standard result is not presented in a tabular format; therefore, no
 validation schema exists.
-
-## Load structure depth fault surfaces
-
-The loader interface for structure depth fault surfaces standard results
-is still under development and not supported yet.

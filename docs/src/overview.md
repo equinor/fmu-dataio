@@ -176,34 +176,6 @@ belonging to a specific case. Other metadata are object-specific, i.e. they
 will vary per item which is exported.
 ```
 
-## Loading data
-
-All standard results have a corresponding **simple loader** to retrieve
-exported data that has been uploaded to Sumo. Simple loaders provide an easy
-way to use or save stored data so that it can be operated on after an FMU
-experiment has completed. This could be within a Jupyter notebook,
-post-processing scripts, or in other contexts.
-
-The corresponding simple loader to the simple export above looks like so:
-
-```python
-from fmu.dataio.load.load_standard_results import load_inplace_volumes
-
-inplace_volumes_loader = load_inplace_volumes(case_id, ensemble_name)
-
-# Get all inplace volumes objects for a given realization
-objects = inplace_volumes_loader.get_realization(realization_id)
-# Save the inplace volumes objects for a given realization
-object_paths = inplace_volumes_loader.save_realization(realization_id, folder_path)
-```
-
-This is an additional advantage to using simple exporters to produce standard
-results.
-
-```{warning}
-This functionality is not available for custom results.
-```
-
 ## Next Steps
 
 Before you can begin exporting data with fmu-dataio, some set up is required.

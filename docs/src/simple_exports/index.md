@@ -10,13 +10,11 @@ result** is exported data that adheres to the FMU data standard.
 - Strict input arguments and output data
 - Validation of data at export
 - Used for non-FMU services like REP, DynaGeo, and more
-- Simple loaders to retrieve data from Sumo
 
 ## Current Standard Results
 
 Below are the currently supported standard results. These pages provide
-detailed information on where, how, and when to use the export function, as
-well as how to use the corresponding simple loader.
+detailed information on where, how, and when to use the export function.
 
 ```{admonition} In Development
 :class: important
@@ -48,15 +46,6 @@ This means that the best practice is to implement simple exports to maximize
 the utility of your exported data. For more local and personalized needs you
 can use [Custom exports](../custom_exports/index.md) in addition to them.
 
-## Simple Loaders
-
-Paired to simple exports are **simple loaders**. Simple loaders are functions
-that enable you to retrieve standard results from Sumo _after_ an experiment
-has ended. This will allow you to load and use data in local scripts, tools,
-or Jupyter notebooks for post-processing, analysis, and visualization, in a
-simple manner.
-
-This functionality is currently only available for standard results.
 
 ## Custom Exports
 
