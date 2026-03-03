@@ -100,6 +100,15 @@ def fmu_snakeoil_project(
 
 
 @pytest.fixture
+def fmu_snakeoil_project_sumo(fmu_snakeoil_project: Path) -> Path:
+    """Enables Sumo in WF_CREATE_CASE_METADATA."""
+    tmp_path = fmu_snakeoil_project
+    with open(tmp_path / "ert/bin/workflows/xhook_create_case_metadata", "a") as f:
+        f.write(' "--sumo"')
+    return tmp_path
+
+
+@pytest.fixture
 def mock_sumo_uploader() -> Generator[dict[str, MagicMock | AsyncMock]]:
     def register_side_effect(*args: tuple[Any], **kwargs: dict[str, Any]) -> int:
         with open("sumo_case_id", "w", encoding="utf-8") as f:
