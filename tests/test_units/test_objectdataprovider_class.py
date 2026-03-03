@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import pytest
 import xtgeo
@@ -28,6 +29,7 @@ from fmu.dataio.providers.objectdata._provider import (
 from fmu.dataio.providers.objectdata._triangulated_surface import (
     TriangulatedSurfaceProvider,
 )
+from fmu.dataio.providers.objectdata._utils import get_value_statistics
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 
@@ -257,6 +259,86 @@ def test_regularsurface_spec_bbox(
     assert specs.ncol == regsurf.ncol
     assert bbox.xmin == 0.0
     assert bbox.zmin == 1234.0
+
+
+def test_gridproperty_spec_value_statistics(
+    mock_exportdata: ExportData,
+) -> None:
+    """GridProperty spec value_statistics are derived correctly."""
+    gridprop = xtgeo.GridProperty(ncol=3, nrow=3, nlay=3, values=5)
+
+    # set first and last layer to different values
+    gridprop.values[:, :, 0] = 0
+    gridprop.values[:, :, 2] = 10
+
+    objdata = objectdata_provider_factory(gridprop, mock_exportdata._export_config)
+    specs = objdata.get_spec()
+
+    stats = get_value_statistics(gridprop.values)
+    assert specs.value_statistics == stats
+
+    assert specs.value_statistics.min == 0
+    assert specs.value_statistics.max == 10
+    assert specs.value_statistics.mean == 5
+    np.testing.assert_almost_equal(specs.value_statistics.std, 4.082, decimal=3)
+
+
+def test_regularsurface_spec_value_statistics(mock_exportdata: ExportData) -> None:
+    """RegularSurface spec value_statistics are derived correctly."""
+    regsurf = xtgeo.RegularSurface(ncol=3, nrow=3, xinc=1, yinc=1, values=5)
+
+    # set first and last column to different values
+    regsurf.values[0, :] = 0
+    regsurf.values[2, :] = 10
+
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    specs = objdata.get_spec()
+
+    stats = get_value_statistics(regsurf.values)
+    assert specs.value_statistics == stats
+
+    assert specs.value_statistics.min == 0
+    assert specs.value_statistics.max == 10
+    assert specs.value_statistics.mean == 5
+    np.testing.assert_almost_equal(specs.value_statistics.std, 4.082, decimal=3)
+
+
+def test_regularsurface_spec_value_statistics_with_nan(
+    mock_exportdata: ExportData,
+) -> None:
+    """
+    RegularSurface spec value_statistics are derived correctly for a
+    surface with nan values.
+    """
+    regsurf = xtgeo.RegularSurface(ncol=3, nrow=3, xinc=1, yinc=1, values=5)
+    regsurf.values[0, :] = np.nan
+
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    specs = objdata.get_spec()
+
+    assert specs.value_statistics.min == 5
+    assert specs.value_statistics.max == 5
+    assert specs.value_statistics.mean == 5
+    assert specs.value_statistics.std == 0
+
+
+def test_regularsurface_spec_value_statistics_only_nan(
+    mock_exportdata: ExportData,
+) -> None:
+    """
+    RegularSurface spec value_statistics are derived correctly for a
+    surface with only nan values.
+    """
+    regsurf = xtgeo.RegularSurface(ncol=3, nrow=3, xinc=1, yinc=1, values=5)
+    regsurf.values[:] = np.nan
+
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    specs = objdata.get_spec()
+
+    assert np.isnan(specs.value_statistics.min)
+    assert np.isnan(specs.value_statistics.max)
+    assert np.isnan(specs.value_statistics.mean)
+    assert np.isnan(specs.value_statistics.std)
 
 
 def test_regularsurface_metadata(

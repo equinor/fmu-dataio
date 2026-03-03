@@ -3,8 +3,11 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
+
+from fmu.datamodels.fmu_results.specification import Statistics
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -45,3 +48,22 @@ def is_empty_column(table: pd.DataFrame | pa.Table, column: str) -> bool:
     if isinstance(table, pa.Table):
         return is_empty_column_pyarrow(table, column)
     return is_empty_column_pandas(table, column)
+
+
+def get_value_statistics(values: np.ndarray) -> Statistics:
+    """Get statistics for valid values in a numpy array."""
+    values = np.ma.masked_invalid(values)
+    if values.mask.all():
+        return Statistics(
+            min=np.nan,
+            max=np.nan,
+            mean=np.nan,
+            std=np.nan,
+        )
+
+    return Statistics(
+        min=np.min(values),
+        max=np.max(values),
+        mean=np.mean(values),
+        std=np.std(values),
+    )
