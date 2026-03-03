@@ -45,7 +45,7 @@ class SumoUploaderInterface:
         self.client_id = client_id
         self.global_config_path = global_config_path
 
-        self.conn = SumoConnection(
+        self.connection = SumoConnection(
             self.env, case_uuid=self.case_uuid, client_id=self.client_id
         )
 
@@ -78,7 +78,7 @@ class SumoUploaderInterface:
         result = upload_files(
             list(self._queue),  # Copy so we don't clear for uploader's executors
             self.case_uuid,
-            self.conn,
+            self.connection,
             config_path=self.global_config_path,
         )
         self._queue.clear()
@@ -97,9 +97,9 @@ class SumoUploaderInterface:
         from fmu.sumo.uploader import CaseOnDisk, SumoConnection
 
         _env = env or os.environ.get("SUMO_ENV", "prod")
-        register_conn = SumoConnection(_env, client_id=client_id)
+        register_connection = SumoConnection(_env, client_id=client_id)
 
-        case = CaseOnDisk(case_metadata_path, register_conn)
+        case = CaseOnDisk(case_metadata_path, register_connection)
         case_uuid = case.register()
 
         return cls(_env, case_uuid, global_config_path, client_id=client_id)

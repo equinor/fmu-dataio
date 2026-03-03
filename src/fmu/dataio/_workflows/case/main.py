@@ -91,7 +91,7 @@ def _queue_ert_parameters(
     sumo_uploader.queue_table(table, metadata)
 
 
-def _upload_files(
+def _upload_files_to_sumo(
     ensemble: ert.Ensemble,
     run_paths: ert.Runpaths,
     workflow_config: CaseWorkflowConfig,
@@ -119,7 +119,7 @@ def _run_workflow(
         sumo_uploader = SumoUploaderInterface.from_new_case(
             Path(case_metadata_path), workflow_config.global_config_path
         )
-        _upload_files(ensemble, run_paths, workflow_config, sumo_uploader)
+        _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
 
 
 def get_parser() -> argparse.ArgumentParser:

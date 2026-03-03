@@ -78,7 +78,7 @@ def test_init_creates_sumo_connection() -> None:
     )
     assert uploader.env == "prod"
     assert uploader.case_uuid == "uuid-123"
-    assert uploader.conn is mock_conn
+    assert uploader.connection is mock_conn
     assert uploader._queue == []
 
 
@@ -159,7 +159,7 @@ def test_queue_table_multiple_calls_grow_queue(
     simple_metadata: dict[str, Any],
     mock_uploader: SumoUploaderInterface,
 ) -> None:
-    """Queueing a file counts the number of bytes and sets them."""
+    """Queueing multiple files grows the queue."""
     simple_metadata_b = deepcopy(simple_metadata)
     simple_metadata_b["file"]["relative_path"] = (
         "share/results/ensemble/tables/b.parquet"
@@ -198,7 +198,7 @@ def test_upload_calls_upload_files_with_correct_args(
     mock_upload.assert_called_once_with(
         [mock_file],
         "uuid-1",
-        mock_uploader.conn,
+        mock_uploader.connection,
         config_path=Path("global_variables.yml"),
     )
     assert result == mock_result
@@ -227,7 +227,7 @@ def test_upload_with_empty_queue(mock_uploader: SumoUploaderInterface) -> None:
     mock_upload.assert_called_once_with(
         [],
         "uuid-1",
-        mock_uploader.conn,
+        mock_uploader.connection,
         config_path=Path("global_variables.yml"),
     )
 
