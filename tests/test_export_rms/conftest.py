@@ -11,10 +11,9 @@ from typing import TYPE_CHECKING, Self
 from unittest.mock import MagicMock, patch
 
 import pytest
+import xtgeo
 
 if TYPE_CHECKING:
-    import xtgeo
-
     from fmu.dataio._readers.tsurf import TSurfData
 
 # retrieved from Drogon in RMS 14.2
@@ -260,12 +259,30 @@ def mock_general2d_data() -> MagicMock:
 
 
 @pytest.fixture
+def mock_gridmodel():
+    grid_models = {"Geogrid": MagicMock()}
+    grid_models["Geogrid"].properties = {
+        "Zone": MagicMock(),
+        "Regions": MagicMock(),
+        "PHIT": MagicMock(),
+        "KLOGH": MagicMock(),
+        "SW": MagicMock(),
+        "Discrete_fluid": MagicMock(),
+        "Oil_bulk": MagicMock(),
+        "Gas_bulk": MagicMock(),
+    }
+    return grid_models
+
+
+@pytest.fixture
 def mock_project_variable(
-    mock_general2d_data: MagicMock, mock_structural_model: dict[str, MagicMock]
+    mock_general2d_data: MagicMock,
+    mock_structural_model: dict[str, MagicMock],
+    mock_gridmodel: dict[str, MagicMock],
 ) -> Generator[MagicMock, None, None]:
     # A mock_project variable for the RMS 'project'
     mock_project = MagicMock()
-    mock_project.grid_models = {"Geogrid": MagicMock()}
+    mock_project.grid_models = mock_gridmodel
     mock_project.horizons.representations = ["DS_final"]
     mock_project.zones.representations = ["IS_final"]
     mock_project.structural_models = mock_structural_model
@@ -385,3 +402,20 @@ def xtgeo_zone_polygons(
     base.get_dataframe(copy=False)[base.zname] += 200
 
     yield [top, mid, base]
+
+
+@pytest.fixture
+def xtgeo_grid():
+    grid = xtgeo.create_box_grid((5, 5, 5))
+    grid.name = "Geogrid"
+    return grid
+
+
+@pytest.fixture
+def xtgeo_discrete_property():
+    return xtgeo.GridProperty(ncol=5, nrow=5, nlay=5, discrete=True)
+
+
+@pytest.fixture
+def xtgeo_continuous_property():
+    return xtgeo.GridProperty(ncol=5, nrow=5, nlay=5, discrete=False)
