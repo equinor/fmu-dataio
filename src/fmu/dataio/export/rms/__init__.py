@@ -3,6 +3,7 @@ from .field_outline import export_field_outline
 from .fluid_contact_outlines import export_fluid_contact_outlines
 from .fluid_contact_surfaces import export_fluid_contact_surfaces
 from .grid_extracted_depth_surfaces import export_grid_extracted_depth_surfaces
+from .grid_model_static import export_grid_model_static
 from .inplace_volumes import export_inplace_volumes, export_rms_volumetrics
 from .structure_depth_fault_lines import export_structure_depth_fault_lines
 from .structure_depth_fault_surfaces import export_structure_depth_fault_surfaces
@@ -16,6 +17,7 @@ __all__ = [
     "export_structure_depth_surfaces",
     "export_structure_time_surfaces",
     "export_grid_extracted_depth_surfaces",
+    "export_grid_model_static",
     "export_structure_depth_isochores",
     "export_inplace_volumes",
     "export_rms_volumetrics",
