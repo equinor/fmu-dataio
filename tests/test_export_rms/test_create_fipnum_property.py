@@ -25,7 +25,9 @@ from fmu import dataio
 from fmu.dataio._logging import null_logger
 
 if TYPE_CHECKING:
-    from fmu.dataio.export.rms.create_fipnum_property import _ExportFipZoneRegionMapping
+    from fmu.dataio.export.rms.simulator_fipregions_mapping import (
+        _ExportFipZoneRegionMapping,
+    )
 
 
 logger = null_logger(__name__)
@@ -79,7 +81,7 @@ def mock_export_class(
     # needed to find the global config at correct place
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    from fmu.dataio.export.rms.create_fipnum_property import (
+    from fmu.dataio.export.rms.simulator_fipregions_mapping import (
         _ExportFipZoneRegionMapping,
     )
 
@@ -94,7 +96,7 @@ def test_create_fipnum_from_region_and_zone(
 ) -> None:
     """Test that the FIPNUM property is created with correct values and mapping."""
 
-    from fmu.dataio.export.rms.create_fipnum_property import (
+    from fmu.dataio.export.rms.simulator_fipregions_mapping import (
         _create_fipnum_from_region_and_zone,
     )
 
@@ -127,7 +129,7 @@ def test_create_fipnum_from_region_and_zone_with_non_sequential_region_numbers(
     region numbers.
     """
 
-    from fmu.dataio.export.rms.create_fipnum_property import (
+    from fmu.dataio.export.rms.simulator_fipregions_mapping import (
         _create_fipnum_from_region_and_zone,
     )
 
@@ -158,7 +160,7 @@ def test_load_discrete_gridproperty_raises_on_continuous_property(
 ) -> None:
     """Test that an exception is raised if the region/zone property is not discrete."""
 
-    from fmu.dataio.export.rms.create_fipnum_property import (
+    from fmu.dataio.export.rms.simulator_fipregions_mapping import (
         _load_discrete_gridproperty,
     )
 
@@ -167,7 +169,7 @@ def test_load_discrete_gridproperty_raises_on_continuous_property(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.create_fipnum_property.xtgeo.gridproperty_from_roxar",
+            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.gridproperty_from_roxar",
             return_value=continuous_property,
         ),
         pytest.raises(ValueError, match="must be discrete"),
@@ -183,17 +185,19 @@ def test_create_fipnum_in_project(
 ) -> None:
     """Test that the to_roxar method is called with correct arguments."""
 
-    from fmu.dataio.export.rms.create_fipnum_property import _create_fipnum_in_project
+    from fmu.dataio.export.rms.simulator_fipregions_mapping import (
+        _create_fipnum_in_project,
+    )
 
     expected_mapping_table = mapping_table
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.create_fipnum_property.xtgeo.gridproperty_from_roxar",
+            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.gridproperty_from_roxar",
             side_effect=[region_property, zone_property],
         ),
         mock.patch(
-            "fmu.dataio.export.rms.create_fipnum_property.xtgeo.GridProperty.to_roxar"
+            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.GridProperty.to_roxar"
         ) as mock_to_roxar,
     ):
         mapping_table = _create_fipnum_in_project(
@@ -260,7 +264,7 @@ def test_public_export_function(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.create_fipnum_property._create_fipnum_in_project",
+            "fmu.dataio.export.rms.simulator_fipregions_mapping._create_fipnum_in_project",
             return_value=mapping_table,
         ),
     ):
@@ -297,7 +301,7 @@ def test_config_missing(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.create_fipnum_property._create_fipnum_in_project",
+            "fmu.dataio.export.rms.simulator_fipregions_mapping._create_fipnum_in_project",
             return_value=mapping_table,
         ),
         pytest.raises(FileNotFoundError, match="Could not detect"),
