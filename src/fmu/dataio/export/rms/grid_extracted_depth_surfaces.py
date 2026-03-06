@@ -92,8 +92,9 @@ def export_grid_extracted_depth_surfaces(
 
             from fmu.dataio.export.rms import export_grid_extracted_depth_surfaces
 
-            export_results = export_grid_extracted_depth_surfaces(project,
-            "geogrid_DS_extracted", "geogrid")
+            export_results = export_grid_extracted_depth_surfaces(
+                project, "geogrid_DS_extracted"
+            )
 
             for result in export_results.items:
                 print(f"Output surfaces to {result.absolute_path}")
