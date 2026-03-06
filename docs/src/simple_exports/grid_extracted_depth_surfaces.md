@@ -1,4 +1,4 @@
-# Extracted grid surfaces
+# Grid extracted depth surfaces
 
 This exports extracted grid surfaces from within RMS. These
 surfaces are typically extracted from the geogrid (or any other grid) for QC 
@@ -17,7 +17,7 @@ per model workflow.
 | Field | Value |
 | --- | --- |
 | Version | NA |
-| Output | `share/results/maps/extracted_grid_depth_surface/surfacename.gri` |
+| Output | `share/results/maps/grid_extracted_depth_surface/surfacename.gri` |
 | Security classification | 🟡 Internal |
 :::
 
