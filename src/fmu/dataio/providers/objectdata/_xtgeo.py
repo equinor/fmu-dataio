@@ -144,8 +144,8 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
                 xmax=float(self.obj.xmax),
                 ymin=float(self.obj.ymin),
                 ymax=float(self.obj.ymax),
-                zmin=float(self.obj.values.min()),
-                zmax=float(self.obj.values.max()),
+                zmin=float(np.nanmin(self.obj.values)),
+                zmax=float(np.nanmax(self.obj.values)),
             )
 
         return BoundingBox2D(
