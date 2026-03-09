@@ -643,14 +643,11 @@ def test_get_ert_parameters_table_schema_columns(
     assert table is not None
     schema = table.schema
 
-    assert schema.field("REAL").type == pa.int64()
+    assert schema.field("REAL").type == pa.int32()
     assert schema.field("param_a").type == pa.float64()
     assert schema.field("param_b").type == pa.float64()
     assert schema.field("param_c").type == pa.int64()
-    assert schema.field("string_param").type in (
-        pa.string(),
-        pa.large_string(),
-    )
+    assert schema.field("string_param").type == pa.string()
 
     assert len(schema.names) == 5
 
