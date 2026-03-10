@@ -73,9 +73,7 @@ def test_generate_meta_tracklog_fmu_dataio_version(
     # datetime in tracklog shall be on UTC time
     assert parsed.datetime.utcoffset().total_seconds() == 0
 
-    assert parsed.sysinfo is not None
-    assert parsed.sysinfo.fmu_dataio is not None
-    assert parsed.sysinfo.fmu_dataio.version == dio.__version__
+    assert getattr(parsed.sysinfo, "fmu-dataio").version == dio.__version__
 
 
 def test_generate_meta_tracklog_komodo_version(
@@ -105,8 +103,7 @@ def test_generate_meta_tracklog_komodo_version(
     assert parsed.sysinfo is not None
     assert parsed.sysinfo.komodo is not None
     assert parsed.sysinfo.komodo.version == fake_komodo_release
-    assert parsed.sysinfo.fmu_dataio is not None
-    assert parsed.sysinfo.fmu_dataio.version == dio.__version__
+    assert getattr(parsed.sysinfo, "fmu-dataio").version == dio.__version__
 
 
 def test_generate_meta_tracklog_backup_komodo_version(
@@ -125,8 +122,7 @@ def test_generate_meta_tracklog_backup_komodo_version(
     assert tracklog.sysinfo is not None
     assert tracklog.sysinfo.komodo is not None
     assert tracklog.sysinfo.komodo.version == komodo_release
-    assert tracklog.sysinfo.fmu_dataio is not None
-    assert tracklog.sysinfo.fmu_dataio.version == dio.__version__
+    assert getattr(tracklog.sysinfo, "fmu-dataio").version == dio.__version__
 
 
 def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
@@ -152,8 +148,7 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
     assert tracklog.sysinfo is not None
     assert tracklog.sysinfo.komodo is not None
     assert tracklog.sysinfo.komodo.version == komodo_release
-    assert tracklog.sysinfo.fmu_dataio is not None
-    assert tracklog.sysinfo.fmu_dataio.version == dio.__version__
+    assert getattr(tracklog.sysinfo, "fmu-dataio").version == dio.__version__
 
 
 def test_generate_meta_tracklog_operating_system(
