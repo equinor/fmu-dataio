@@ -1,5 +1,7 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 import pandas as pd
 import pyarrow as pa
@@ -47,16 +49,21 @@ def test_checksum_md5_for_gridproperty(
     """
     monkeypatch.chdir(tmp_path)
 
-    export_path = Path(
-        ExportData(
-            config=mock_global_config,
-            content="depth",
-            name="myname",
-        ).export(gridproperty)
-    )
+    # roffio writes a timestamp to the roff header which can mismatch if second
+    # increases between temp file write (for checksum) and export write
+    with patch("_roffio.writing.datetime") as mock_datetime:
+        mock_datetime.datetime.now = datetime.now()
 
-    meta = read_metadata(export_path)
-    assert meta["file"]["checksum_md5"] == md5sum(export_path)
+        export_path = Path(
+            ExportData(
+                config=mock_global_config,
+                content="depth",
+                name="myname",
+            ).export(gridproperty)
+        )
+
+        meta = read_metadata(export_path)
+        assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
 def test_checksum_md5_for_grid(
@@ -71,16 +78,21 @@ def test_checksum_md5_for_grid(
     """
     monkeypatch.chdir(tmp_path)
 
-    export_path = Path(
-        ExportData(
-            config=mock_global_config,
-            content="depth",
-            name="myname",
-        ).export(grid)
-    )
+    # roffio writes a timestamp to the roff header which can mismatch if second
+    # increases between temp file write (for checksum) and export write
+    with patch("_roffio.writing.datetime") as mock_datetime:
+        mock_datetime.datetime.now = datetime.now()
 
-    meta = read_metadata(export_path)
-    assert meta["file"]["checksum_md5"] == md5sum(export_path)
+        export_path = Path(
+            ExportData(
+                config=mock_global_config,
+                content="depth",
+                name="myname",
+            ).export(grid)
+        )
+
+        meta = read_metadata(export_path)
+        assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
 def test_checksum_md5_for_points(

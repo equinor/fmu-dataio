@@ -38,7 +38,7 @@ def casepath_has_metadata(casepath: Path) -> bool:
 
 
 def md5sum(file: Path | BytesIO) -> str:
-    if isinstance(file, Path):
+    if isinstance(file, (str, Path)):
         with open(file, "rb") as stream:
             return md5sum_stream(stream)
     return md5sum_stream(file)
