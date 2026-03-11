@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Final, Literal, Self, TypeAlias
 
 from pydantic import TypeAdapter
 
+from fmu.datamodels import TracklogSource
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.data import (
     FieldOutline,
@@ -110,6 +111,9 @@ class ExportConfig:
     # Standard result
     standard_result: AnyStandardResult | None
 
+    # Data provenance
+    tracklog_source: TracklogSource | None = None
+
     @property
     def content_enum(self) -> Content | None:
         """Filter possible 'unset' content."""
@@ -143,6 +147,13 @@ class ExportConfig:
 
         This is an adapter for existing tests."""
         return dataclasses.replace(self, standard_result=standard_result)
+
+    def with_tracklog_source(self, source_name: str, source_version: str) -> Self:
+        """Returns a new ExportConfig with a source to use in the tracklog."""
+        return dataclasses.replace(
+            self,
+            tracklog_source=TracklogSource(name=source_name, version=source_version),
+        )
 
     @classmethod
     def builder(cls) -> ExportConfigBuilder:
@@ -245,6 +256,9 @@ class ExportConfigBuilder:
 
         # Standard result
         self._standard_result: AnyStandardResult | None = None
+
+        # Data provenance
+        self._tracklog_source: TracklogSource | None = None
 
     def content(
         self,
@@ -414,6 +428,10 @@ class ExportConfigBuilder:
         self._standard_result = StandardResultAdapter.validate_python({"name": name})
         return self
 
+    def tracklog_source(self, name: str, version: str) -> ExportConfigBuilder:
+        self._tracklog_source = TracklogSource(name=name, version=version)
+        return self
+
     def build(self) -> ExportConfig:
         """Build the immutable ExportConfig.
 
@@ -461,4 +479,5 @@ class ExportConfigBuilder:
             config=self._config,
             runcontext=runcontext,
             standard_result=self._standard_result,
+            tracklog_source=self._tracklog_source,
         )

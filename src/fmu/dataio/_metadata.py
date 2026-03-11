@@ -97,30 +97,22 @@ def generate_export_metadata(
     objdata: ObjectDataProvider, export_config: ExportConfig
 ) -> ObjectMetadataExport:
     """
-    Main function to generate the full metadata
+    Generates metadata for the object being exported.
 
-    Metadata has basically these different providers:
+    Arguments:
+        objdata: Provides metadata about the object itself
+        export_config: Configuration being used to export the object
 
-    * The FmuProvider, which is typically ERT, which provides a kind of an
-      environment. The FmuProvider may also be legally missing, e.g. when
-      running interactive RMS project
+    Metadata about the object is gathered from the object data provider passed to this
+    function. Additional metadata comes from several sources created in this function
+    call:
 
-    * The User data, which is a mix of global variables and user set keys
+    - SharePathConstruct: Resolves the filepath where data will be exported to.
+    - FmuProvider: Gathers data about the current FMU and run context. This includes
+          things like Ert environments variables, or whether we're running in RMS.
 
-    * The data object itself ie. ObjectDataProvider
-
-    Then, metadata are stored as:
-
-    * meta_dollars: holding 'system' state: $schema, version, source
-    * meta_class: a simple string
-    * meta_tracklog: dict of events (datdtime, user)
-    * meta_fmu: nested dict of model, case, etc (complex)
-    * meta_file: dict of paths and checksums
-    * meta_masterdata: dict of (currently) smda masterdata
-    * meta_access: dict with name of field + access rules
-    * meta_objectdata: the data block, may be complex
-    * meta_display: dict of default display settings (experimental)
-
+    Returns:
+        Pydantic model containing the complete metadata that will be exported.
     """
     share_path = SharePathConstructor(export_config, objdata).get_share_path()
     fmudata = (
@@ -145,7 +137,7 @@ def generate_export_metadata(
         access=_get_meta_access(export_config),
         data=objdata.get_metadata(),
         file=_get_meta_filedata(export_config.runcontext, objdata, share_path),
-        tracklog=Tracklog.initialize(__version__),
+        tracklog=Tracklog.initialize(__version__, export_config.tracklog_source),
         display=_get_meta_display(export_config, objdata),
         preprocessed=export_config.preprocessed,
     )
