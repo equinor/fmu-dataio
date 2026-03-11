@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.16.1/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.20.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -54,7 +54,7 @@ display:
   name: geogrid
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 2c21552d03a9b4217abe73034509f332
+  checksum_md5: a8c679c938bf2d83b8ffccd1902460f6
   relative_path: example_exports/share/results/grids/geogrid.roff
   runpath_relative_path: share/results/grids/geogrid.roff
   size_bytes: 16540658
@@ -73,6 +73,10 @@ fmu:
   entity:
     uuid: 00000000-0000-0000-0000-000000000000
   ert:
+    ensemble:
+      id: 0
+      name: iter-0
+      uuid: b027f225-c45d-477d-8f33-73695217ba14
     experiment:
       id: 00000000-0000-0000-0000-000000000000
     simulation_mode: test_run
@@ -113,8 +117,6 @@ tracklog:
   sysinfo:
     fmu-dataio:
       version: dummy_version
-    komodo:
-      version: dummy_version
     operating_system:
       hostname: dummy_hostname
       operating_system: dummy_os
@@ -123,4 +125,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.16.1
+version: 0.20.0

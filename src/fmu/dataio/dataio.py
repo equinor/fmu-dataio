@@ -11,7 +11,6 @@ from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 
-from fmu.dataio.aggregation import AggregatedData
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._deprecations import (
@@ -35,8 +34,6 @@ if TYPE_CHECKING:
 GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 
 logger: Final = null_logger(__name__)
-
-AggregatedData: Final = AggregatedData  # Backwards compatibility alias
 
 
 # ======================================================================================
