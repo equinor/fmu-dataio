@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pyarrow as pa
+import pytest
 import xtgeo
 from pytest import MonkeyPatch
 
@@ -95,17 +96,24 @@ def test_checksum_md5_for_grid(
         assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
+@pytest.mark.parametrize(
+    "points_fformat", ["parquet", "irap_ascii", "csv", "csv|xtgeo"]
+)
 def test_checksum_md5_for_points(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
     mock_global_config: dict[str, Any],
     points: xtgeo.Points,
+    points_fformat: str,
 ) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.Points
     """
     monkeypatch.chdir(tmp_path)
+
+    default_fformat = ExportData.points_fformat
+    ExportData.points_fformat = points_fformat
 
     export_path = Path(
         ExportData(
@@ -115,21 +123,30 @@ def test_checksum_md5_for_points(
         ).export(points)
     )
 
+    ExportData.points_fformat = default_fformat
+
     meta = read_metadata(export_path)
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
 
 
+@pytest.mark.parametrize(
+    "polygons_fformat", ["parquet", "irap_ascii", "csv", "csv|xtgeo"]
+)
 def test_checksum_md5_for_polygons(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
     mock_global_config: dict[str, Any],
     polygons: xtgeo.Polygons,
+    polygons_fformat: str,
 ) -> None:
     """
     Test that the MD5 hash in the metadata is equal to one computed for
     the exported file for an xtgeo.Polygons
     """
     monkeypatch.chdir(tmp_path)
+
+    default_fformat = ExportData.polygons_fformat
+    ExportData.points_fformat = polygons_fformat
 
     export_path = Path(
         ExportData(
@@ -138,6 +155,8 @@ def test_checksum_md5_for_polygons(
             name="myname",
         ).export(polygons)
     )
+
+    ExportData.points_fformat = default_fformat
 
     meta = read_metadata(export_path)
     assert meta["file"]["checksum_md5"] == md5sum(export_path)
