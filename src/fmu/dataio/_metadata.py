@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from ._export_config import ExportConfig
     from ._runcontext import RunContext
     from .providers.objectdata._base import ObjectDataProvider
-    from .types import Inferrable
+    from .types import ExportableData
 
 logger: Final = null_logger(__name__)
 
@@ -151,7 +151,9 @@ def generate_export_metadata(
     )
 
 
-def generate_metadata(export_config: ExportConfig, obj: Inferrable) -> dict[str, Any]:
+def generate_metadata(
+    export_config: ExportConfig, obj: ExportableData
+) -> dict[str, Any]:
     """Generate metadata without exporting."""
     objdata = objectdata_provider_factory(obj, export_config)
     return _generate_metadata(export_config, objdata)

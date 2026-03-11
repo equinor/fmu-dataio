@@ -39,13 +39,13 @@ from ._xtgeo import (
 if TYPE_CHECKING:
     from io import BytesIO
 
-    from fmu.dataio.types import Inferrable
+    from fmu.dataio.types import ExportableData
 
 logger: Final = null_logger(__name__)
 
 
 def objectdata_provider_factory(
-    obj: Inferrable, export_config: ExportConfig
+    obj: ExportableData, export_config: ExportConfig
 ) -> ObjectDataProvider:
     """Factory function that generates metadata for a particular data object. This
     function will return an instance of an object-independent (i.e., typeable) class

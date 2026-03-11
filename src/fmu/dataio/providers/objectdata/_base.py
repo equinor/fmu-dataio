@@ -20,7 +20,7 @@ from fmu.datamodels.fmu_results.global_configuration import (
 )
 
 if TYPE_CHECKING:
-    from fmu.dataio.types import Inferrable
+    from fmu.dataio.types import ExportableData
     from fmu.datamodels.fmu_results.data import (
         BoundingBox2D,
         BoundingBox3D,
@@ -47,7 +47,7 @@ class ObjectDataProvider(Provider):
     * investigate current metadata if that is provided
     """
 
-    def __init__(self, obj: Inferrable, export_config: ExportConfig) -> None:
+    def __init__(self, obj: ExportableData, export_config: ExportConfig) -> None:
         self.obj = obj
         self.export_config = export_config
 
