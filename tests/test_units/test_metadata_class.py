@@ -6,11 +6,12 @@ from typing import Any
 
 import pytest
 import xtgeo
-from fmu.datamodels.common.enums import TrackLogEventType
-from fmu.datamodels.common.tracklog import (
+from fmu.datamodels import (
     OperatingSystem,
     TracklogEvent,
+    TracklogSource,
 )
+from fmu.datamodels.common.enums import TrackLogEventType
 from fmu.datamodels.fmu_results import FmuResultsSchema
 from pytest import MonkeyPatch
 
@@ -58,24 +59,25 @@ def test_generate_meta_tracklog_fmu_dataio_version(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    mymeta = generate_export_metadata(objdata, mock_exportdata._export_config)
-    tracklog = mymeta.tracklog
+    metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
+    tracklog = metadata.tracklog
 
     assert isinstance(tracklog.root, list)
     assert len(tracklog.root) == 1  # assume TrackLogEventType.created
 
-    parsed = TracklogEvent.model_validate(tracklog[0])
-    assert parsed.event == TrackLogEventType.created
+    tracklog_item = TracklogEvent.model_validate(tracklog[0])
+    assert tracklog_item.event == TrackLogEventType.created
 
     # datetime in tracklog shall include time zone offset
-    assert parsed.datetime.tzinfo is not None
-
+    assert tracklog_item.datetime.tzinfo is not None
     # datetime in tracklog shall be on UTC time
-    assert parsed.datetime.utcoffset().total_seconds() == 0
+    utcoffset = tracklog_item.datetime.utcoffset()
+    assert utcoffset is not None
+    assert utcoffset.total_seconds() == 0
 
-    assert parsed.sysinfo is not None
-    assert parsed.sysinfo.fmu_dataio is not None
-    assert parsed.sysinfo.fmu_dataio.version == dio.__version__
+    assert tracklog_item.sysinfo is not None
+    assert tracklog_item.sysinfo.fmu_dataio is not None
+    assert tracklog_item.sysinfo.fmu_dataio.version == dio.__version__
 
 
 def test_generate_meta_tracklog_komodo_version(
@@ -87,26 +89,13 @@ def test_generate_meta_tracklog_komodo_version(
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    mymeta = generate_export_metadata(objdata, mock_exportdata._export_config)
-    tracklog = mymeta.tracklog
+    metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
 
-    assert isinstance(tracklog.root, list)
-    assert len(tracklog.root) == 1  # assume TrackLogEventType.created
+    tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
 
-    parsed = TracklogEvent.model_validate(tracklog[0])
-    assert parsed.event == TrackLogEventType.created
-
-    # datetime in tracklog shall include time zone offset
-    assert parsed.datetime.tzinfo is not None
-
-    # datetime in tracklog shall be on UTC time
-    assert parsed.datetime.utcoffset().total_seconds() == 0
-
-    assert parsed.sysinfo is not None
-    assert parsed.sysinfo.komodo is not None
-    assert parsed.sysinfo.komodo.version == fake_komodo_release
-    assert parsed.sysinfo.fmu_dataio is not None
-    assert parsed.sysinfo.fmu_dataio.version == dio.__version__
+    assert tracklog_item.sysinfo is not None
+    assert tracklog_item.sysinfo.komodo is not None
+    assert tracklog_item.sysinfo.komodo.version == fake_komodo_release
 
 
 def test_generate_meta_tracklog_backup_komodo_version(
@@ -122,11 +111,10 @@ def test_generate_meta_tracklog_backup_komodo_version(
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
+
     assert tracklog.sysinfo is not None
     assert tracklog.sysinfo.komodo is not None
     assert tracklog.sysinfo.komodo.version == komodo_release
-    assert tracklog.sysinfo.fmu_dataio is not None
-    assert tracklog.sysinfo.fmu_dataio.version == dio.__version__
 
 
 def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
@@ -160,17 +148,41 @@ def test_generate_meta_tracklog_operating_system(
     mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
 ) -> None:
     objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    mymeta = generate_export_metadata(objdata, mock_exportdata._export_config)
-    tracklog = mymeta.tracklog
+    metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
 
-    assert isinstance(tracklog.root, list)
-    assert len(tracklog.root) == 1  # assume TrackLogEventType.created
+    tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
 
-    parsed = TracklogEvent.model_validate(tracklog[0])
+    assert tracklog_item.sysinfo is not None
     assert isinstance(
-        parsed.sysinfo.operating_system,
+        tracklog_item.sysinfo.operating_system,
         OperatingSystem,
     )
+
+
+def test_generate_metadata_tracklog_source_defaults_to_none(
+    mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
+) -> None:
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
+
+    tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
+
+    assert tracklog_item.sysinfo is not None
+    assert tracklog_item.sysinfo.source is None
+
+
+def test_generate_metadata_tracklog_in_metadata_from_export_config(
+    mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
+) -> None:
+    export_config = mock_exportdata._export_config.with_tracklog_source("foo", "1.2.3")
+
+    objdata = objectdata_provider_factory(regsurf, export_config)
+    metadata = generate_export_metadata(objdata, export_config)
+
+    tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
+
+    assert tracklog_item.sysinfo is not None
+    assert tracklog_item.sysinfo.source == TracklogSource(name="foo", version="1.2.3")
 
 
 # --------------------------------------------------------------------------------------
