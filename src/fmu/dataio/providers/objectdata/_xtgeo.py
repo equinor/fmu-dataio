@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
     import pandas as pd
 
-    from fmu.dataio.types import Inferrable
+    from fmu.dataio.types import ExportableData
 
 logger: Final = null_logger(__name__)
 
@@ -45,7 +45,7 @@ def npfloat_to_float(v: Any) -> Any:
     return float(v) if isinstance(v, np.float64 | np.float32) else v
 
 
-def get_geometry_ref(geometrypath: Path, obj: Inferrable) -> Geometry | None:
+def get_geometry_ref(geometrypath: Path, obj: ExportableData) -> Geometry | None:
     """Get a reference to a geometry.
 
     Read the metadata file for an already exported file, and returns info like this

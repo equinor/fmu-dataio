@@ -699,7 +699,7 @@ class ExportData:
 
     def generate_metadata(
         self,
-        obj: types.Inferrable,
+        obj: types.ExportableData,
         compute_md5: bool = True,
         **kwargs: object,
     ) -> dict:
@@ -754,7 +754,7 @@ class ExportData:
 
     def export(
         self,
-        obj: types.Inferrable,
+        obj: types.ExportableData,
         **kwargs: Any,
     ) -> str:
         """Export supported data objects with metadata.

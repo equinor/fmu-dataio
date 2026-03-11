@@ -218,7 +218,7 @@ class AggregatedData:
 
     def _set_metadata(
         self,
-        obj: types.Inferrable,
+        obj: types.ExportableData,
         real_ids: list[int],
         uuids: list[str],
         compute_md5: bool = True,
@@ -314,7 +314,7 @@ class AggregatedData:
 
     def generate_metadata(
         self,
-        obj: types.Inferrable,
+        obj: types.ExportableData,
         compute_md5: bool = True,
         skip_null: bool = True,
         **kwargs: object,
@@ -369,7 +369,7 @@ class AggregatedData:
 
     def generate_aggregation_metadata(
         self,
-        obj: types.Inferrable,
+        obj: types.ExportableData,
         compute_md5: bool = True,
         skip_null: bool = True,
         **kwargs: object,
@@ -386,7 +386,7 @@ class AggregatedData:
 
     def _export_file(
         self,
-        obj: types.Inferrable,
+        obj: types.ExportableData,
         file: Path | BytesIO,
         file_suffix: str | None = None,
         fmt: str = "",
@@ -452,7 +452,7 @@ class AggregatedData:
         else:
             raise TypeError(f"Exporting {file_suffix} for {type(obj)} is not supported")
 
-    def export(self, obj: types.Inferrable, **kwargs: object) -> str:
+    def export(self, obj: types.ExportableData, **kwargs: object) -> str:
         """Export aggregated file with metadata to file.
 
         Args:
