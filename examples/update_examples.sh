@@ -10,7 +10,7 @@ set -e
 # DESCRIPTION: Generates files and metadata to be used
 #   1) As examples in the documentation on how to use fmu-dataio to export data
 #   2) For unit testing the versioned schema metadata of fmu-dataio
-# 
+#
 # NB! Run this script from the project root if run manually
 #
 #===================================================================================
@@ -55,20 +55,13 @@ python export_grid3d.py
 python export_volumetables.py
 
 
-#--------- Create aggregation metadata (to be used in unit tests) ---------#
-
-# The scripts will emulate an aggregation of a surface across 3 realizations
-cd $examples_rootpath/metadata_scripts
-python create_aggregation_metadata.py
-
-
 #--------- Update the metadata examples with the newly created metadata ---------#
 cd $examples_rootpath
 
 echo "Updating schema metadata..."
 
 # Update fmu case
-cp $examples_rootpath/share/metadata/fmu_case.yml example_metadata/fmu_case.yml 
+cp $examples_rootpath/share/metadata/fmu_case.yml example_metadata/fmu_case.yml
 
 # Update surface metadata
 cp $examples_rootpath/example_exports/share/results/maps/.topvolantis--ds_extract_geogrid.gri.yml example_metadata/surface_depth.yml
@@ -85,13 +78,10 @@ cp $examples_rootpath/example_exports/share/results/tables/.geogrid--volumes.csv
 cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_region.csv.yml example_metadata/polygons_field_region.yml
 cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_outline.csv.yml example_metadata/polygons_field_outline.yml
 
-# Update grid and grid property metadata 
+# Update grid and grid property metadata
 cp $examples_rootpath/example_exports/share/results/grids/.geogrid.roff.yml example_metadata/geogrid.yml
 cp $examples_rootpath/example_exports/share/results/grids/.geogrid--phit.roff.yml example_metadata/geogrid--phit.yml
 cp $examples_rootpath/example_exports/share/results/grids/.geogrid--facies.roff.yml example_metadata/geogrid--facies.yml
-
-#Update aggregation metadata
-cp $examples_rootpath/share/results/maps/.aggregated_surfaces.gri.yml share/metadata/aggregated_surface_depth.yml
 
 echo "Done updating schema metadata."
 

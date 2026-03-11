@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.16.1/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.20.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -24,6 +24,15 @@ data:
   property:
     is_discrete: false
   spec:
+    codenames:
+      '0': Floodplain
+      '1': Channel
+      '10': Offshore
+      '11': Lowershoreface
+      '12': Uppershoreface
+      '2': Crevasse
+      '5': Coal
+      '6': Calcite
     ncol: 92
     nlay: 65
     nrow: 146
@@ -36,7 +45,7 @@ display:
   name: facies
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: a6a4376b1f4d263ecd8cd6758a85c723
+  checksum_md5: c69af09d63116e487782e2bad7e10949
   relative_path: example_exports/share/results/grids/geogrid--facies.roff
   runpath_relative_path: share/results/grids/geogrid--facies.roff
   size_bytes: 3492813
@@ -55,6 +64,10 @@ fmu:
   entity:
     uuid: 00000000-0000-0000-0000-000000000000
   ert:
+    ensemble:
+      id: 0
+      name: iter-0
+      uuid: b027f225-c45d-477d-8f33-73695217ba14
     experiment:
       id: 00000000-0000-0000-0000-000000000000
     simulation_mode: test_run
@@ -95,8 +108,6 @@ tracklog:
   sysinfo:
     fmu-dataio:
       version: dummy_version
-    komodo:
-      version: dummy_version
     operating_system:
       hostname: dummy_hostname
       operating_system: dummy_os
@@ -105,4 +116,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.16.1
+version: 0.20.0
