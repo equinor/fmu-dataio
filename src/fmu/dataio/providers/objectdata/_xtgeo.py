@@ -30,6 +30,7 @@ from fmu.datamodels.fmu_results.specification import (
 
 from ._base import ObjectDataProvider
 from ._tables import _derive_index
+from ._utils import get_value_statistics
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -170,6 +171,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
             yflip=npfloat_to_float(required["yflip"]),
             rotation=npfloat_to_float(required["rotation"]),
             undef=1.0e30,
+            value_statistics=get_value_statistics(self.obj.values),
         )
 
     def export_to_file(self, file: Path | BytesIO) -> None:
@@ -623,6 +625,7 @@ class CPGridPropertyDataProvider(ObjectDataProvider):
             ncol=self.obj.ncol,
             nlay=self.obj.nlay,
             codenames=self.obj.codes if self.obj.isdiscrete else None,
+            value_statistics=get_value_statistics(self.obj.values),
         )
 
     def get_geometry(self) -> Geometry | None:
