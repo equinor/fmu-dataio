@@ -36,7 +36,7 @@ display:
   name: phit
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 13950b34022338df5242f3881ee08299
+  checksum_md5: 88b67c5732ee76c91325f76ddb5d4987
   relative_path: example_exports/share/results/grids/geogrid--phit.roff
   runpath_relative_path: share/results/grids/geogrid--phit.roff
   size_bytes: 3492651

@@ -1,71 +1,67 @@
-"""Export polygons via dataio with metadata."""
+"""Export polygons of two types: field regions and field outlines."""
 
-import logging
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as utils
+from fmu.config import utilities as ut
 
-from fmu import dataio
+from fmu.dataio import ExportData
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
-CFG = utils.yaml_load("../../fmuconfig/output/global_variables.yml")
-
-# if running outside RMS using files that are stored e.g. on rms/output
-FILEROOT = Path("../output/polygons")
+# If re-exporting already exported files for Sumo, set the directory where the files
+# have been exported.
+POL_DIR = Path("../output/polygons")
 
 
 def export_field_region():
-    """Export metadata for a field region"""
+    """Re-export a field region polygon with metadata."""
 
-    ed = dataio.ExportData(
+    # The difference bewtween "csv" and "csv|xtgeo" is that the latter will keep
+    # xtgeo column names as-is while "csv" will force column names to "X Y Z ID"
+    export_data = ExportData(
         config=CFG,
         content="field_region",
         content_metadata={"id": 1},
         unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
-        timedata=None,
         is_prediction=False,
-        is_observation=False,
         tagname="polygons_field_region",
         workflow="rms structural model",
+        polygons_fformat="csv|xtgeo",
     )
 
-    horizon = "BaseVolantis"
-    polygon = xtgeo.polygons_from_file((FILEROOT / horizon.lower()).with_suffix(".pol"))
-    polygon.name = horizon
-    ed.polygons_fformat = "csv|xtgeo"
+    horizon_name = "BaseVolantis"
+    pol_file = POL_DIR / f"{horizon_name.lower()}.pol"
 
-    ed.export(polygon)
-    print("Exported field region for " + horizon)
+    poly = xtgeo.polygons_from_file(pol_file)
+    poly.name = horizon_name
+
+    out_path = export_data.export(poly)
+
+    print(f"Exported field region for {horizon_name} to {out_path}")
 
 
 def export_field_outline():
-    """Export metadata for a field outline"""
-    ed = dataio.ExportData(
+    """Re-export a field outline polygon with metadata."""
+
+    export_data = ExportData(
         config=CFG,
         content="field_outline",
         content_metadata={"contact": "goc"},
         unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
         tagname="polygons_field_outline",
         workflow="rms structural model",
+        polygons_fformat="csv|xtgeo",
     )
 
-    horizon = "BaseVolantis"
-    polygon = xtgeo.polygons_from_file((FILEROOT / horizon.lower()).with_suffix(".pol"))
-    polygon.name = horizon
-    ed.polygons_fformat = "csv|xtgeo"
+    horizon_name = "BaseVolantis"
+    pol_file = POL_DIR / f"{horizon_name.lower()}.pol"
 
-    ed.export(polygon)
-    print("Exported field outline for " + horizon)
+    poly = xtgeo.polygons_from_file(pol_file)
+    poly.name = horizon_name
+
+    out_path = export_data.export(poly)
+    print(f"Exported field outline for {horizon_name} to {out_path}")
 
 
 def main():

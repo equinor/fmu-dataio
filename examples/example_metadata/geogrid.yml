@@ -54,7 +54,7 @@ display:
   name: geogrid
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: a8c679c938bf2d83b8ffccd1902460f6
+  checksum_md5: 25135269ececcc113559aaabc851cf51
   relative_path: example_exports/share/results/grids/geogrid.roff
   runpath_relative_path: share/results/grids/geogrid.roff
   size_bytes: 16540658
