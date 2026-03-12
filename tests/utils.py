@@ -62,14 +62,3 @@ def _get_pydantic_models_from_annotation(annotation: Any) -> list[Any]:
     for ann in get_args(annotation):
         annotations += _get_pydantic_models_from_annotation(ann)
     return annotations
-
-
-def _get_nested_pydantic_models(model: type[BaseModel]) -> set[type[BaseModel]]:
-    """Get a set of all nested pydantic models from a pydantic model"""
-    models = {model}
-
-    for field_info in model.model_fields.values():
-        for model in _get_pydantic_models_from_annotation(field_info.annotation):
-            if model not in models:
-                models.update(_get_nested_pydantic_models(model))
-    return models
