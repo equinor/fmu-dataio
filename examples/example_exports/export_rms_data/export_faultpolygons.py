@@ -1,64 +1,60 @@
-"""Export faultpolygons via dataio with metadata."""
+"""Export fault lines polygons.
 
-import logging
+This example contains two cases of exporting: directly from the RMS project or from
+already exported files. These two cases are indicated with comments where appropriate.
+"""
+
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as utils
+from fmu.config import utilities as ut
 
-from fmu import dataio
+from fmu.dataio import ExportData
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
-CFG = utils.yaml_load("../../fmuconfig/output/global_variables.yml")
+HORIZON_NAMES = CFG["rms"]["horizons"]["TOP_RES"]
 
-HORISONNAMES = CFG["rms"]["horizons"]["TOP_RES"]
-
-# if inside RMS
+# If inside RMS, set the polygon category.
 RMS_POL_CATEGORY = "GL_faultlines_extract_postprocess"
 
-# if running outside RMS using files that are stored e.g. on rms/output
-FILEROOT = Path("../output/polygons")
+# If re-exporting already exported files for Sumo, set the directory where the files
+# have been exported.
+POL_DIR = Path("../output/polygons")
 
 
-def export_faultlines():
-    """Return faultlines as both dataframe and original (xyz)"""
+def export_fault_lines():
+    """Re-export fault lines polygons with metadata in two formats."""
 
-    ed = dataio.ExportData(
-        config=CFG,
-        content="fault_lines",
-        unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
-        tagname="faultlines",
-        workflow="rms structural model",
-    )
+    # Export both csv (keeping xtgeo column names) and irap text format The difference
+    # bewtween "csv" and "csv|xtgeo" is that the latter will keep xtgeo column names
+    # as-is while "csv" will force column names to "X Y Z ID"
+    for fmt in ["csv|xtgeo", "irap_ascii"]:
+        ExportData.polygons_fformat = fmt
+        export_data = ExportData(
+            config=CFG,
+            content="fault_lines",
+            unit="m",
+            tagname="faultlines",
+            workflow="rms structural model",
+        )
 
-    for hname in HORISONNAMES:
-        # RMS version for reading polygons from a project:
-        # poly = xtgeo.polygons_from_roxar(project, hname, RMS_POL_CATEGORY)
+        for name in HORIZON_NAMES:
+            # RMS: read the polygon directly from RMS
+            # poly = xtgeo.polygons_from_roxar(project, name, RMS_POL_CATEGORY)
 
-        # File version:
-        poly = xtgeo.polygons_from_file((FILEROOT / hname.lower()).with_suffix(".pol"))
+            # From an already exported polygon
+            pol_file = POL_DIR / f"{name.lower()}.pol"
+            poly = xtgeo.polygons_from_file(pol_file)
+            poly.name = name
 
-        poly.name = hname
-
-        # Export both csv (keeping xtgeo column names) and irap text format
-        # The difference bewtween "csv" and "csv|xtgeo" is that the latter will keep
-        # xtgeo column names as-is while "csv" will force column names to "X Y Z ID"
-        for fmt in ["csv|xtgeo", "irap_ascii"]:
-            ed.polygons_fformat = fmt
-            ed.export(poly)
+            export_data.export(poly)
 
 
 def main():
-    print("\nExporting faultpolygons and metadata...")
-    export_faultlines()
-    print("Done exporting faultpolygons and metadata.")
+    print("\nExporting fault lines polygons and metadata...")
+    export_fault_lines()
+    print("Done exporting fault lines polygons and metadata.")
 
 
 if __name__ == "__main__":

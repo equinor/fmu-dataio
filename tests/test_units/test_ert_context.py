@@ -353,9 +353,10 @@ def test_points_export_file_set_name_xtgeoheaders(
 
     logger.info("Active folder is %s", runpath_no_dotfmu)
 
-    dataio.ExportData.points_fformat = "csv"
     edata = dataio.ExportData(
-        config=rmsglobalconfig, content="depth", name="TopVolantiz"
+        config=rmsglobalconfig,
+        content="depth",
+        name="TopVolantiz",
     )
     edata.points_fformat = "csv|xtgeo"  # override
 
@@ -375,8 +376,6 @@ def test_points_export_file_set_name_xtgeoheaders(
 
     meta = dataio.read_metadata(output)
     assert meta["data"]["spec"]["attributes"] == ["WellName"]
-
-    dataio.ExportData.points_fformat = "csv"
 
 
 def test_points_export_file_as_parquet_no_table_index(

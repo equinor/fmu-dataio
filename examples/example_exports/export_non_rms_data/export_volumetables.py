@@ -1,65 +1,50 @@
-"""Read volume table from RMS or file and export to CSV for SUMO.
+"""Re-export already exported volume tables for Sumo."""
 
-In this example there is switch, IN_ROXAR which is set to True if using it inside
-RMS (to demostrate how volume tables can be fetched via Roxar API).
-
-For the file case, CSV files are read from disk. The dataio function is the same.
-"""
-
-import logging
-import pathlib
+from pathlib import Path
 
 import pandas as pd
 from fmu.config import utilities as ut
 
-import fmu.dataio
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+from fmu.dataio import ExportData
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
-VFOLDER = "../output/volumes/"
-VFILES = ["geogrid_vol.csv", "simgrid_vol.csv"]
-
-TAGNAME = "volumes"
+VOL_DIR = Path("../output/volumes/")
+VOL_FILES = ["geogrid_vol.csv", "simgrid_vol.csv"]
 
 
-def volume_as_dataframe_files(vfile):
-    """Read volume (CSV files) and return dataframe."""
-
-    # "geogrid_vol.csv" --> "geogrid" etc
-    gridname = vfile.replace("_vol.csv", "")
-
-    fname = pathlib.Path(VFOLDER) / vfile
-
-    dframe = pd.read_csv(fname)
-    return dframe, gridname
+def load_volume_df(vol_file):
+    """Loads an already exported volumes table into a Pandas dataframe."""
+    fname = VOL_DIR / vol_file
+    return pd.read_csv(fname)
 
 
-def export_dataio(df, gridname):
-    """Get the dataframe and export to SUMO via dataio."""
+def export_volumes(df, grid_name):
+    """Re-export the volume table with metadata for Sumo."""
 
-    exp = fmu.dataio.ExportData(
-        name=gridname,
+    export_data = ExportData(
+        name=grid_name,
         config=CFG,
         content="volumes",
-        unit="m",
-        is_prediction=True,
-        is_observation=False,
-        tagname=TAGNAME,
+        unit="m3",
+        tagname="volumes",
         workflow="Volume calculation",
     )
 
-    out = exp.export(df)
-    print(f"Exported volume table for {gridname} to {out}")
+    out_path = export_data.export(df)
+    print(f"Exported volume table for {grid_name} to {out_path}")
 
 
 def main():
     print("\nExporting volume tables and metadata...")
-    for vfile in VFILES:
-        df, gridname = volume_as_dataframe_files(vfile)
-        export_dataio(df, gridname)
+
+    for vol_file in VOL_FILES:
+        # Converts a file name like "geogrid_vol.csv" --> "geogrid"
+        grid_name = vol_file.replace("_vol.csv", "")
+
+        df = load_volume_df(vol_file)
+        export_volumes(df, grid_name)
+
     print("Done exporting volume tables and metadata.")
 
 

@@ -20,7 +20,7 @@ import xtgeo
 import yaml
 from pytest import MonkeyPatch, TempPathFactory
 
-from fmu.dataio import dataio
+from fmu.dataio import ExportData, dataio
 from fmu.dataio._readers import faultroom
 from fmu.dataio._utils import prettyprint_dict
 from fmu.dataio.dataio import ValidationError
@@ -307,10 +307,12 @@ def test_points_export_file_set_name_xtgeoheaders(
 ) -> None:
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
-    dataio.ExportData.points_fformat = "csv|xtgeo"
-
+    default_fformat = ExportData.points_fformat
+    ExportData.points_fformat = "csv|xtgeo"
     edata = dataio.ExportData(
-        config=inside_rms_setup["config"], content="depth", name="TopVolantiz"
+        config=inside_rms_setup["config"],
+        content="depth",
+        name="TopVolantiz",
     )
 
     output = edata.export(points)
@@ -329,7 +331,7 @@ def test_points_export_file_set_name_xtgeoheaders(
     )
     assert thefile.columns[0] == "X_UTME"
 
-    dataio.ExportData.points_fformat = "csv"
+    ExportData.points_fformat = default_fformat
 
 
 # ======================================================================================

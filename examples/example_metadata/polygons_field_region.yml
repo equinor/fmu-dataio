@@ -9,8 +9,7 @@ access:
     rep_include: false
 class: polygons
 data:
-  alias:
-  - BaseVolantis
+  alias: []
   bbox:
     xmax: 465765.584
     xmin: 459418.211
@@ -22,37 +21,35 @@ data:
   domain_reference: msl
   field_region:
     id: 1
-  format: csv|xtgeo
+  format: csv
   is_observation: false
   is_prediction: false
   layout: unset
-  name: VOLANTIS GP. Base
+  name: poly
   offset: 0.0
-  smda_entity:
-    identifier: VOLANTIS GP. Base
   spec:
     columns:
-    - X_UTME
-    - Y_UTMN
-    - Z_TVDSS
-    - POLY_ID
+    - X
+    - Y
+    - Z
+    - ID
     npolys: 6
     num_columns: 4
     num_rows: 1059
     size: 4236
-  stratigraphic: true
+  stratigraphic: false
   tagname: polygons_field_region
   undef_is_zero: false
   unit: m
   vertical_domain: depth
 display:
-  name: VOLANTIS GP. Base
+  name: poly
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 370519102b2362716cdf5b8b67e44ed0
-  relative_path: example_exports/share/results/polygons/volantis_gp_base--polygons_field_region.csv
-  runpath_relative_path: share/results/polygons/volantis_gp_base--polygons_field_region.csv
-  size_bytes: 35672
+  checksum_md5: 560dca7801c1cad8ee8c81fc4f9c9860
+  relative_path: example_exports/share/results/polygons/poly--polygons_field_region.csv
+  runpath_relative_path: share/results/polygons/poly--polygons_field_region.csv
+  size_bytes: 35651
 fmu:
   case:
     name: MyCase
