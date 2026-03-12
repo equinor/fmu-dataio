@@ -87,29 +87,29 @@ def mock_ert_ensemble() -> MagicMock:
 
 
 @pytest.fixture
-def mock_ert_runpaths(fmurun_prehook: Path) -> MagicMock:
+def mock_ert_runpaths(runpath_prehook: Path) -> MagicMock:
     """Create a mock Ert Runpaths object."""
     runpaths = MagicMock()
-    runpaths.get_paths.return_value = [str(fmurun_prehook / "realization-0/iter-0")]
+    runpaths.get_paths.return_value = [str(runpath_prehook / "realization-0/iter-0")]
     return runpaths
 
 
 @pytest.fixture
-def mock_ert_pred_runpaths(fmurun_prehook: Path) -> MagicMock:
+def mock_ert_pred_runpaths(runpath_prehook: Path) -> MagicMock:
     """Create a mock Ert Runpaths object for a pred run."""
     runpaths = MagicMock()
-    runpaths.get_paths.return_value = [str(fmurun_prehook / "realization-0/pred-dg3")]
+    runpaths.get_paths.return_value = [str(runpath_prehook / "realization-0/pred-dg3")]
     return runpaths
 
 
 @pytest.fixture
 def workflow_config(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_global_config_validated: GlobalConfiguration,
 ) -> CaseWorkflowConfig:
     """Create a mock CaseWorkflowConfig."""
     return CaseWorkflowConfig(
-        casepath=fmurun_prehook,
+        casepath=runpath_prehook,
         ert_config_path=Path("../../ert/model/"),
         register_on_sumo=True,
         verbosity="WARNING",
@@ -566,7 +566,7 @@ def test_distribution_models_one_to_one_with_ert() -> None:
 
 
 def test_get_ert_parameters_table(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     monkeypatch: MonkeyPatch,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
@@ -583,7 +583,7 @@ def test_get_ert_parameters_table(
 
 
 def test_get_ert_parameters_table_empty_scalars(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
@@ -600,7 +600,7 @@ def test_get_ert_parameters_table_empty_scalars(
 
 
 def test_get_ert_parameters_table_subset_realizations(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     monkeypatch: MonkeyPatch,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
@@ -628,7 +628,7 @@ def test_get_ert_parameters_table_subset_realizations(
 
 
 def test_get_ert_parameters_table_schema_columns(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_ert_ensemble: MagicMock,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
@@ -653,7 +653,7 @@ def test_get_ert_parameters_table_schema_columns(
 
 
 def test_get_ert_parameters_table_missing_config(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
@@ -682,7 +682,7 @@ def test_get_ert_parameters_table_missing_config(
 
 
 def test_get_ert_parameters_table_non_genkw_config_skipped(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_ert_runpaths: MagicMock,
     workflow_config: CaseWorkflowConfig,
 ) -> None:

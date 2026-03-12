@@ -62,7 +62,7 @@ def test_runcontext_rms_interactive(monkeypatch: MonkeyPatch) -> None:
 
 
 def test_runcontext_rms_batch_inside_fmu(
-    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+    monkeypatch: MonkeyPatch, runpath_no_dotfmu: Path
 ) -> None:
     """Test the RunContext inside FMU realization context with RMS in batch."""
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "batch")
@@ -73,8 +73,8 @@ def test_runcontext_rms_batch_inside_fmu(
     assert runcontext.fmu_context == FMUContext.realization
     assert runcontext.rms_context == RMSExecutionMode.batch
 
-    assert runcontext.runpath == fmurun_w_casemetadata
-    assert runcontext.casepath == fmurun_w_casemetadata.parent.parent
+    assert runcontext.runpath == runpath_no_dotfmu
+    assert runcontext.casepath == runpath_no_dotfmu.parent.parent
     assert runcontext.case_metadata is not None
     assert runcontext.case_metadata.fmu.case.name == "somecasename"
 
@@ -83,7 +83,7 @@ def test_runcontext_rms_batch_inside_fmu(
 
 
 def test_runcontext_outside_rms_inside_fmu(
-    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+    monkeypatch: MonkeyPatch, runpath_no_dotfmu: Path
 ) -> None:
     """Test the RunContext inside FMU in a realization context outside of RMS."""
     monkeypatch.delenv("RUNRMS_EXEC_MODE", raising=False)
@@ -94,8 +94,8 @@ def test_runcontext_outside_rms_inside_fmu(
     assert runcontext.fmu_context == FMUContext.realization
     assert runcontext.rms_context is None
 
-    assert runcontext.runpath == fmurun_w_casemetadata
-    assert runcontext.casepath == fmurun_w_casemetadata.parent.parent
+    assert runcontext.runpath == runpath_no_dotfmu
+    assert runcontext.casepath == runpath_no_dotfmu.parent.parent
     assert runcontext.case_metadata is not None
     assert runcontext.case_metadata.fmu.case.name == "somecasename"
 
@@ -104,13 +104,13 @@ def test_runcontext_outside_rms_inside_fmu(
 
 
 def test_runcontext_inside_fmu_prehook(
-    monkeypatch: MonkeyPatch, fmurun_prehook: Path
+    monkeypatch: MonkeyPatch, runpath_prehook: Path
 ) -> None:
     """Test the RunContext inside FMU in a case context, outside of RMS."""
     monkeypatch.delenv("RUNRMS_EXEC_MODE", raising=False)
 
     # first test with casepath_proposed
-    runcontext = RunContext(casepath_proposed=fmurun_prehook)
+    runcontext = RunContext(casepath_proposed=runpath_prehook)
 
     assert runcontext.inside_rms is False
     assert runcontext.inside_fmu is True
@@ -118,7 +118,7 @@ def test_runcontext_inside_fmu_prehook(
     assert runcontext.rms_context is None
 
     assert runcontext.runpath is None
-    assert runcontext.casepath == fmurun_prehook
+    assert runcontext.casepath == runpath_prehook
     assert runcontext.case_metadata is not None
     assert runcontext.case_metadata.fmu.case.name == "somecasename"
 
@@ -127,7 +127,7 @@ def test_runcontext_inside_fmu_prehook(
 
 
 def test_runcontext_inside_fmu_prehook_no_casepath(
-    monkeypatch: MonkeyPatch, fmurun_prehook: Path
+    monkeypatch: MonkeyPatch, runpath_prehook: Path
 ) -> None:
     """
     Test the RunContext inside FMU in a case context, outside of RMS.
@@ -153,7 +153,7 @@ def test_runcontext_inside_fmu_prehook_no_casepath(
 
 
 def test_runcontext_inside_fmu_prehook_invalid_casepath(
-    monkeypatch: MonkeyPatch, fmurun_prehook: Path
+    monkeypatch: MonkeyPatch, runpath_prehook: Path
 ) -> None:
     """
     Test the RunContext inside FMU in a case context, outside of RMS.
@@ -206,7 +206,7 @@ def test_runcontext_outside(monkeypatch: MonkeyPatch) -> None:
 )
 def test_runcontext_explicit_fmu_context_override(
     monkeypatch: MonkeyPatch,
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     context_override: FMUContext,
     export_root: str,
 ) -> None:
@@ -219,7 +219,7 @@ def test_runcontext_explicit_fmu_context_override(
 
 
 def test_runcontext_ensemble_name_standard(
-    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+    monkeypatch: MonkeyPatch, runpath_no_dotfmu: Path
 ) -> None:
     """Ensemble name extraction for standard iter-N paths."""
     runcontext = RunContext()
@@ -232,7 +232,7 @@ def test_runcontext_ensemble_name_standard(
 
 
 def test_runcontext_ensemble_name_prediction(
-    monkeypatch: MonkeyPatch, fmurun_w_casemetadata_pred: Path
+    monkeypatch: MonkeyPatch, runpath_no_dotfmu_pred: Path
 ) -> None:
     """Ensemble name extraction for prediction runs."""
     runcontext = RunContext()
@@ -245,7 +245,7 @@ def test_runcontext_ensemble_name_prediction(
 
 
 def test_runcontext_ensemble_name_flat_structure(
-    monkeypatch: MonkeyPatch, fmurun_no_iter_folder: Path
+    monkeypatch: MonkeyPatch, runpath_no_iter_dir: Path
 ) -> None:
     """Ensemble name defaults to iter-0 when no ensemble folder exists."""
     runcontext = RunContext()
@@ -271,22 +271,22 @@ def test_extract_ensemble_and_realization_name_no_parts() -> None:
 
 
 def test_runcontext_explicit_ensemble_name(
-    monkeypatch: MonkeyPatch, fmurun_prehook: Path
+    monkeypatch: MonkeyPatch, runpath_prehook: Path
 ) -> None:
     """Explicit ensemble_name sets paths when runpath is unavailable."""
     runcontext = RunContext(
-        casepath_proposed=fmurun_prehook,
+        casepath_proposed=runpath_prehook,
         ensemble_name="pred-dg3",
     )
 
     assert runcontext.paths.ensemble_name == "pred-dg3"
     assert (
-        runcontext.ensemble_path == fmurun_prehook / "share" / "ensemble" / "pred-dg3"
+        runcontext.ensemble_path == runpath_prehook / "share" / "ensemble" / "pred-dg3"
     )
 
 
 def test_runcontext_explicit_ensemble_name_overrides_derived(
-    monkeypatch: MonkeyPatch, fmurun_w_casemetadata: Path
+    monkeypatch: MonkeyPatch, runpath_no_dotfmu: Path
 ) -> None:
     """Explicit ensemble_name overrides the name derived from runpath."""
     runcontext = RunContext(ensemble_name="custom-ensemble")

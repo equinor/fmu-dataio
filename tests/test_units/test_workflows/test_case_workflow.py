@@ -41,12 +41,12 @@ def mock_run_paths() -> Callable[[str], MagicMock]:
 
 @pytest.fixture
 def workflow_config(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_global_config_validated: GlobalConfiguration,
 ) -> CaseWorkflowConfig:
     """Create a mock CaseWorkflowConfig."""
     return CaseWorkflowConfig(
-        casepath=fmurun_prehook,
+        casepath=runpath_prehook,
         ert_config_path=Path("../../ert/model/"),
         register_on_sumo=True,
         verbosity="WARNING",

@@ -26,31 +26,31 @@ def _fixture_simple() -> dict:
 
 
 @pytest.fixture(name="json_dict", scope="function")
-def _fixture_json(fmurun_w_casemetadata: Path, monkeypatch: MonkeyPatch) -> dict:
+def _fixture_json(runpath_no_dotfmu: Path, monkeypatch: MonkeyPatch) -> dict:
     """Return dictionary read from json file
 
     Args:
-        fmurun_w_casemetadata (pathlib.Path): path to single fmu realization
+        runpath_no_dotfmu (pathlib.Path): path to single fmu realization
 
     Returns:
         dict: The parameters read from json file
     """
-    print(fmurun_w_casemetadata)
-    with open(fmurun_w_casemetadata / "parameters.json", encoding="utf-8") as stream:
+    print(runpath_no_dotfmu)
+    with open(runpath_no_dotfmu / "parameters.json", encoding="utf-8") as stream:
         return json.load(stream)
 
 
 @pytest.fixture(name="simple_parameters", scope="function")
-def _fixture_simple_parameters(fmurun_w_casemetadata: Path) -> dict:
+def _fixture_simple_parameters(runpath_no_dotfmu: Path) -> dict:
     """Return dictionary read from parameters.txt
 
     Args:
-        fmurun_w_casemetadata (pathlib.Path): path to single fmu realization
+        runpath_no_dotfmu (pathlib.Path): path to single fmu realization
 
     Returns:
         dict: The parameters read directly from parameters.txt
     """
-    return dict(read_parameters_txt(fmurun_w_casemetadata / "parameters.txt"))
+    return dict(read_parameters_txt(runpath_no_dotfmu / "parameters.txt"))
 
 
 def assert_dict_correct(result_dict: dict, meta: dict, name: str) -> None:

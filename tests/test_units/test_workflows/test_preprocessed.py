@@ -44,7 +44,7 @@ def export_preprocessed_surface(
 
 
 def test_export_preprocessed_surfacefile(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -66,7 +66,7 @@ def test_export_preprocessed_surfacefile(
 
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook()
-    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=runpath_prehook)
     # generate the updated metadata
     metadata = edata.generate_metadata(surfacepath)
 
@@ -81,7 +81,7 @@ def test_export_preprocessed_surfacefile(
     # check that the file paths are updated. The relative_path should be
     # equal to the initial export except for the share folder
     relative_path = PREPROCESSED_SURFACEPATH.replace("preprocessed", "observations")
-    absolute_path = fmurun_prehook / relative_path
+    absolute_path = runpath_prehook / relative_path
     assert metadata["file"]["relative_path"] == relative_path
     assert metadata["file"]["absolute_path"] == str(absolute_path)
 
@@ -102,7 +102,7 @@ def test_export_preprocessed_surfacefile(
 
 
 def test_export_to_results_folder(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -118,20 +118,22 @@ def test_export_to_results_folder(
 
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook()
-    edata = dataio.ExportPreprocessedData(is_observation=False, casepath=fmurun_prehook)
+    edata = dataio.ExportPreprocessedData(
+        is_observation=False, casepath=runpath_prehook
+    )
 
     # check that the export has been to the case/share/results folder
     relative_path = PREPROCESSED_SURFACEPATH.replace("preprocessed", "results")
 
     filepath = Path(edata.export(surfacepath))
-    assert filepath == fmurun_prehook / relative_path
+    assert filepath == runpath_prehook / relative_path
 
     metafile = filepath.parent / f".{filepath.name}.yml"
     assert metafile.exists()
 
 
 def test_outdated_metadata(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -154,7 +156,7 @@ def test_outdated_metadata(
     # run the re-export of the preprocessed data inside an mocked FMU run
     set_ert_env_prehook()
 
-    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=runpath_prehook)
     # error should be raised when trying to use the generate_metadata function
     with pytest.raises(InvalidMetadataError, match="outdated"):
         edata.generate_metadata(surfacepath)
@@ -165,7 +167,7 @@ def test_outdated_metadata(
 
 
 def test_export_without_existing_meta(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -184,7 +186,7 @@ def test_export_without_existing_meta(
 
     # delete the metafile
     metafile.unlink()
-    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=fmurun_prehook)
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=runpath_prehook)
     # test that error is raised when creating metadata
     with pytest.raises(RuntimeError, match="Could not detect existing metadata"):
         edata.generate_metadata(surfacepath)
@@ -195,11 +197,11 @@ def test_export_without_existing_meta(
 
     # check that the file have been copied into the fmu case path
     assert Path(filepath).exists()
-    assert filepath.startswith(str(fmurun_prehook))
+    assert filepath.startswith(str(runpath_prehook))
 
 
 def test_preprocessed_surface_modified_post_export(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -224,7 +226,7 @@ def test_preprocessed_surface_modified_post_export(
     # should issue warning
     with pytest.warns(UserWarning, match="seem to have been modified"):
         dataio.ExportPreprocessedData(
-            is_observation=True, casepath=fmurun_prehook
+            is_observation=True, casepath=runpath_prehook
         ).export(surfacepath)
 
 
@@ -249,7 +251,7 @@ def test_preprocessed_surface_fmucontext_not_case(
         dataio.ExportPreprocessedData(casepath="dummy")
 
 
-def test_preprocessed_surface_invalid_casepath(fmurun_prehook: Path) -> None:
+def test_preprocessed_surface_invalid_casepath(runpath_prehook: Path) -> None:
     """Test that an error is raised if casepath is wrong or no case meta exist"""
 
     # error should be raised when running on a casepath without case metadata
@@ -261,20 +263,20 @@ def test_preprocessed_surface_invalid_casepath(fmurun_prehook: Path) -> None:
         dataio.ExportPreprocessedData(casepath="dummy")
 
     # shall work when casepath that contains case matadata is provided
-    dataio.ExportPreprocessedData(casepath=fmurun_prehook)
+    dataio.ExportPreprocessedData(casepath=runpath_prehook)
 
     # delete the case matadata and see that it fails
-    metacase_file = fmurun_prehook / ERT_RELATIVE_CASE_METADATA_FILE
+    metacase_file = runpath_prehook / ERT_RELATIVE_CASE_METADATA_FILE
     metacase_file.unlink()
     with (
         pytest.warns(UserWarning),
         pytest.raises(ValueError, match="Could not detect valid case metadata"),
     ):
-        dataio.ExportPreprocessedData(casepath=fmurun_prehook)
+        dataio.ExportPreprocessedData(casepath=runpath_prehook)
 
 
 def test_export_non_preprocessed_data(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -298,12 +300,12 @@ def test_export_non_preprocessed_data(
     # check that the error is given
     with pytest.raises(RuntimeError, match="is not supported"):
         dataio.ExportPreprocessedData(
-            is_observation=True, casepath=fmurun_prehook
+            is_observation=True, casepath=runpath_prehook
         ).generate_metadata(surfacepath)
 
 
 def test_export_preprocessed_file_exportdata_futurewarning(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -323,7 +325,7 @@ def test_export_preprocessed_file_exportdata_futurewarning(
 
     # Use the ExportData class instead of the ExportPreprocessedData
     edata = dataio.ExportData(
-        config=rmsglobalconfig, is_observation=True, casepath=fmurun_prehook
+        config=rmsglobalconfig, is_observation=True, casepath=runpath_prehook
     )
 
     with pytest.warns(FutureWarning, match="no longer supported"):
@@ -341,7 +343,7 @@ def test_export_preprocessed_file_exportdata_futurewarning(
 
 
 def test_export_preprocessed_file_exportdata_casepath_on_export(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
@@ -368,7 +370,7 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
 
     # test that export() works if casepath is provided
     with pytest.warns(FutureWarning, match="no longer supported"):
-        filepath = Path(edata.export(surfacepath, casepath=fmurun_prehook))
+        filepath = Path(edata.export(surfacepath, casepath=runpath_prehook))
     assert filepath.exists()
     metafile = filepath.parent / f".{filepath.name}.yml"
     assert metafile.exists()
@@ -383,7 +385,7 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
 
     # test that generate_metadata() works if casepath is provided
     with pytest.warns(FutureWarning):
-        meta = edata.generate_metadata(surfacepath, casepath=fmurun_prehook)
+        meta = edata.generate_metadata(surfacepath, casepath=runpath_prehook)
 
     assert "fmu" in meta
     assert "merged" in meta["tracklog"][-1]["event"]

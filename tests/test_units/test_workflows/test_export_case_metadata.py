@@ -30,11 +30,11 @@ def test_crease_case_metadata_barebone(drogon_global_config: dict[str, Any]) -> 
 
 
 def test_export_case_metadata_post_init(
-    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    runpath_no_case_metadata: Path,
+    drogon_global_config: dict[str, Any],
 ) -> None:
-    monkeypatch.chdir(fmurun)
-    caseroot = fmurun.parent.parent
-    logger.info("Active folder is %s", fmurun)
+    caseroot = runpath_no_case_metadata.parent.parent
 
     icase = ExportCaseMetadata(
         config=drogon_global_config,
@@ -49,12 +49,11 @@ def test_export_case_metadata_post_init(
 
 @pytest.mark.filterwarnings("ignore:The global configuration")
 def test_export_case_metadata_post_init_bad_globalconfig(
-    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    runpath_no_case_metadata: Path,
+    drogon_global_config: dict[str, Any],
 ) -> None:
-    monkeypatch.chdir(fmurun)
-    logger.info("Active folder is %s", fmurun)
-    caseroot = fmurun.parent.parent
-    logger.info("Case folder is now %s", caseroot)
+    caseroot = runpath_no_case_metadata.parent.parent
 
     config = deepcopy(drogon_global_config)
     del config["masterdata"]
@@ -68,13 +67,12 @@ def test_export_case_metadata_post_init_bad_globalconfig(
 
 
 def test_export_case_metadata_establish_metadata_files(
-    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    runpath_no_case_metadata: Path,
+    drogon_global_config: dict[str, Any],
 ) -> None:
     """Tests that the required directories are made when establishing the case"""
-    monkeypatch.chdir(fmurun)
-    logger.info("Active folder is %s", fmurun)
-    caseroot = fmurun.parent.parent
-    logger.info("Case folder is now %s", caseroot)
+    caseroot = runpath_no_case_metadata.parent.parent
 
     icase = ExportCaseMetadata(
         config=drogon_global_config, rootfolder=caseroot, casename="mycase"
@@ -87,14 +85,13 @@ def test_export_case_metadata_establish_metadata_files(
 
 
 def test_export_case_metadata_establish_metadata_files_exists(
-    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    runpath_no_case_metadata: Path,
+    drogon_global_config: dict[str, Any],
 ) -> None:
     """Tests that _establish_metadata_files returns correctly if the share/metadata
     directory already exists."""
-    monkeypatch.chdir(fmurun)
-    logger.info("Active folder is %s", fmurun)
-    caseroot = fmurun.parent.parent
-    logger.info("Case folder is now %s", caseroot)
+    caseroot = runpath_no_case_metadata.parent.parent
 
     icase = ExportCaseMetadata(
         config=drogon_global_config, rootfolder=caseroot, casename="mycase"
@@ -109,15 +106,14 @@ def test_export_case_metadata_establish_metadata_files_exists(
 
 
 def test_export_case_metadata_generate_metadata(
-    monkeypatch: MonkeyPatch, fmurun: Path, drogon_global_config: dict[str, Any]
+    monkeypatch: MonkeyPatch,
+    runpath_no_case_metadata: Path,
+    drogon_global_config: dict[str, Any],
 ) -> None:
-    monkeypatch.chdir(fmurun)
-    logger.info("Active folder is %s", fmurun)
-    myroot = fmurun.parent.parent.parent / "mycase"
-    logger.info("Case folder is now %s", myroot)
+    caseroot = runpath_no_case_metadata.parent.parent
 
     icase = ExportCaseMetadata(
-        config=drogon_global_config, rootfolder=myroot, casename="mycase"
+        config=drogon_global_config, rootfolder=caseroot, casename="mycase"
     )
     metadata = icase.generate_metadata()
     assert metadata
@@ -127,11 +123,11 @@ def test_export_case_metadata_generate_metadata(
 
 def test_export_case_metadata_generate_metadata_warn_if_exists(
     monkeypatch: MonkeyPatch,
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
 ) -> None:
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
-    casemetafolder = fmurun_w_casemetadata.parent.parent
+    logger.info("Active folder is %s", runpath_no_dotfmu)
+    casemetafolder = runpath_no_dotfmu.parent.parent
 
     icase = ExportCaseMetadata(
         config=drogon_global_config,
@@ -143,10 +139,11 @@ def test_export_case_metadata_generate_metadata_warn_if_exists(
 
 
 def test_export_case_metadata_with_export(
-    monkeypatch: MonkeyPatch, drogon_global_config: dict[str, Any], fmurun: Path
+    monkeypatch: MonkeyPatch,
+    drogon_global_config: dict[str, Any],
+    runpath_no_case_metadata: Path,
 ) -> None:
-    monkeypatch.chdir(fmurun)
-    caseroot = fmurun.parent.parent
+    caseroot = runpath_no_case_metadata.parent.parent
 
     icase = ExportCaseMetadata(
         config=drogon_global_config,
@@ -165,10 +162,11 @@ def test_export_case_metadata_with_export(
 
 
 def test_export_case_metadata_export_with_norsk_alphabet(
-    monkeypatch: MonkeyPatch, drogon_global_config: dict[str, Any], fmurun: Path
+    monkeypatch: MonkeyPatch,
+    drogon_global_config: dict[str, Any],
+    runpath_no_case_metadata: Path,
 ) -> None:
-    monkeypatch.chdir(fmurun)
-    caseroot = fmurun.parent.parent
+    caseroot = runpath_no_case_metadata.parent.parent
 
     drogon_global_config["masterdata"]["smda"]["field"][0]["identifier"] = "æøå"
     case = ExportCaseMetadata(
