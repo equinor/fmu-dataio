@@ -1,82 +1,61 @@
-"""Export a surface with dataio based on surface that is already on disk
+"""Re-export already exported surfaces with metadata."""
 
-I.e. what we do is actually add metadata and store in the right place
-
-The input maps is poro_average.grid
-"""
-
-import logging
 from pathlib import Path
 
 import xtgeo
 from fmu.config import utilities as ut
 
-from fmu import dataio
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+from fmu.dataio import ExportData
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
-FILES = {
-    "poro": Path("../output/maps/props") / "poro_average.gri",
-    "depth": Path("../output/maps/structure/") / "topvolantis--ds_extract_geogrid.gri",
-}
+PORO_FILE = Path("../output/maps/props/poro_average.gri")
+DEPTH_FILE = Path("../output/maps/structure/topvolantis--ds_extract_geogrid.gri")
 
 
 def export_porosity_average_map():
     """Emulate map export during FMU runs.
 
-    In the FMU workflow, individual jobs will be responsible for dumping data to the
-    disk. In this example, we are emulating this to obtain the same effect.
+    In the FMU workflow, individual jobs will be responsible for dumping data to disk.
+    In this example, we are emulating this to obtain the same effect.
     """
 
     print("Export a porosity average map and property surface metadata.")
-    poro_surf = xtgeo.surface_from_file(FILES["poro"])
+    poro_surf = xtgeo.surface_from_file(PORO_FILE)
     print(f"Average value of map is {poro_surf.values.mean()}")
 
-    ed = dataio.ExportData(
+    export_data = ExportData(
         config=CFG,
         name="all",
         unit="fraction",
-        vertical_domain="depth",
-        domain_reference="msl",
         content="property",
         content_metadata={"is_discrete": False},
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
         tagname="average_poro",
         workflow="rms property model",
     )
 
-    fname = ed.export(poro_surf)
-    print(f"Exported to file {fname}")
+    out_path = export_data.export(poro_surf)
+    print(f"Exported to file {out_path}")
 
 
 def export_depth_surface():
-    """Export maps and metadata for a depth surface"""
+    """Export a depth surface map with metadata."""
 
     print("Export a depth surface")
-    surf = xtgeo.surface_from_file(FILES["depth"])
+    surf = xtgeo.surface_from_file(DEPTH_FILE)
     print(f"Average value of map is {surf.values.mean()}")
 
-    ed = dataio.ExportData(
+    export_data = ExportData(
         config=CFG,
         name="topvolantis",
         unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
         content="depth",
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
         tagname="ds_extract_geogrid",
         workflow="rms structural model",
     )
 
-    fname = ed.export(surf)
-    print(f"Exported to file {fname}")
+    out_path = export_data.export(surf)
+    print(f"Exported to file {out_path}")
 
 
 def export_fluid_contact_surface():
@@ -86,25 +65,20 @@ def export_fluid_contact_surface():
 
     # For simplicity, the depth surface map is reused as input.
     # For a real case, use a fluid contact surface as input.
-    fluid_contact_surf = xtgeo.surface_from_file(FILES["depth"])
+    fluid_contact_surf = xtgeo.surface_from_file(DEPTH_FILE)
 
-    ed = dataio.ExportData(
+    export_data = ExportData(
         config=CFG,
         name="surface_fluid_contact",
         unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
         content="fluid_contact",
         content_metadata={"contact": "fwl"},
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
         tagname="",
         workflow="rms structural model",
     )
 
-    fname = ed.export(fluid_contact_surf)
-    print(f"Exported to file {fname}")
+    out_file = export_data.export(fluid_contact_surf)
+    print(f"Exported to file {out_file}")
 
 
 def export_seismic_amplitude_surface():
@@ -114,14 +88,12 @@ def export_seismic_amplitude_surface():
 
     # For simplicity, the depth surface map is reused as input.
     # For a real case, use a seismic amplitude surface as input.
-    seismic_attribute_surf = xtgeo.surface_from_file(FILES["depth"])
+    seismic_attribute_surf = xtgeo.surface_from_file(DEPTH_FILE)
 
-    ed = dataio.ExportData(
+    export_data = ExportData(
         config=CFG,
         name="surface_seismic_amplitude",
         unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
         content="seismic",
         content_metadata={
             "attribute": "amplitude",
@@ -130,14 +102,12 @@ def export_seismic_amplitude_surface():
             "stacking_offset": "0-15",
         },
         timedata=[["20201028", "base"], ["20201028", "monitor"]],
-        is_prediction=True,
-        is_observation=False,
         tagname="",
         workflow="rms structural model",
     )
 
-    fname = ed.export(seismic_attribute_surf)
-    print(f"Exported to file {fname}")
+    out_file = export_data.export(seismic_attribute_surf)
+    print(f"Exported to file {out_file}")
 
 
 def main():

@@ -519,6 +519,12 @@ class ExportData:
     undef_is_zero: bool = False
     # Flags that NaNs should be considered as zero in aggregations.
 
+    polygons_fformat: Literal["csv", "csv|xtgeo", "irap_ascii", "parquet"] = "csv"
+    # Sets the format polygons should be exported with
+
+    points_fformat: Literal["csv", "csv|xtgeo", "irap_ascii", "parquet"] = "csv"
+    # Sets the format points should be exported with
+
     # ----------------------------------------------------------------------------------
     #
     # Deprecated members.
@@ -548,8 +554,6 @@ class ExportData:
     include_ertjobs: ClassVar[bool] = False  # deprecated
     legacy_time_format: ClassVar[bool] = False  # deprecated
     meta_format: ClassVar[Literal["yaml", "json"] | None] = None  # deprecated
-    polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
-    points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str | None] = None  # deprecated and no effect
     table_fformat: ClassVar[str] = "csv"
     dict_fformat: ClassVar[str | None] = None  # deprecated and no effect

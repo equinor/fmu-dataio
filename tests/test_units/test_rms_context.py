@@ -307,10 +307,11 @@ def test_points_export_file_set_name_xtgeoheaders(
 ) -> None:
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
-    dataio.ExportData.points_fformat = "csv|xtgeo"
-
     edata = dataio.ExportData(
-        config=inside_rms_setup["config"], content="depth", name="TopVolantiz"
+        config=inside_rms_setup["config"],
+        content="depth",
+        name="TopVolantiz",
+        points_fformat="csv|xtgeo",
     )
 
     output = edata.export(points)
@@ -328,8 +329,6 @@ def test_points_export_file_set_name_xtgeoheaders(
         / "share/results/points/topvolantiz.csv"
     )
     assert thefile.columns[0] == "X_UTME"
-
-    dataio.ExportData.points_fformat = "csv"
 
 
 # ======================================================================================

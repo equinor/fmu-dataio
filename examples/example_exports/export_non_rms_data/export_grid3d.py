@@ -1,80 +1,74 @@
-"""Export 3D griddata with properties."""
+"""Export 3D grids with properties."""
 
-import logging
-import pathlib
+from pathlib import Path
 
 import xtgeo
 from fmu.config import utilities as ut
 
-from fmu import dataio
-
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger(__name__)
+from fmu.dataio import ExportData
 
 CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
-FOLDER = pathlib.Path("../output/grids")
-GFILE = "gg"
-GNAME = "geogrid"
-PROPS_SEISMIC = ["phit", "sw"]
-PROPS_OTHER = ["klogh", "facies"]
+OUT_DIR = Path("../output/grids")
+GRID_FILE = "gg"
+GRID_NAME = "geogrid"
+PROPS_TO_EXPORT = ["phit", "sw", "klogh", "facies"]
 
 
 def export_geogrid_geometry():
-    """Export geogrid geometry"""
+    """Export geogrid geometry.
 
-    filename = (FOLDER / GFILE).with_suffix(".roff")
+    The geogrid must be exported first. Without exporting the geogrid first, we cannot
+    link the exported grid properties to it. The properties are linked by knowing the
+    file path the geogrid was exported to.
+    """
+
+    filename = OUT_DIR / f"{GRID_FILE}.roff"
     grd = xtgeo.grid_from_file(filename)
 
-    ed = dataio.ExportData(
+    export_data = ExportData(
         config=CFG,
-        name=GNAME,
+        name=GRID_NAME,
         content="depth",
         unit="m",
-        vertical_domain="depth",
-        domain_reference="msl",
-        timedata=None,
-        is_prediction=True,
-        is_observation=False,
-        tagname="",
         workflow="rms structural model",
     )
 
-    out = ed.export(grd)
-    print(f"Exported geogrid geometry to file {out}")
-    return out
+    out_grid_path = export_data.export(grd)
+    print(f"Exported geogrid geometry to file {out_grid_path}")
+    return out_grid_path
 
 
 def export_geogrid_parameters(outgrid):
-    """Export geogrid assosiated parameters based on user defined lists"""
+    """Export grid properties associated with the geogrid.
 
-    props = PROPS_SEISMIC + PROPS_OTHER
+    By passing the path the geogrid was exported to we can link them to the geometry.
+    The total list of properties that will be exported are set from the variable
+    defined at the top.
+    """
 
-    for propname in props:
-        filename = (FOLDER / (GFILE + "_" + propname)).with_suffix(".roff")
+    for propname in PROPS_TO_EXPORT:
+        filename = OUT_DIR / f"{GRID_FILE}_{propname}.roff"
         prop = xtgeo.gridproperty_from_file(filename)
-        ed = dataio.ExportData(
+
+        export_data = ExportData(
+            config=CFG,
             name=propname,
             geometry=outgrid,
-            config=CFG,
             content="property",
             content_metadata={"is_discrete": False},
-            vertical_domain="depth",
-            domain_reference="msl",
-            timedata=None,
-            is_prediction=True,
-            is_observation=False,
             workflow="rms property model",
         )
 
-        out = ed.export(prop)
-        print(f"Exported {propname} property geogrid to file {out}")
+        out_path = export_data.export(prop)
+        print(f"Exported {propname} property geogrid to file {out_path}")
 
 
 def main():
     print("\nExporting geogrids and metadata...")
-    outgrid = export_geogrid_geometry()
-    export_geogrid_parameters(outgrid)
+    out_grid_path = export_geogrid_geometry()
+
+    export_geogrid_parameters(out_grid_path)
     print("Done exporting geogrids and metadata.")
 
 
