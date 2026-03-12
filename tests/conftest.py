@@ -1,9 +1,7 @@
 """The conftest.py, providing magical fixtures to tests."""
 
 import inspect
-import json
 import logging
-import os
 import shutil
 import sys
 import uuid
@@ -27,16 +25,15 @@ from fmu.datamodels.common.masterdata import (
     Smda,
     StratigraphicColumn,
 )
-from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
-from pydantic import BaseModel
+from fmu.datamodels.fmu_results import fields, global_configuration
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
-from fmu.dataio.dataio import ExportData, read_metadata
+from fmu.dataio.dataio import ExportData
 
-from .utils import _get_nested_pydantic_models, _metadata_examples
+from .utils import _metadata_examples
 
 logger = logging.getLogger(__name__)
 
@@ -73,26 +70,13 @@ def _current_function_name() -> str:
 
 
 @pytest.fixture(scope="session")
-def source_root(request: pytest.FixtureRequest) -> Path:
+def rootpath(request: pytest.FixtureRequest) -> Path:
     return request.config.rootpath
-
-
-@pytest.fixture(scope="function", autouse=True)
-def return_to_original_directory(monkeypatch: MonkeyPatch) -> Generator[None]:
-    # store original folder, and restore after each function (before and after yield)
-    original_directory = os.getcwd()
-    yield
-    monkeypatch.chdir(original_directory)
 
 
 @pytest.fixture
 def inside_rms_interactive(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
-
-
-@pytest.fixture(scope="session")
-def rootpath(request: pytest.FixtureRequest) -> Path:
-    return request.config.rootpath
 
 
 def _fmu_run1_env_variables(
@@ -245,25 +229,6 @@ def fmurun_pred(tmp_path_factory: pytest.TempPathFactory, rootpath: Path) -> Pat
     return newpath
 
 
-@pytest.fixture(scope="session")
-def rmsrun_fmu_w_casemetadata(
-    tmp_path_factory: pytest.TempPathFactory, rootpath: Path
-) -> Path:
-    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!
-
-    Then we locate the folder to the ...rms/model folder, pretending running RMS
-    in a FMU setup where case metadata are present
-    """
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    rmspath = newpath / "realization-0/iter-0/rms/model"
-    rmspath.mkdir(parents=True, exist_ok=True)
-    logger.debug("Active folder is %s", rmspath)
-    logger.debug("Ran %s", _current_function_name())
-    return rmspath
-
-
 @pytest.fixture(scope="function")
 def drogon_global_config_path(rootpath: Path) -> Path:
     """The path to the Drogon's global config."""
@@ -315,19 +280,6 @@ def rmsglobalconfig(rmssetup: Path, monkeypatch: MonkeyPatch) -> dict[str, Any]:
     logger.debug("Ran setup for %s", "rmsglobalconfig")
     logger.debug("Ran %s", _current_function_name())
     return global_cfg
-
-
-@pytest.fixture(scope="function")
-def casesetup(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """Create the folder structure to mimic a fmu run"""
-
-    tmppath = tmp_path_factory.mktemp("mycase")
-    tmppath = tmppath / "realization-0/iter-0"
-    tmppath.mkdir(parents=True, exist_ok=True)
-
-    logger.debug("Ran %s", _current_function_name())
-
-    return tmppath
 
 
 @pytest.fixture(scope="function")
@@ -453,15 +405,6 @@ def drogon_exportdata(drogon_global_config: dict[str, Any]) -> ExportData:
 # ======================================================================================
 # Schema
 # ======================================================================================
-
-
-@pytest.fixture(scope="session")
-def schema_080(rootpath: Path) -> dict[str, Any]:
-    """Return 0.8.0 version of schema as json."""
-    with open(
-        rootpath / "schema/definitions/0.8.0/schema/fmu_results.json", encoding="utf-8"
-    ) as f:
-        return json.load(f)
 
 
 @pytest.fixture(scope="session")
@@ -716,93 +659,6 @@ def arrowtable() -> pa.Table:
     )
 
 
-# helper function for the two fixtures below
-def _create_aggregated_surface_dataset(
-    rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
-    content: str,
-    content_metadata: dict[str, str] | None = None,
-) -> tuple[xtgeo.Surfaces, list[dict[str, Any]]]:
-    aggs = []
-    # create "forward" files
-    for i in range(10):  # TODO! 10
-        use_regsurf = regsurf.copy()
-        use_regsurf.values += float(i)
-        expfile = dio.ExportData(
-            config=rmsglobalconfig,
-            content=content,
-            content_metadata=content_metadata,
-            name=f"mymap_{i}",
-        ).export(use_regsurf)
-        aggs.append(expfile)
-
-    # next task is to do an aggradation, and now the metadata already exists
-    # per input element which shall be re-used
-    surfs = xtgeo.Surfaces()
-    metas = []
-    for mapfile in aggs:
-        surf = xtgeo.surface_from_file(mapfile)
-        meta = read_metadata(mapfile)
-
-        metas.append(meta)
-        surfs.append([surf])
-    return surfs, metas
-
-
-@pytest.fixture(scope="function")
-def aggr_seismic_surfs_mean(
-    rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
-    fmurun_w_casemetadata: Path,
-) -> tuple[xtgeo.RegularSurface, list[dict[str, Any]]]:
-    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.debug("Ran %s", _current_function_name())
-
-    origfolder = os.getcwd()
-
-    surfs, metas = _create_aggregated_surface_dataset(
-        rmsglobalconfig,
-        regsurf,
-        content="seismic",
-        content_metadata={"attribute": "amplitude"},
-    )
-
-    aggregated = surfs.statistics()
-    logger.debug(
-        "Aggr. mean is %s", aggregated["mean"].values.mean()
-    )  # shall be 1238.5
-
-    monkeypatch.chdir(origfolder)
-
-    return (aggregated["mean"], metas)
-
-
-@pytest.fixture(scope="function")
-def aggr_surfs_mean(
-    rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.debug("Ran %s", _current_function_name())
-
-    origfolder = os.getcwd()
-
-    surfs, metas = _create_aggregated_surface_dataset(
-        rmsglobalconfig, regsurf, content="depth"
-    )
-
-    aggregated = surfs.statistics()
-    logger.debug(
-        "Aggr. mean is %s", aggregated["mean"].values.mean()
-    )  # shall be 1238.5
-
-    monkeypatch.chdir(origfolder)
-
-    return (aggregated["mean"], metas)
-
-
 @pytest.fixture()
 def mock_summary() -> pd.DataFrame:
     """Return summary mock data
@@ -863,12 +719,6 @@ def drogon_volumes(rootpath: Path) -> pa.Table:
             rootpath / "tests/data/drogon/tabular/geogrid--vol.csv",
         )
     )
-
-
-@pytest.fixture(scope="session")
-def pydantic_models_from_root() -> set[type[BaseModel]]:
-    """Return all nested pydantic models from FmuResults and downwards"""
-    return _get_nested_pydantic_models(FmuResults)
 
 
 @pytest.fixture
