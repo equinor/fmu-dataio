@@ -1195,7 +1195,7 @@ def test_preprocessed_inside_fmu(
 
 
 def test_norwegian_letters_globalconfig(
-    globalvars_norwegian_letters: tuple[Path, dict[str, Any] | None, str],
+    rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -1203,32 +1203,29 @@ def test_norwegian_letters_globalconfig(
 
     Note that fmu.config utilities yaml_load() is applied to read cfg (cf conftest.py)
     """
+    rmsglobalconfig["masterdata"]["smda"]["field"][0]["identifier"] = "DRÅGØN"
 
-    path, cfg, cfg_asfile = globalvars_norwegian_letters
+    modified_cfg = Path("global_config.yml").absolute()
+    with open(modified_cfg, "w") as f:
+        f.write(yaml.dump(rmsglobalconfig))
 
-    monkeypatch.chdir(path)
-
-    assert cfg is not None
-    edata = ExportData(content="depth", config=cfg, name="TopBlåbær")
+    edata = ExportData(content="depth", config=rmsglobalconfig, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
-    logger.debug("\n %s", prettyprint_dict(meta))
+
     assert meta["data"]["name"] == "TopBlåbær"
     assert meta["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 
     # export to file and reread as raw
     result = pathlib.Path(edata.export(regsurf))
-    metafile = result.parent / ("." + str(result.stem) + ".gri.yml")
+    metafile = result.parent / f".{result.stem}.gri.yml"
     with open(metafile, encoding="utf-8") as stream:
         assert "DRÅGØN" in stream.read()
 
-    # read file as global config
-
-    monkeypatch.setenv("FMU_GLOBAL_CONFIG", cfg_asfile)
-    edata2 = ExportData(
-        content="depth", name="TopBlåbær"
-    )  # the env variable will override this
+    # Specify global configuration via environment variable
+    monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(modified_cfg))
+    edata2 = ExportData(content="depth", name="TopBlåbær")
     meta2 = edata2.generate_metadata(regsurf)
-    logger.debug("\n %s", prettyprint_dict(meta2))
+
     assert meta2["data"]["name"] == "TopBlåbær"
     assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 

@@ -18,7 +18,6 @@ import pyarrow as pa
 import pytest
 import xtgeo
 import yaml
-from fmu.config import utilities as ut
 from fmu.datamodels.common.access import Asset
 from fmu.datamodels.common.masterdata import (
     CoordinateSystem,
@@ -316,30 +315,6 @@ def rmsglobalconfig(rmssetup: Path, monkeypatch: MonkeyPatch) -> dict[str, Any]:
     logger.debug("Ran setup for %s", "rmsglobalconfig")
     logger.debug("Ran %s", _current_function_name())
     return global_cfg
-
-
-@pytest.fixture(scope="function")
-def globalvars_norwegian_letters(
-    tmp_path_factory: pytest.TempPathFactory, rootpath: Path, monkeypatch: MonkeyPatch
-) -> tuple[Path, dict[str, Any] | None, str]:
-    """Read a global config with norwegian special letters w/ fmu.config utilities."""
-
-    tmppath = tmp_path_factory.mktemp("revisionxx")
-    rmspath = tmppath / "rms/model"
-    rmspath.mkdir(parents=True, exist_ok=True)
-
-    gname = "global_variables_norw_letters.yml"
-
-    # copy a global config with nowr letters here
-    shutil.copy(
-        rootpath / "tests/data/drogon/global_config" / gname,
-        rmspath,
-    )
-
-    monkeypatch.chdir(rmspath)
-    cfg = ut.yaml_load(rmspath / gname)
-
-    return (rmspath, cfg, gname)
 
 
 @pytest.fixture(scope="function")
