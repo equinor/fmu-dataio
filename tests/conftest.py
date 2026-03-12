@@ -79,17 +79,16 @@ def inside_rms_interactive(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
 
 
-def _fmu_run1_env_variables(
-    monkeypatch: MonkeyPatch, usepath: str = "", case_only: bool = False
+def _set_fmurun_env_variables(
+    monkeypatch: MonkeyPatch,
+    runpath: Path = Path(""),
+    case_only: bool = False,
 ) -> None:
-    """Helper function for fixtures below.
-
-    Will here monkeypatch the ENV variables, with a particular setting for RUNPATH
-    (trough `usepath`) which may vary dynamically due to pytest tmp area rotation.
-    """
+    """Set Ert environment variables based upon the path and stage."""
     env = ERTRUN_ENV_FULLRUN if not case_only else ERTRUN_ENV_PREHOOK
+
     for key, value in env.items():
-        env_value = str(usepath) if "RUNPATH" in key else value
+        env_value = str(runpath) if "RUNPATH" in key else value
         monkeypatch.setenv(key, env_value)
         logger.debug("Setting env %s as %s", key, env_value)
 
@@ -122,111 +121,101 @@ def set_ert_env_prehook(monkeypatch: MonkeyPatch) -> Callable[[], None]:
 
 
 @pytest.fixture(scope="function")
-def fmurun(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
-) -> Path:
-    """A tmp folder structure for testing; here a new fmurun without case metadata."""
-    tmppath = tmp_path_factory.mktemp("data")
-    newpath = tmppath / ERTRUN_REAL0_ITER0
-    shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, newpath)
-
-    _fmu_run1_env_variables(monkeypatch, usepath=str(newpath), case_only=False)
-
-    logger.debug("Ran %s", _current_function_name())
-    return newpath
-
-
-@pytest.fixture(scope="function")
-def fmurun_prehook(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
-) -> Path:
-    """A tmp folder structure for testing; here a new fmurun without case metadata."""
-    tmppath = tmp_path_factory.mktemp("data")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-
-    _fmu_run1_env_variables(monkeypatch, usepath=str(newpath), case_only=True)
-
-    logger.debug("Ran %s", _current_function_name())
-    return newpath
-
-
-@pytest.fixture(scope="function")
-def fmurun_w_casemetadata(
+def runpath_no_case_metadata(
     tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
-    newpath = tmp_path / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    iter_path = newpath / "realization-0/iter-0"
+    """A standard runpath without metadata exported in the case path."""
+    runpath = tmp_path / ERTRUN_REAL0_ITER0
+    shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, runpath)
 
-    _fmu_run1_env_variables(monkeypatch, usepath=str(iter_path), case_only=False)
+    _set_fmurun_env_variables(monkeypatch, runpath=runpath)
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(runpath)
+    return runpath
+
+
+@pytest.fixture(scope="function")
+def runpath_prehook(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
+    """Runpath mocking a prehook context."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+
+    _set_fmurun_env_variables(monkeypatch, runpath=runpath, case_only=True)
+
+    monkeypatch.chdir(runpath)
+    return runpath
+
+
+@pytest.fixture(scope="function")
+def runpath_no_dotfmu(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
+    """Runpath mocking an FMU run without a .fmu/ directory."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+    iter_path = runpath / "realization-0/iter-0"
+
+    _set_fmurun_env_variables(monkeypatch, runpath=iter_path)
+
     monkeypatch.chdir(iter_path)
     return iter_path
 
 
 @pytest.fixture(scope="function")
-def fmurun_non_equal_real_and_iter(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+def runpath_non_equal_real_and_iter(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; with non equal real and iter num!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    rootpath = newpath / "realization-1/iter-0"
+    """Runpath with non-equal real and iter num."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+    rootpath = runpath / "realization-1/iter-0"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
     monkeypatch.setenv("_ERT_REALIZATION_NUMBER", "1")
     monkeypatch.setenv("_ERT_RUNPATH", str(rootpath))
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(rootpath)
     return rootpath
 
 
 @pytest.fixture(scope="function")
-def fmurun_no_iter_folder(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+def runpath_no_iter_dir(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; with no iter folder!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN_NO_ITER
-    shutil.copytree(rootpath / ERTRUN_NO_ITER, newpath)
-    rootpath = newpath / "realization-1"
+    """Runpath without an iter dir."""
+    runpath = tmp_path / ERTRUN_NO_ITER
+    shutil.copytree(rootpath / ERTRUN_NO_ITER, runpath)
+    rootpath = runpath / "realization-1"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
     monkeypatch.setenv("_ERT_REALIZATION_NUMBER", "1")
     monkeypatch.setenv("_ERT_RUNPATH", str(rootpath))
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(rootpath)
     return rootpath
 
 
 @pytest.fixture(scope="function")
-def fmurun_w_casemetadata_pred(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+def runpath_no_dotfmu_pred(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    rootpath = newpath / "realization-0/pred"
+    """Prediction runpath with no .fmu/ dir."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+    rootpath = runpath / "realization-0/pred"
 
-    _fmu_run1_env_variables(monkeypatch, usepath=str(rootpath), case_only=False)
+    _set_fmurun_env_variables(monkeypatch, runpath=rootpath)
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(rootpath)
     return rootpath
 
 
-@pytest.fixture(scope="session")
-def fmurun_pred(tmp_path_factory: pytest.TempPathFactory, rootpath: Path) -> Path:
-    """Create a tmp folder structure for testing; here a new fmurun for prediction."""
-    tmppath = tmp_path_factory.mktemp("data_pred")
-    newpath = tmppath / ERTRUN_PRED
-    shutil.copytree(rootpath / ERTRUN_PRED, newpath)
-    logger.debug("Ran %s", _current_function_name())
-    return newpath
+@pytest.fixture(scope="function")
+def runpath_pred_files(tmp_path: Path, rootpath: Path) -> Path:
+    """Copies prediction run files into the tmp path.
+
+    Typically used in combination with another runpath fixture."""
+    runpath = tmp_path / ERTRUN_PRED
+    shutil.copytree(rootpath / ERTRUN_PRED, runpath, dirs_exist_ok=True)
+    return runpath
 
 
 @pytest.fixture(scope="function")

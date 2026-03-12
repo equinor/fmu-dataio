@@ -422,7 +422,7 @@ def test_builder_run_context_ensemble(mock_resolve_fmu_context: MagicMock) -> No
 
 
 def test_builder_run_context_ensemble_export_root(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
 ) -> None:
     """run_context() with FMUContext.ensemble sets correct export root."""
     config = (

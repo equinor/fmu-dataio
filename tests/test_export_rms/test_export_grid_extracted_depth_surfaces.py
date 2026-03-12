@@ -70,14 +70,14 @@ def test_files_exported_with_metadata(
 
 
 def test_files_exported_inside_fmu(
-    mock_export_class: _ExportGridExtractedDepthSurfaces, fmurun_w_casemetadata: Path
+    mock_export_class: _ExportGridExtractedDepthSurfaces, runpath_no_dotfmu: Path
 ) -> None:
     """Test that files are exported correctly inside an FMU run"""
 
     mock_export_class.export()
 
     export_folder = (
-        fmurun_w_casemetadata / "share/results/maps/grid_extracted_depth_surface/"
+        runpath_no_dotfmu / "share/results/maps/grid_extracted_depth_surface/"
     )
     assert export_folder.exists()
 
@@ -90,7 +90,7 @@ def test_files_exported_inside_fmu(
     assert (export_folder / ".topvolon.gri.yml").exists()
 
     # check that the manifest is created correctly
-    assert (fmurun_w_casemetadata / MANIFEST_FILENAME).exists()
+    assert (runpath_no_dotfmu / MANIFEST_FILENAME).exists()
     manifest = load_export_manifest()
     assert len(manifest) == 3
     assert manifest[0].absolute_path == export_folder / "topvolantis.gri"

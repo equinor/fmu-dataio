@@ -49,40 +49,40 @@ def test_export_manifest_from_file_not_exist(tmp_path: Path) -> None:
         ExportManifest.from_file(tmp_path / MANIFEST_FILENAME)
 
 
-def test_get_manifest_path_realization_context(fmurun_w_casemetadata: Path) -> None:
+def test_get_manifest_path_realization_context(runpath_no_dotfmu: Path) -> None:
     """Test that the manifest path is correctly derived in a realization context."""
     # check test assumption that the fixture points to the runpath
-    assert fmurun_w_casemetadata.name == "iter-0"
+    assert runpath_no_dotfmu.name == "iter-0"
 
     manifest_path = get_manifest_path()
     # check that the manifest path is correct
-    assert manifest_path == fmurun_w_casemetadata / MANIFEST_FILENAME
+    assert manifest_path == runpath_no_dotfmu / MANIFEST_FILENAME
 
 
-def test_get_manifest_path_case_context(fmurun_prehook: Path) -> None:
+def test_get_manifest_path_case_context(runpath_prehook: Path) -> None:
     """Test that the manifest path is correctly derived in a case context."""
     # check test assumption that the fixture points to the casepath
-    assert fmurun_prehook.name == "ertrun1"
+    assert runpath_prehook.name == "ertrun1"
 
-    manifest_path = get_manifest_path(casepath=fmurun_prehook)
+    manifest_path = get_manifest_path(casepath=runpath_prehook)
     # check that the manifest path is correct
-    assert manifest_path == fmurun_prehook / MANIFEST_FILENAME
+    assert manifest_path == runpath_prehook / MANIFEST_FILENAME
 
 
-def test_get_manifest_path_case_context_no_casepath(fmurun_prehook: Path) -> None:
+def test_get_manifest_path_case_context_no_casepath(runpath_prehook: Path) -> None:
     """Test that an error is raised when no casepath is provided in case context."""
     with pytest.raises(ValueError):
         get_manifest_path(casepath=None)
 
 
 def test_manifest_realization_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the manifest is created at the runpath in a realization context."""
-    runpath = fmurun_w_casemetadata
-    casepath = fmurun_w_casemetadata.parent.parent
+    runpath = runpath_no_dotfmu
+    casepath = runpath_no_dotfmu.parent.parent
 
     ExportData(
         config=mock_global_config,
@@ -103,14 +103,14 @@ def test_manifest_realization_context(
 
 
 def test_manifest_multiple_exports_realization_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that multiple exports creates and appends to a manifest at the runpath
     in a realization context."""
-    runpath = fmurun_w_casemetadata
-    casepath = fmurun_w_casemetadata.parent.parent
+    runpath = runpath_no_dotfmu
+    casepath = runpath_no_dotfmu.parent.parent
 
     for idx in range(3):
         ExportData(
@@ -131,13 +131,13 @@ def test_manifest_multiple_exports_realization_context(
 
 
 def test_manifest_case_context(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the manifest is created at the casepath in a case context."""
 
-    casepath = fmurun_prehook
+    casepath = runpath_prehook
 
     ExportData(
         config=mock_global_config,
@@ -157,13 +157,13 @@ def test_manifest_case_context(
 
 
 def test_manifest_multiple_exports_case_context(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that multiple exports creates and appends to a manifest at the casepath
     in a case context."""
-    casepath = fmurun_prehook
+    casepath = runpath_prehook
     for idx in range(3):
         ExportData(
             config=mock_global_config,
@@ -223,14 +223,14 @@ def test_load_export_manifest_file_not_exist(tmp_path: Path) -> None:
 
 
 def test_export_preprocessed_surface_appends_to_case_manifest(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
     remove_ert_env: Callable[[], None],
     set_ert_env_prehook: Callable[[], None],
 ) -> None:
-    casepath = fmurun_prehook
+    casepath = runpath_prehook
     monkeypatch.chdir(casepath)
 
     remove_ert_env()
