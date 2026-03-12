@@ -45,7 +45,7 @@ display:
   name: facies
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: c69af09d63116e487782e2bad7e10949
+  checksum_md5: 8e6a16b8747f17db4f7345eaa47d998f
   relative_path: example_exports/share/results/grids/geogrid--facies.roff
   runpath_relative_path: share/results/grids/geogrid--facies.roff
   size_bytes: 3492813

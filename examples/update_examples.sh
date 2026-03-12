@@ -75,8 +75,8 @@ cp $examples_rootpath/share/preprocessed/maps/mysub/.preprocessedmap.gri.yml exa
 cp $examples_rootpath/example_exports/share/results/tables/.geogrid--volumes.csv.yml example_metadata/table_inplace_volumes.yml
 
 # Update polygon metadata
-cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_region.csv.yml example_metadata/polygons_field_region.yml
-cp $examples_rootpath/example_exports/share/results/polygons/.volantis_gp_base--polygons_field_outline.csv.yml example_metadata/polygons_field_outline.yml
+cp $examples_rootpath/example_exports/share/results/polygons/.poly--polygons_field_region.csv.yml example_metadata/polygons_field_region.yml
+cp $examples_rootpath/example_exports/share/results/polygons/.poly--polygons_field_outline.csv.yml example_metadata/polygons_field_outline.yml
 
 # Update grid and grid property metadata
 cp $examples_rootpath/example_exports/share/results/grids/.geogrid.roff.yml example_metadata/geogrid.yml

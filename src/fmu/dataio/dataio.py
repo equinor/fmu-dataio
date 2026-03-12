@@ -521,6 +521,17 @@ class ExportData:
 
     # ----------------------------------------------------------------------------------
     #
+    # Class variables
+    #
+    # ----------------------------------------------------------------------------------
+
+    case_folder: ClassVar[str] = "share/metadata"
+    polygons_fformat: ClassVar[str] = "csv"
+    points_fformat: ClassVar[str] = "csv"
+    table_fformat: ClassVar[str] = "csv"
+
+    # ----------------------------------------------------------------------------------
+    #
     # Deprecated members.
     #
     # Convert the doc string to a comment, or remove it, to prevent it from rendering in
@@ -536,11 +547,8 @@ class ExportData:
     verbosity: str = "DEPRECATED"  # remove in version 2
     grid_model: str | None = None
 
-    # Class variables
-
     allow_forcefolder_absolute: ClassVar[bool] = False  # deprecated
     arrow_fformat: ClassVar[str | None] = None  # deprecated and no effect
-    case_folder: ClassVar[str] = "share/metadata"
     createfolder: ClassVar[bool] = True  # deprecated
     cube_fformat: ClassVar[str | None] = None  # deprecated and no effect
     filename_timedata_reverse: ClassVar[bool] = False  # reverse order output file name
@@ -548,10 +556,7 @@ class ExportData:
     include_ertjobs: ClassVar[bool] = False  # deprecated
     legacy_time_format: ClassVar[bool] = False  # deprecated
     meta_format: ClassVar[Literal["yaml", "json"] | None] = None  # deprecated
-    polygons_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
-    points_fformat: ClassVar[str] = "csv"  # or use "csv|xtgeo"
     surface_fformat: ClassVar[str | None] = None  # deprecated and no effect
-    table_fformat: ClassVar[str] = "csv"
     dict_fformat: ClassVar[str | None] = None  # deprecated and no effect
     table_include_index: ClassVar[bool] = False  # deprecated
     verifyfolder: ClassVar[bool] = True  # deprecated

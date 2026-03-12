@@ -1,26 +1,22 @@
-"""Export metadata for a preprocessed surfaces via dataio."""
+"""Export a preprocessed surface with metadata."""
 
-import logging
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as utils
+from fmu.config import utilities as ut
 
 from fmu.dataio.dataio import ExportData
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-
-CFG = utils.yaml_load("../../fmuconfig/output/global_variables.yml")
+CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 DEPTH_FILE = Path("../output/maps/structure/") / "topvolantis--ds_extract_geogrid.gri"
 
 
 def export_preprocessed_surface():
-    """Export metadata for a preprocessed surface"""
+    """Export a preprocessed surface with metadata."""
 
-    edata = ExportData(
-        config=CFG,  # read from global config
+    export_data = ExportData(
+        config=CFG,
         preprocessed=True,
         name="preprocessedmap",
         fmu_context="case",
@@ -30,7 +26,7 @@ def export_preprocessed_surface():
     )
 
     surf_depth = xtgeo.surface_from_file(DEPTH_FILE)
-    edata.export(surf_depth)
+    export_data.export(surf_depth)
     print("Exported a preprocessed depth surface.")
 
 

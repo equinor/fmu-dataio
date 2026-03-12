@@ -46,7 +46,7 @@ data:
   - REGION
   tagname: volumes
   undef_is_zero: false
-  unit: m
+  unit: m3
   vertical_domain: depth
 display:
   name: geogrid
