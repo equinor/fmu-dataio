@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import pytest
 import xtgeo
@@ -257,6 +258,37 @@ def test_regularsurface_spec_bbox(
     assert specs.ncol == regsurf.ncol
     assert bbox.xmin == 0.0
     assert bbox.zmin == 1234.0
+
+
+def test_regularsurface_get_bbox_ignores_nan(
+    regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
+) -> None:
+    """get_bbox ignores NaN values in surface values."""
+
+    regsurf.values[0, :] = np.nan
+
+    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+
+    bbox = objdata.get_bbox()
+
+    assert bbox is not None
+
+    assert hasattr(bbox, "zmin")
+    assert hasattr(bbox, "zmax")
+
+    expected_zmin = np.nanmin(regsurf.values)
+    expected_zmax = np.nanmax(regsurf.values)
+
+    assert not np.isnan(expected_zmin)
+    assert not np.isnan(expected_zmax)
+
+    assert bbox.zmin == expected_zmin
+    assert bbox.zmax == expected_zmax
+
+    assert bbox.xmin == regsurf.xmin
+    assert bbox.xmax == regsurf.xmax
+    assert bbox.ymin == regsurf.ymin
+    assert bbox.ymax == regsurf.ymax
 
 
 def test_regularsurface_metadata(
