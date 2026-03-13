@@ -62,7 +62,7 @@ def test_get_manifest_path_realization_context(runpath_no_dotfmu: Path) -> None:
 def test_get_manifest_path_case_context(runpath_prehook: Path) -> None:
     """Test that the manifest path is correctly derived in a case context."""
     # check test assumption that the fixture points to the casepath
-    assert runpath_prehook.name == "ertrun1"
+    assert runpath_prehook.name == "ert_case"
 
     manifest_path = get_manifest_path(casepath=runpath_prehook)
     # check that the manifest path is correct
