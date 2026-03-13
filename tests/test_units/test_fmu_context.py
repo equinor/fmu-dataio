@@ -157,7 +157,7 @@ def test_preprocessed_outside_fmu_is_allowed() -> None:
 
 
 def test_realization_context_from_env(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
 ) -> None:
     """Test resolution with Ert environment variables."""
     env = FMUEnvironment.from_env()
@@ -168,7 +168,7 @@ def test_realization_context_from_env(
     assert context == FMUContext.realization
 
 
-def test_case_context_from_env(fmurun_prehook: Path) -> None:
+def test_case_context_from_env(runpath_prehook: Path) -> None:
     """Test resolution when only case environment is set."""
     env = FMUEnvironment.from_env()
     context = _determine_effective_fmu_context(
@@ -178,7 +178,7 @@ def test_case_context_from_env(fmurun_prehook: Path) -> None:
     assert context == FMUContext.case
 
 
-def test_ensemble_context_when_case_context_from_env(fmurun_prehook: Path) -> None:
+def test_ensemble_context_when_case_context_from_env(runpath_prehook: Path) -> None:
     """Test resolution when case environment is set, but ensemble given."""
     env = FMUEnvironment.from_env()
     context = _determine_effective_fmu_context(

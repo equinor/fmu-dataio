@@ -39,7 +39,7 @@ def fmu_snakeoil_project(
     monkeypatch: MonkeyPatch,
     base_ert_config: str,
     drogon_global_config_path: Path,
-    source_root: Path,
+    rootpath: Path,
 ) -> Path:
     """Makes a skeleton FMU project structure into a tmp_path, copying global_config2
     into it with a basic ert config that can be appended onto."""
@@ -73,14 +73,12 @@ def fmu_snakeoil_project(
     # Add EXPORT_A_SURFACE forward model
     os.makedirs(tmp_path / "ert/bin/scripts")
     shutil.copy(
-        source_root / "tests/data/snakeoil/export-a-surface",
+        rootpath / "tests/data/snakeoil/export-a-surface",
         tmp_path / "ert/bin/scripts/export-a-surface",
     )
     os.makedirs(tmp_path / "ert/output/maps/props")
     shutil.copy(
-        source_root
-        / "examples/example_exports/"
-        / "output/maps/props/poro_average.gri",
+        rootpath / "examples/example_exports/" / "output/maps/props/poro_average.gri",
         tmp_path / "ert/output/maps/props/poro_average.gri",
     )
     os.makedirs(tmp_path / "ert/bin/jobs")

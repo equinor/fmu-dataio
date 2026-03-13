@@ -1,9 +1,7 @@
 """The conftest.py, providing magical fixtures to tests."""
 
 import inspect
-import json
 import logging
-import os
 import shutil
 import sys
 import uuid
@@ -18,7 +16,6 @@ import pyarrow as pa
 import pytest
 import xtgeo
 import yaml
-from fmu.config import utilities as ut
 from fmu.datamodels.common.access import Asset
 from fmu.datamodels.common.masterdata import (
     CoordinateSystem,
@@ -28,16 +25,15 @@ from fmu.datamodels.common.masterdata import (
     Smda,
     StratigraphicColumn,
 )
-from fmu.datamodels.fmu_results import FmuResults, fields, global_configuration
-from pydantic import BaseModel
+from fmu.datamodels.fmu_results import fields, global_configuration
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
-from fmu.dataio.dataio import ExportData, read_metadata
+from fmu.dataio.dataio import ExportData
 
-from .utils import _get_nested_pydantic_models, _metadata_examples
+from .utils import _metadata_examples
 
 logger = logging.getLogger(__name__)
 
@@ -74,16 +70,8 @@ def _current_function_name() -> str:
 
 
 @pytest.fixture(scope="session")
-def source_root(request: pytest.FixtureRequest) -> Path:
+def rootpath(request: pytest.FixtureRequest) -> Path:
     return request.config.rootpath
-
-
-@pytest.fixture(scope="function", autouse=True)
-def return_to_original_directory(monkeypatch: MonkeyPatch) -> Generator[None]:
-    # store original folder, and restore after each function (before and after yield)
-    original_directory = os.getcwd()
-    yield
-    monkeypatch.chdir(original_directory)
 
 
 @pytest.fixture
@@ -91,22 +79,16 @@ def inside_rms_interactive(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("RUNRMS_EXEC_MODE", "interactive")
 
 
-@pytest.fixture(scope="session")
-def rootpath(request: pytest.FixtureRequest) -> Path:
-    return request.config.rootpath
-
-
-def _fmu_run1_env_variables(
-    monkeypatch: MonkeyPatch, usepath: str = "", case_only: bool = False
+def _set_fmurun_env_variables(
+    monkeypatch: MonkeyPatch,
+    runpath: Path = Path(""),
+    case_only: bool = False,
 ) -> None:
-    """Helper function for fixtures below.
-
-    Will here monkeypatch the ENV variables, with a particular setting for RUNPATH
-    (trough `usepath`) which may vary dynamically due to pytest tmp area rotation.
-    """
+    """Set Ert environment variables based upon the path and stage."""
     env = ERTRUN_ENV_FULLRUN if not case_only else ERTRUN_ENV_PREHOOK
+
     for key, value in env.items():
-        env_value = str(usepath) if "RUNPATH" in key else value
+        env_value = str(runpath) if "RUNPATH" in key else value
         monkeypatch.setenv(key, env_value)
         logger.debug("Setting env %s as %s", key, env_value)
 
@@ -139,130 +121,101 @@ def set_ert_env_prehook(monkeypatch: MonkeyPatch) -> Callable[[], None]:
 
 
 @pytest.fixture(scope="function")
-def fmurun(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
-) -> Path:
-    """A tmp folder structure for testing; here a new fmurun without case metadata."""
-    tmppath = tmp_path_factory.mktemp("data")
-    newpath = tmppath / ERTRUN_REAL0_ITER0
-    shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, newpath)
-
-    _fmu_run1_env_variables(monkeypatch, usepath=str(newpath), case_only=False)
-
-    logger.debug("Ran %s", _current_function_name())
-    return newpath
-
-
-@pytest.fixture(scope="function")
-def fmurun_prehook(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
-) -> Path:
-    """A tmp folder structure for testing; here a new fmurun without case metadata."""
-    tmppath = tmp_path_factory.mktemp("data")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-
-    _fmu_run1_env_variables(monkeypatch, usepath=str(newpath), case_only=True)
-
-    logger.debug("Ran %s", _current_function_name())
-    return newpath
-
-
-@pytest.fixture(scope="function")
-def fmurun_w_casemetadata(
+def runpath_no_case_metadata(
     tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
-    newpath = tmp_path / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    iter_path = newpath / "realization-0/iter-0"
+    """A standard runpath without metadata exported in the case path."""
+    runpath = tmp_path / ERTRUN_REAL0_ITER0
+    shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, runpath)
 
-    _fmu_run1_env_variables(monkeypatch, usepath=str(iter_path), case_only=False)
+    _set_fmurun_env_variables(monkeypatch, runpath=runpath)
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(runpath)
+    return runpath
+
+
+@pytest.fixture(scope="function")
+def runpath_prehook(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
+    """Runpath mocking a prehook context."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+
+    _set_fmurun_env_variables(monkeypatch, runpath=runpath, case_only=True)
+
+    monkeypatch.chdir(runpath)
+    return runpath
+
+
+@pytest.fixture(scope="function")
+def runpath_no_dotfmu(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
+    """Runpath mocking an FMU run without a .fmu/ directory."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+    iter_path = runpath / "realization-0/iter-0"
+
+    _set_fmurun_env_variables(monkeypatch, runpath=iter_path)
+
     monkeypatch.chdir(iter_path)
     return iter_path
 
 
 @pytest.fixture(scope="function")
-def fmurun_non_equal_real_and_iter(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+def runpath_non_equal_real_and_iter(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; with non equal real and iter num!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    rootpath = newpath / "realization-1/iter-0"
+    """Runpath with non-equal real and iter num."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+    rootpath = runpath / "realization-1/iter-0"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
     monkeypatch.setenv("_ERT_REALIZATION_NUMBER", "1")
     monkeypatch.setenv("_ERT_RUNPATH", str(rootpath))
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(rootpath)
     return rootpath
 
 
 @pytest.fixture(scope="function")
-def fmurun_no_iter_folder(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+def runpath_no_iter_dir(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; with no iter folder!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN_NO_ITER
-    shutil.copytree(rootpath / ERTRUN_NO_ITER, newpath)
-    rootpath = newpath / "realization-1"
+    """Runpath without an iter dir."""
+    runpath = tmp_path / ERTRUN_NO_ITER
+    shutil.copytree(rootpath / ERTRUN_NO_ITER, runpath)
+    rootpath = runpath / "realization-1"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
     monkeypatch.setenv("_ERT_REALIZATION_NUMBER", "1")
     monkeypatch.setenv("_ERT_RUNPATH", str(rootpath))
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(rootpath)
     return rootpath
 
 
 @pytest.fixture(scope="function")
-def fmurun_w_casemetadata_pred(
-    tmp_path_factory: pytest.TempPathFactory, monkeypatch: MonkeyPatch, rootpath: Path
+def runpath_no_dotfmu_pred(
+    tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
-    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!"""
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    rootpath = newpath / "realization-0/pred"
+    """Prediction runpath with no .fmu/ dir."""
+    runpath = tmp_path / ERTRUN
+    shutil.copytree(rootpath / ERTRUN, runpath)
+    rootpath = runpath / "realization-0/pred"
 
-    _fmu_run1_env_variables(monkeypatch, usepath=str(rootpath), case_only=False)
+    _set_fmurun_env_variables(monkeypatch, runpath=rootpath)
 
-    logger.debug("Ran %s", _current_function_name())
+    monkeypatch.chdir(rootpath)
     return rootpath
 
 
-@pytest.fixture(scope="session")
-def fmurun_pred(tmp_path_factory: pytest.TempPathFactory, rootpath: Path) -> Path:
-    """Create a tmp folder structure for testing; here a new fmurun for prediction."""
-    tmppath = tmp_path_factory.mktemp("data_pred")
-    newpath = tmppath / ERTRUN_PRED
-    shutil.copytree(rootpath / ERTRUN_PRED, newpath)
-    logger.debug("Ran %s", _current_function_name())
-    return newpath
+@pytest.fixture(scope="function")
+def runpath_pred_files(tmp_path: Path, rootpath: Path) -> Path:
+    """Copies prediction run files into the tmp path.
 
-
-@pytest.fixture(scope="session")
-def rmsrun_fmu_w_casemetadata(
-    tmp_path_factory: pytest.TempPathFactory, rootpath: Path
-) -> Path:
-    """Create a tmp folder structure for testing; here existing fmurun w/ case meta!
-
-    Then we locate the folder to the ...rms/model folder, pretending running RMS
-    in a FMU setup where case metadata are present
-    """
-    tmppath = tmp_path_factory.mktemp("data3")
-    newpath = tmppath / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, newpath)
-    rmspath = newpath / "realization-0/iter-0/rms/model"
-    rmspath.mkdir(parents=True, exist_ok=True)
-    logger.debug("Active folder is %s", rmspath)
-    logger.debug("Ran %s", _current_function_name())
-    return rmspath
+    Typically used in combination with another runpath fixture."""
+    runpath = tmp_path / ERTRUN_PRED
+    shutil.copytree(rootpath / ERTRUN_PRED, runpath, dirs_exist_ok=True)
+    return runpath
 
 
 @pytest.fixture(scope="function")
@@ -316,43 +269,6 @@ def rmsglobalconfig(rmssetup: Path, monkeypatch: MonkeyPatch) -> dict[str, Any]:
     logger.debug("Ran setup for %s", "rmsglobalconfig")
     logger.debug("Ran %s", _current_function_name())
     return global_cfg
-
-
-@pytest.fixture(scope="function")
-def globalvars_norwegian_letters(
-    tmp_path_factory: pytest.TempPathFactory, rootpath: Path, monkeypatch: MonkeyPatch
-) -> tuple[Path, dict[str, Any] | None, str]:
-    """Read a global config with norwegian special letters w/ fmu.config utilities."""
-
-    tmppath = tmp_path_factory.mktemp("revisionxx")
-    rmspath = tmppath / "rms/model"
-    rmspath.mkdir(parents=True, exist_ok=True)
-
-    gname = "global_variables_norw_letters.yml"
-
-    # copy a global config with nowr letters here
-    shutil.copy(
-        rootpath / "tests/data/drogon/global_config" / gname,
-        rmspath,
-    )
-
-    monkeypatch.chdir(rmspath)
-    cfg = ut.yaml_load(rmspath / gname)
-
-    return (rmspath, cfg, gname)
-
-
-@pytest.fixture(scope="function")
-def casesetup(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """Create the folder structure to mimic a fmu run"""
-
-    tmppath = tmp_path_factory.mktemp("mycase")
-    tmppath = tmppath / "realization-0/iter-0"
-    tmppath.mkdir(parents=True, exist_ok=True)
-
-    logger.debug("Ran %s", _current_function_name())
-
-    return tmppath
 
 
 @pytest.fixture(scope="function")
@@ -478,15 +394,6 @@ def drogon_exportdata(drogon_global_config: dict[str, Any]) -> ExportData:
 # ======================================================================================
 # Schema
 # ======================================================================================
-
-
-@pytest.fixture(scope="session")
-def schema_080(rootpath: Path) -> dict[str, Any]:
-    """Return 0.8.0 version of schema as json."""
-    with open(
-        rootpath / "schema/definitions/0.8.0/schema/fmu_results.json", encoding="utf-8"
-    ) as f:
-        return json.load(f)
 
 
 @pytest.fixture(scope="session")
@@ -741,93 +648,6 @@ def arrowtable() -> pa.Table:
     )
 
 
-# helper function for the two fixtures below
-def _create_aggregated_surface_dataset(
-    rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
-    content: str,
-    content_metadata: dict[str, str] | None = None,
-) -> tuple[xtgeo.Surfaces, list[dict[str, Any]]]:
-    aggs = []
-    # create "forward" files
-    for i in range(10):  # TODO! 10
-        use_regsurf = regsurf.copy()
-        use_regsurf.values += float(i)
-        expfile = dio.ExportData(
-            config=rmsglobalconfig,
-            content=content,
-            content_metadata=content_metadata,
-            name=f"mymap_{i}",
-        ).export(use_regsurf)
-        aggs.append(expfile)
-
-    # next task is to do an aggradation, and now the metadata already exists
-    # per input element which shall be re-used
-    surfs = xtgeo.Surfaces()
-    metas = []
-    for mapfile in aggs:
-        surf = xtgeo.surface_from_file(mapfile)
-        meta = read_metadata(mapfile)
-
-        metas.append(meta)
-        surfs.append([surf])
-    return surfs, metas
-
-
-@pytest.fixture(scope="function")
-def aggr_seismic_surfs_mean(
-    rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
-    fmurun_w_casemetadata: Path,
-) -> tuple[xtgeo.RegularSurface, list[dict[str, Any]]]:
-    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.debug("Ran %s", _current_function_name())
-
-    origfolder = os.getcwd()
-
-    surfs, metas = _create_aggregated_surface_dataset(
-        rmsglobalconfig,
-        regsurf,
-        content="seismic",
-        content_metadata={"attribute": "amplitude"},
-    )
-
-    aggregated = surfs.statistics()
-    logger.debug(
-        "Aggr. mean is %s", aggregated["mean"].values.mean()
-    )  # shall be 1238.5
-
-    monkeypatch.chdir(origfolder)
-
-    return (aggregated["mean"], metas)
-
-
-@pytest.fixture(scope="function")
-def aggr_surfs_mean(
-    rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
-    monkeypatch: MonkeyPatch,
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Create aggregated surfaces, and return aggr. mean surface + lists of metadata"""
-    logger.debug("Ran %s", _current_function_name())
-
-    origfolder = os.getcwd()
-
-    surfs, metas = _create_aggregated_surface_dataset(
-        rmsglobalconfig, regsurf, content="depth"
-    )
-
-    aggregated = surfs.statistics()
-    logger.debug(
-        "Aggr. mean is %s", aggregated["mean"].values.mean()
-    )  # shall be 1238.5
-
-    monkeypatch.chdir(origfolder)
-
-    return (aggregated["mean"], metas)
-
-
 @pytest.fixture()
 def mock_summary() -> pd.DataFrame:
     """Return summary mock data
@@ -888,12 +708,6 @@ def drogon_volumes(rootpath: Path) -> pa.Table:
             rootpath / "tests/data/drogon/tabular/geogrid--vol.csv",
         )
     )
-
-
-@pytest.fixture(scope="session")
-def pydantic_models_from_root() -> set[type[BaseModel]]:
-    """Return all nested pydantic models from FmuResults and downwards"""
-    return _get_nested_pydantic_models(FmuResults)
 
 
 @pytest.fixture

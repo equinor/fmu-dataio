@@ -430,7 +430,7 @@ def test_compute_md5_and_size(
 
 
 def test_preprocessed_observation_workflow(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmssetup: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
@@ -464,7 +464,7 @@ def test_preprocessed_observation_workflow(
         return edata, edata.export(regsurf)
 
     def _run_case_fmu(
-        fmurun_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
+        runpath_prehook: Path, surfacepath: Path, monkeypatch: MonkeyPatch
     ) -> dict[str, Any]:
         """Run FMU workflow, using the preprocessed data as case data.
 
@@ -476,9 +476,9 @@ def test_preprocessed_observation_workflow(
         But it requires that valid metadata for that file is found. The rule for
         merging is currently defaulted to "preprocessed".
         """
-        monkeypatch.chdir(fmurun_prehook)
+        monkeypatch.chdir(runpath_prehook)
 
-        casepath = fmurun_prehook
+        casepath = runpath_prehook
         edata = dataio.ExportPreprocessedData(is_observation=True, casepath=casepath)
         return edata.generate_metadata(surfacepath)
 
@@ -488,7 +488,7 @@ def test_preprocessed_observation_workflow(
         rmssetup, rmsglobalconfig, regsurf, monkeypatch
     )
     set_ert_env_prehook()
-    case_meta = _run_case_fmu(fmurun_prehook, mysurf, monkeypatch)
+    case_meta = _run_case_fmu(runpath_prehook, mysurf, monkeypatch)
 
     out = Path(mysurf)
     with open(out.parent / f".{out.name}.yml", encoding="utf-8") as f:

@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from fmu.datamodels import TracklogSource
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.data import Property
 from fmu.datamodels.fmu_results.enums import (
@@ -421,7 +422,7 @@ def test_builder_run_context_ensemble(mock_resolve_fmu_context: MagicMock) -> No
 
 
 def test_builder_run_context_ensemble_export_root(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
 ) -> None:
     """run_context() with FMUContext.ensemble sets correct export root."""
     config = (
@@ -460,3 +461,20 @@ def test_builder_standard_result_all_name(
     assert config.standard_result is not None
     assert config.standard_result.root.name == name
     assert isinstance(config.standard_result, AnyStandardResult)
+
+
+def test_builder_tracklog_source(minimal_builder: ExportConfigBuilder) -> None:
+    """Tracklog source is set correctly."""
+    config = minimal_builder.tracklog_source("fmu-sumo-sim2sumo", "1.2.3").build()
+    assert config.tracklog_source is not None
+    assert config.tracklog_source == TracklogSource(
+        name="fmu-sumo-sim2sumo", version="1.2.3"
+    )
+
+
+def test_builder_tracklog_source_none_default(
+    minimal_builder: ExportConfigBuilder,
+) -> None:
+    """Tracklogs source defaults to None."""
+    config = minimal_builder.build()
+    assert config.tracklog_source is None

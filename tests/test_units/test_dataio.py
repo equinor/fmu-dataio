@@ -132,7 +132,7 @@ def test_wrong_config_exports_correctly_ouside_fmu(
 
 def test_wrong_config_exports_correctly_in_fmu(
     monkeypatch: MonkeyPatch,
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
@@ -162,7 +162,7 @@ def test_wrong_config_exports_correctly_in_fmu(
 
     assert (
         Path(objpath_cfg_invalid)
-        == fmurun_w_casemetadata / f"share/results/maps/{name}.gri"
+        == runpath_no_dotfmu / f"share/results/maps/{name}.gri"
     )
     assert Path(objpath_cfg_invalid).exists()
     assert Path(objpath_cfg_valid).exists()
@@ -770,7 +770,7 @@ def test_surfaces_with_non_finite_values(
 
 
 def test_workflow_as_string(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
@@ -945,15 +945,15 @@ def test_fmurun_attribute_outside_fmu(rmsglobalconfig: dict[str, Any]) -> None:
     assert edata._export_config.runcontext.inside_fmu is False
 
 
-def test_exportdata_no_iter_folder(
-    fmurun_no_iter_folder: Path,
+def test_exportdata_no_iter_dir(
+    runpath_no_iter_dir: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Test that the fmuprovider works without a iteration folder"""
 
-    monkeypatch.chdir(fmurun_no_iter_folder)
+    monkeypatch.chdir(runpath_no_iter_dir)
     edata = ExportData(config=rmsglobalconfig, content="depth")
     assert edata._export_config.runcontext.inside_fmu is True
 
@@ -970,7 +970,7 @@ def test_exportdata_no_iter_folder(
 
 
 def test_fmucontext_case_casepath(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
@@ -996,13 +996,13 @@ def test_fmucontext_case_casepath(
     # no warning when casepath is provided and metadata is valid
     # should however issue a warning to move it to initialization
     with pytest.warns(FutureWarning, match="move them up to initialization"):
-        meta = edata.generate_metadata(regsurf, casepath=fmurun_prehook)
+        meta = edata.generate_metadata(regsurf, casepath=runpath_prehook)
     assert "fmu" in meta
     assert meta["fmu"]["case"]["name"] == "somecasename"
 
 
 def test_fmurun_attribute_inside_fmu(
-    fmurun_w_casemetadata: Path, rmsglobalconfig: dict[str, Any]
+    runpath_no_dotfmu: Path, rmsglobalconfig: dict[str, Any]
 ) -> None:
     """Test that _fmurun attribute is True when in fmu"""
 
@@ -1016,7 +1016,7 @@ def test_fmurun_attribute_inside_fmu(
 
 
 def test_fmu_context_not_given_fetch_from_env_realization(
-    fmurun_w_casemetadata: Path, rmsglobalconfig: dict[str, Any]
+    runpath_no_dotfmu: Path, rmsglobalconfig: dict[str, Any]
 ) -> None:
     """
     Test fmu_context not explicitly given, should be set to "realization" when
@@ -1034,7 +1034,7 @@ def test_fmu_context_not_given_fetch_from_env_realization(
 
 
 def test_fmu_context_not_given_fetch_from_env_case(
-    fmurun_prehook: Path, rmsglobalconfig: dict[str, Any]
+    runpath_prehook: Path, rmsglobalconfig: dict[str, Any]
 ) -> None:
     """
     Test fmu_context not explicitly given, should be set to "case" when
@@ -1050,11 +1050,13 @@ def test_fmu_context_not_given_fetch_from_env_case(
         edata = ExportData(config=rmsglobalconfig, content="depth")
 
     # test that it runs properly when casepath is provided
-    edata = ExportData(config=rmsglobalconfig, content="depth", casepath=fmurun_prehook)
+    edata = ExportData(
+        config=rmsglobalconfig, content="depth", casepath=runpath_prehook
+    )
     assert edata._export_config.runcontext.inside_fmu is True
     assert edata.fmu_context is None
     assert edata._export_config.fmu_context == FMUContext.case
-    assert edata._export_config.runcontext.exportroot == fmurun_prehook
+    assert edata._export_config.runcontext.exportroot == runpath_prehook
 
 
 def test_fmu_context_not_given_fetch_from_env_nonfmu(
@@ -1125,7 +1127,9 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(
 
 
 def test_fmu_context_preprocessed_deprecation_inside_fmu(
-    fmurun_prehook: Path, rmsglobalconfig: dict[str, Any], regsurf: xtgeo.RegularSurface
+    runpath_prehook: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
 ) -> None:
     """
     Test the deprecated fmu_context="preprocessed" inside fmu.
@@ -1138,7 +1142,7 @@ def test_fmu_context_preprocessed_deprecation_inside_fmu(
             config=rmsglobalconfig,
             content="depth",
             fmu_context="preprocessed",
-            casepath=fmurun_prehook,
+            casepath=runpath_prehook,
         )
     assert edata.preprocessed is False
     assert edata._export_config.preprocessed is True
@@ -1164,7 +1168,7 @@ def test_preprocessed_outside_fmu(
 
 
 def test_preprocessed_inside_fmu(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
@@ -1195,7 +1199,7 @@ def test_preprocessed_inside_fmu(
 
 
 def test_norwegian_letters_globalconfig(
-    globalvars_norwegian_letters: tuple[Path, dict[str, Any] | None, str],
+    rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -1203,32 +1207,29 @@ def test_norwegian_letters_globalconfig(
 
     Note that fmu.config utilities yaml_load() is applied to read cfg (cf conftest.py)
     """
+    rmsglobalconfig["masterdata"]["smda"]["field"][0]["identifier"] = "DRÅGØN"
 
-    path, cfg, cfg_asfile = globalvars_norwegian_letters
+    modified_cfg = Path("global_config.yml").absolute()
+    with open(modified_cfg, "w") as f:
+        f.write(yaml.dump(rmsglobalconfig))
 
-    monkeypatch.chdir(path)
-
-    assert cfg is not None
-    edata = ExportData(content="depth", config=cfg, name="TopBlåbær")
+    edata = ExportData(content="depth", config=rmsglobalconfig, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
-    logger.debug("\n %s", prettyprint_dict(meta))
+
     assert meta["data"]["name"] == "TopBlåbær"
     assert meta["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 
     # export to file and reread as raw
     result = pathlib.Path(edata.export(regsurf))
-    metafile = result.parent / ("." + str(result.stem) + ".gri.yml")
+    metafile = result.parent / f".{result.stem}.gri.yml"
     with open(metafile, encoding="utf-8") as stream:
         assert "DRÅGØN" in stream.read()
 
-    # read file as global config
-
-    monkeypatch.setenv("FMU_GLOBAL_CONFIG", cfg_asfile)
-    edata2 = ExportData(
-        content="depth", name="TopBlåbær"
-    )  # the env variable will override this
+    # Specify global configuration via environment variable
+    monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(modified_cfg))
+    edata2 = ExportData(content="depth", name="TopBlåbær")
     meta2 = edata2.generate_metadata(regsurf)
-    logger.debug("\n %s", prettyprint_dict(meta2))
+
     assert meta2["data"]["name"] == "TopBlåbær"
     assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 
@@ -1427,7 +1428,7 @@ def test_standard_result_not_present_in_generated_metadata(
 
 
 def test_ert_experiment_id_present_in_generated_metadata(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
@@ -1442,7 +1443,7 @@ def test_ert_experiment_id_present_in_generated_metadata(
 
 
 def test_ert_experiment_id_present_in_exported_metadata(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
@@ -1459,7 +1460,7 @@ def test_ert_experiment_id_present_in_exported_metadata(
 
 
 def test_ert_simulation_mode_present_in_generated_metadata(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
@@ -1473,7 +1474,7 @@ def test_ert_simulation_mode_present_in_generated_metadata(
 
 
 def test_ert_simulation_mode_present_in_exported_metadata(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
@@ -1651,7 +1652,7 @@ def test_timedata_wrong_format(
 
 
 def test_export_with_standard_result_valid_config(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     mock_volumes: pd.DataFrame,
@@ -1703,7 +1704,7 @@ def test_export_with_standard_result_invalid_config(mock_volumes: pd.DataFrame) 
 
 
 def test_export_with_standard_result_custom_export_config(
-    fmurun_prehook: Path,
+    runpath_prehook: Path,
     monkeypatch: MonkeyPatch,
     mock_global_config: dict[str, Any],
     mock_volumes: pd.DataFrame,
@@ -1713,7 +1714,7 @@ def test_export_with_standard_result_custom_export_config(
         config=mock_global_config,
         content="volumes",
         name="TopWhatever",
-        casepath=fmurun_prehook,
+        casepath=runpath_prehook,
         fmu_context="ensemble",
     )
 
@@ -1727,11 +1728,11 @@ def test_export_with_standard_result_custom_export_config(
     outpath = export_with_metadata(export_config, mock_volumes)
 
     assert "pred-dg3" in str(outpath)
-    assert fmurun_prehook / "share" / "ensemble" / "pred-dg3" in Path(outpath).parents
+    assert runpath_prehook / "share" / "ensemble" / "pred-dg3" in Path(outpath).parents
 
 
 def test_file_paths_realization_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     regsurf: xtgeo.RegularSurface,
@@ -1749,11 +1750,11 @@ def test_file_paths_realization_context(
 
     assert meta["file"]["runpath_relative_path"] == share_location
     assert meta["file"]["relative_path"] == "realization-0/iter-0/" + share_location
-    assert meta["file"]["absolute_path"] == str(fmurun_w_casemetadata / share_location)
+    assert meta["file"]["absolute_path"] == str(runpath_no_dotfmu / share_location)
 
 
 def test_file_paths_case_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
@@ -1762,7 +1763,7 @@ def test_file_paths_case_context(
     Here the file.runpath_relative_path should not be present.
     """
 
-    casepath = fmurun_w_casemetadata.parent.parent
+    casepath = runpath_no_dotfmu.parent.parent
 
     meta = ExportData(
         config=drogon_global_config,
@@ -1780,13 +1781,13 @@ def test_file_paths_case_context(
 
 
 def test_export_file_paths_ensemble_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Ensemble context resolves to correct path."""
 
-    casepath = fmurun_w_casemetadata.parent.parent
+    casepath = runpath_no_dotfmu.parent.parent
 
     with pytest.warns(UserWarning, match="Did you mean fmu_context='realization'"):
         export_data = ExportData(
@@ -1806,13 +1807,13 @@ def test_export_file_paths_ensemble_context(
 
 
 def test_export_file_paths_ensemble_context_pred(
-    fmurun_w_casemetadata_pred: Path,
+    runpath_no_dotfmu_pred: Path,
     drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Ensemble context resolves to correct path with a prediction ensemble."""
 
-    casepath = fmurun_w_casemetadata_pred.parent.parent
+    casepath = runpath_no_dotfmu_pred.parent.parent
 
     with pytest.warns(UserWarning, match="Did you mean fmu_context='realization'"):
         export_data = ExportData(
@@ -1832,7 +1833,7 @@ def test_export_file_paths_ensemble_context_pred(
 
 
 def test_element_id_realization_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     regsurf: xtgeo.RegularSurface,
@@ -1847,7 +1848,7 @@ def test_element_id_realization_context(
     assert meta["file"]["runpath_relative_path"] == share_path
     assert meta["file"]["relative_path"] == "realization-0/iter-0/" + share_path
 
-    casefilepath = fmurun_w_casemetadata.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
+    casefilepath = runpath_no_dotfmu.parent.parent / ERT_RELATIVE_CASE_METADATA_FILE
     with open(casefilepath, encoding="utf-8") as stream:
         casemeta = yaml.safe_load(stream)
 
@@ -1860,12 +1861,12 @@ def test_element_id_realization_context(
 
 
 def test_element_id_case_context(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Test that the entity.uuid is not set in the metadata for a case context."""
-    casepath = fmurun_w_casemetadata.parent.parent
+    casepath = runpath_no_dotfmu.parent.parent
 
     meta = ExportData(
         config=drogon_global_config,

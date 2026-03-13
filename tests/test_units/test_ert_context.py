@@ -29,19 +29,19 @@ logger = logging.getLogger(__name__)
 
 
 def test_regsurf_generate_metadata(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Test generating metadata for a surface pretend ERT job"""
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth")
 
     meta = edata.generate_metadata(regsurf)
     assert str(edata._export_config.runcontext.casepath) == str(
-        fmurun_w_casemetadata.parent.parent.resolve()
+        runpath_no_dotfmu.parent.parent.resolve()
     )
     assert meta["file"]["relative_path"].startswith("realization-0/iter-0/share")
     assert "jobs" not in meta["fmu"]["realization"]
@@ -61,7 +61,7 @@ def test_incl_jobs_warning(rmsglobalconfig: dict[str, Any]) -> None:
 
 
 def test_regsurf_metadata_with_timedata(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
@@ -95,7 +95,7 @@ def test_regsurf_metadata_with_timedata(
 
 
 def test_regsurf_export_file_fmurun(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
@@ -105,7 +105,7 @@ def test_regsurf_export_file_fmurun(
     Export the regular surface to file with correct metadata and name.
     """
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -140,7 +140,7 @@ def test_regsurf_export_file_fmurun(
     assert metadata["data"]["unit"] == "forthnite"
 
     # check that the two exported files have been written to the manifest
-    assert (fmurun_w_casemetadata / MANIFEST_FILENAME).exists()
+    assert (runpath_no_dotfmu / MANIFEST_FILENAME).exists()
     manifest = load_export_manifest()
     assert len(manifest) == 2
     assert manifest[0].absolute_path == Path(output)
@@ -153,14 +153,14 @@ def test_regsurf_export_file_fmurun(
 
 
 def test_polys_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     polygons: xtgeo.Polygons,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -183,14 +183,14 @@ def test_polys_export_file_set_name(
 
 
 def test_polys_export_file_use_xtgeo_names(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     polygons: xtgeo.Polygons,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -212,14 +212,14 @@ def test_polys_export_file_use_xtgeo_names(
 
 
 def test_polys_export_file_as_parquet(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     polygons: xtgeo.Polygons,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -251,14 +251,14 @@ def test_polys_export_file_as_parquet(
 
 
 def test_polys_export_file_as_parquet_no_table_index(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     polygons: xtgeo.Polygons,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file without table index."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -275,14 +275,14 @@ def test_polys_export_file_as_parquet_no_table_index(
 
 
 def test_polys_export_file_as_irap_ascii(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     polygons: xtgeo.Polygons,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -308,14 +308,14 @@ def test_polys_export_file_as_irap_ascii(
 
 
 def test_points_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     points: xtgeo.Points,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the points to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -344,14 +344,14 @@ def test_points_export_file_set_name(
 
 
 def test_points_export_file_set_name_xtgeoheaders(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     points: xtgeo.Points,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the points to file with correct metadata and name but here xtgeo var."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     dataio.ExportData.points_fformat = "csv"
     edata = dataio.ExportData(
@@ -380,14 +380,14 @@ def test_points_export_file_set_name_xtgeoheaders(
 
 
 def test_points_export_file_as_parquet_no_table_index(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     points: xtgeo.Points,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the points to file without table index."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -404,14 +404,14 @@ def test_points_export_file_as_parquet_no_table_index(
 
 
 def test_points_export_file_as_irap_ascii(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     points: xtgeo.Points,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -438,14 +438,14 @@ def test_points_export_file_as_irap_ascii(
 
 
 def test_points_export_file_as_parquet(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     points: xtgeo.Points,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the polygon to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="TopVolantis"
@@ -483,7 +483,7 @@ def test_points_export_file_as_parquet(
 def test_exported_points_spec_table_format(
     fformat: Literal["parquet", "csv|xtgeo", "csv"],
     expected_columns: list[str],
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     points: xtgeo.Points,
@@ -507,7 +507,7 @@ def test_exported_points_spec_table_format(
 
 
 def test_exported_points_spec_irap_ascii(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     points: xtgeo.Points,
@@ -541,7 +541,7 @@ def test_exported_points_spec_irap_ascii(
 def test_exported_polygon_spec_table_format(
     fformat: Literal["parquet", "csv|xtgeo", "csv"],
     expected_columns: list[str],
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     polygons: xtgeo.Polygons,
@@ -564,7 +564,7 @@ def test_exported_polygon_spec_table_format(
 
 
 def test_exported_polygon_spec_irap_ascii(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     drogon_global_config: dict[str, Any],
     monkeypatch: MonkeyPatch,
     polygons: xtgeo.Polygons,
@@ -593,14 +593,14 @@ def test_exported_polygon_spec_irap_ascii(
 
 
 def test_cube_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     cube: xtgeo.Cube,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the cube to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth", name="MyCube")
 
@@ -617,14 +617,14 @@ def test_cube_export_file_set_name(
 
 
 def test_cube_export_file_is_observation(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     cube: xtgeo.Cube,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the cube to file with correct metadata..., with is_observation flag."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -647,14 +647,14 @@ def test_cube_export_file_is_observation(
 
 
 def test_cube_export_file_is_case_observation(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     cube: xtgeo.Cube,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the cube..., with is_observation flag and fmu_context is case."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -677,14 +677,14 @@ def test_cube_export_file_is_case_observation(
 
 
 def test_cube_export_file_is_observation_forcefolder(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     cube: xtgeo.Cube,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Export the cube to file..., with is_observation flag and forcefolder."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig,
@@ -709,7 +709,7 @@ def test_cube_export_file_is_observation_forcefolder(
 
 @pytest.mark.skipif("win" in sys.platform, reason="Windows tests have no /tmp")
 def test_cube_export_file_is_observation_forcefolder_abs(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     cube: xtgeo.Cube,
     monkeypatch: MonkeyPatch,
@@ -719,7 +719,7 @@ def test_cube_export_file_is_observation_forcefolder_abs(
     Using an absolute path requires class property allow_forcefolder_absolute = True
     """
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     dataio.ExportData.allow_forcefolder_absolute = True
     with pytest.warns(UserWarning, match="deprecated"):
@@ -745,14 +745,14 @@ def test_cube_export_file_is_observation_forcefolder_abs(
 
 
 def test_grid_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     grid: xtgeo.Grid,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the grid to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(config=rmsglobalconfig, content="depth", name="MyGrid")
 
@@ -770,14 +770,14 @@ def test_grid_export_file_set_name(
 
 
 def test_gridproperty_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     gridproperty: xtgeo.GridProperty,
     monkeypatch: MonkeyPatch,
 ) -> None:
     """Export the gridprop to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyGridProperty"
@@ -802,14 +802,14 @@ def test_gridproperty_export_file_set_name(
 
 
 def test_dataframe_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     dataframe: pd.DataFrame,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Export the dataframe to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyDataframe"
@@ -834,14 +834,14 @@ def test_dataframe_export_file_set_name(
 
 
 def test_pyarrow_export_file_set_name(
-    fmurun_w_casemetadata: Path,
+    runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
     arrowtable: pa.Table,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Export the arrow to file with correct metadata and name."""
 
-    logger.info("Active folder is %s", fmurun_w_casemetadata)
+    logger.info("Active folder is %s", runpath_no_dotfmu)
 
     edata = dataio.ExportData(
         config=rmsglobalconfig, content="depth", name="MyArrowtable"
