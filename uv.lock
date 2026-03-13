@@ -1017,6 +1017,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fmu-config" },
     { name = "fmu-datamodels" },
+    { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "jsonschema" },
     { name = "numpy" },
@@ -1073,6 +1074,7 @@ requires-dist = [
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
     { name = "fmu-config", specifier = ">=1.1.0" },
     { name = "fmu-datamodels", specifier = "~=0.20.0" },
+    { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
     { name = "hypothesis", marker = "extra == 'dev'" },
@@ -1120,6 +1122,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3f/b4/358b9a25761396c2438680a2d0d5b6d61772036cdc45ef7f8e114353b7e2/fmu_datamodels-0.20.1.tar.gz", hash = "sha256:96ccd263aada8529eb051ab5208746836a2db90b2a84b220a01a5da1504fe83b", size = 385938, upload-time = "2026-03-12T09:49:24.376Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/64/86/32ed1559bfba669ec1a8ffb2b1d6af43125b541a345a2f998cee2406d277/fmu_datamodels-0.20.1-py3-none-any.whl", hash = "sha256:63310b7043e64642384de7231716fa2ca88292814438fff7675fad09f171d116", size = 52651, upload-time = "2026-03-12T09:49:22.69Z" },
+]
+
+[[package]]
+name = "fmu-settings"
+version = "0.25.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "annotated-types" },
+    { name = "fmu-config" },
+    { name = "fmu-datamodels" },
+    { name = "pandas" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/ff/ec078b2c96ce353da6f10342eeda2424083177ed48bc39f514321bdc0d7c/fmu_settings-0.25.0.tar.gz", hash = "sha256:bf8118b50c650873c98d326899061467d50cebfced49009e4577a878d047b1cf", size = 137190, upload-time = "2026-03-23T08:01:14.502Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f9/11/8eccaa8447b852b2b2f678a45c6c887823c746084f0934256d1cdbd44442/fmu_settings-0.25.0-py3-none-any.whl", hash = "sha256:7c2bb4386738ae339de030ffd788bb22e4bffb8fa2c075ff088428fdff2880cc", size = 52075, upload-time = "2026-03-23T08:01:13.001Z" },
 ]
 
 [[package]]

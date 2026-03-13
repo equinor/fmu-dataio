@@ -1,0 +1,50 @@
+{
+  "version": "0.23.2",
+  "created_at": "2026-03-12T12:54:05.703963Z",
+  "created_by": "user",
+  "last_modified_at": "2026-03-12T12:54:05.704097Z",
+  "last_modified_by": "user",
+  "masterdata": {
+    "smda": {
+      "country": [
+        {
+          "identifier": "Norway",
+          "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"
+        }
+      ],
+      "discovery": [
+        {
+          "short_identifier": "DROGON",
+          "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"
+        }
+      ],
+      "field": [
+        {
+          "identifier": "DROGON",
+          "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"
+        }
+      ],
+      "coordinate_system": {
+        "identifier": "ST_WGS84_UTM37N_P32637",
+        "uuid": "ad214d85-dac7-19da-e053-c918a4889309"
+      },
+      "stratigraphic_column": {
+        "identifier": "DROGON_HAS_NO_STRATCOLUMN",
+        "uuid": "ad214d85-8a1d-19da-e053-c918a4889309"
+      }
+    }
+  },
+  "model": {
+    "name": "Drogon",
+    "revision": "26.0.0",
+    "description": null
+  },
+  "access": {
+    "asset": {
+      "name": "Drogon"
+    },
+    "classification": "internal"
+  },
+  "cache_max_revisions": 5,
+  "rms": null
+}
