@@ -51,11 +51,12 @@ def test_regsurf_case_observation(
     metadata = edata.generate_metadata(regsurf)
     logger.debug("\n%s", utils.prettyprint_dict(metadata))
     assert (
-        "ertrun1/share/observations/maps/mymap.gri" in metadata["file"]["absolute_path"]
+        "ert_case/share/observations/maps/mymap.gri"
+        in metadata["file"]["absolute_path"]
     )
 
     exp = edata.export(regsurf)
-    assert "ertrun1/share/observations/maps/mymap.gri" in exp
+    assert "ert_case/share/observations/maps/mymap.gri" in exp
 
 
 def test_regsurf_preprocessed_observation(
