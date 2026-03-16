@@ -34,7 +34,7 @@ and on Sumo.
 EXAMPLES = """
 Create an Ert workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with::
 
-  WF_CREATE_CASE_METADATA <casepath> <ert_config_path> "--sumo"
+  WF_CREATE_CASE_METADATA <casepath> "--sumo"
 
 Arguments:
     <casepath>: Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
@@ -141,7 +141,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "ert_config_path",
         type=Path,
-        help="Ert config path (<CONFIG_PATH>)",
+        help="Deprecated and can safely be removed",
         nargs="?",  # Optional
         default=None,
     )
