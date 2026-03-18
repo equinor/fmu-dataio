@@ -85,7 +85,7 @@ def mock_export_class(
         _ExportFipZoneRegionMapping,
     )
 
-    yield _ExportFipZoneRegionMapping(mapping_table)
+    yield _ExportFipZoneRegionMapping(mapping_table, "Simgrid")
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -224,8 +224,8 @@ def test_mapping_file_is_exported_with_metadata(
     )
     assert export_folder.exists()
 
-    assert (export_folder / "fipnum.parquet").exists()
-    assert (export_folder / ".fipnum.parquet.yml").exists()
+    assert (export_folder / "simgrid.parquet").exists()
+    assert (export_folder / ".simgrid.parquet.yml").exists()
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -257,10 +257,13 @@ def test_public_export_function(
     mock_project_variable: MagicMock,
     mock_export_class: _ExportFipZoneRegionMapping,
     mapping_table: pa.Table,
+    rmssetup_with_fmuconfig: Path,
 ) -> None:
     """Test that the export function works and metadata is correctly set"""
 
     from fmu.dataio.export.rms import create_fipnum_property
+
+    gridname = "Simgrid"
 
     with (
         mock.patch(
@@ -268,12 +271,20 @@ def test_public_export_function(
             return_value=mapping_table,
         ),
     ):
-        out = create_fipnum_property(mock_project_variable, "Simgrid", "Region", "Zone")
+        out = create_fipnum_property(mock_project_variable, gridname, "Region", "Zone")
 
         assert len(out.items) == 1
 
-        metadata = dataio.read_metadata(out.items[0].absolute_path)
+        absolute_path = out.items[0].absolute_path
+        sharepath = (
+            rmssetup_with_fmuconfig.parent.parent
+            / "share/results/tables/simulator_fipregions_mapping"
+        )
+        assert absolute_path == sharepath / f"{gridname.lower()}.parquet"
 
+        metadata = dataio.read_metadata(absolute_path)
+
+        assert metadata["data"]["name"] == gridname
         assert metadata["data"]["content"] == "mapping"
         assert metadata["access"]["classification"] == "internal"
         assert (
