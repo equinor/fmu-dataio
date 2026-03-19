@@ -25,10 +25,11 @@ FIPNAME: Final = "FIPNUM"
 
 
 class _ExportFipZoneRegionMapping(SimpleExportRMSBase):
-    def __init__(self, mapping_table: pa.Table) -> None:
+    def __init__(self, mapping_table: pa.Table, grid_name: str) -> None:
         super().__init__()
 
         self._mapping_table = mapping_table
+        self._grid_name = grid_name
 
     def _get_export_config(self) -> ExportConfig:
         """Export config for the standard result."""
@@ -37,7 +38,7 @@ class _ExportFipZoneRegionMapping(SimpleExportRMSBase):
             ExportConfig.builder()
             .content(Content.mapping)
             .file_config(
-                name=FIPNAME,
+                name=self._grid_name,
                 subfolder=StandardResultName.simulator_fipregions_mapping.value,
             )
             .access(Classification.internal, rep_include=False)
@@ -150,4 +151,4 @@ def create_fipnum_property(
 
     mapping_table = _create_fipnum_in_project(project, grid_name, region, zone)
 
-    return _ExportFipZoneRegionMapping(mapping_table).export()
+    return _ExportFipZoneRegionMapping(mapping_table, grid_name).export()
