@@ -16,7 +16,7 @@ from fmu.dataio._runcontext import FMUEnvironment, RunContext
 from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
 from fmu.dataio.exceptions import InvalidMetadataError
 from fmu.dataio.providers._fmu import (
-    DEFAULT_ENSMEBLE_NAME,
+    DEFAULT_ENSEMBLE_NAME,
     RESTART_PATH_ENVNAME,
     FmuProvider,
 )
@@ -30,19 +30,19 @@ def test_fmuprovider_no_provider() -> None:
     """Testing the FmuProvider where no ERT context is found from env variables."""
     runcontext = RunContext(casepath_proposed=Path(""))
 
-    myfmu = FmuProvider(runcontext=runcontext)
+    fmu = FmuProvider(runcontext=runcontext)
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
-        myfmu.get_metadata()
+        fmu.get_metadata()
 
 
 def test_fmuprovider_model_info_in_metadata(runpath_no_dotfmu: Path) -> None:
     """Test that the model info is stored and preserved in the metadata."""
     runcontext = RunContext()
-    myfmu = FmuProvider(
+    fmu = FmuProvider(
         runcontext,
         model=GLOBAL_CONFIG_MODEL,
     )
-    meta = myfmu.get_metadata()
+    meta = fmu.get_metadata()
     assert "model" in meta.model_fields_set
     assert meta.model.model_dump(mode="json", exclude_none=True) == GLOBAL_CONFIG_MODEL
 
@@ -50,14 +50,14 @@ def test_fmuprovider_model_info_in_metadata(runpath_no_dotfmu: Path) -> None:
 def test_fmuprovider_no_model_info_use_case(runpath_no_dotfmu: Path) -> None:
     """Test that if no model info it is picking up from the case metadata."""
     runcontext = RunContext()
-    myfmu = FmuProvider(
+    fmu = FmuProvider(
         runcontext,
         model=None,
         workflow=Workflow.model_validate(WORKFLOW),
     )
 
-    meta = myfmu.get_metadata()
-    casemeta = myfmu._casemeta
+    meta = fmu.get_metadata()
+    casemeta = fmu._runcontext.case_metadata
     assert casemeta is not None
     assert meta.model.name == casemeta.fmu.model.name
     assert meta.model.revision == casemeta.fmu.model.revision
@@ -73,11 +73,11 @@ def test_fmuprovider_ert_provider_guess_casemeta_path(
     with pytest.warns(UserWarning, match="case metadata"):
         runcontext = RunContext(casepath_proposed=None)
 
-    myfmu = FmuProvider(runcontext)
+    fmu = FmuProvider(runcontext)
 
-    assert myfmu._casepath is None
+    assert fmu._runcontext.casepath is None
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
-        myfmu.get_metadata()
+        fmu.get_metadata()
 
 
 def test_fmuprovider_ert_provider_missing_parameter_txt(
@@ -89,12 +89,12 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(
 
     # delete the file for this test
     (runpath_no_dotfmu / "parameters.txt").unlink()
-    myfmu = FmuProvider(runcontext)
+    fmu = FmuProvider(runcontext)
 
-    assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "ert_case"
-    assert myfmu._realization_name == "realization-0"
-    assert myfmu._realization_number == 0
+    assert fmu._runcontext.casepath is not None
+    assert fmu._runcontext.casepath.name == "ert_case"
+    assert fmu._realization_name == "realization-0"
+    assert fmu._realization_number == 0
 
 
 def test_fmuprovider_arbitrary_iter_name(
@@ -105,16 +105,16 @@ def test_fmuprovider_arbitrary_iter_name(
     monkeypatch.chdir(runpath_no_dotfmu_pred)
 
     runcontext = RunContext()
-    myfmu = FmuProvider(runcontext)
+    fmu = FmuProvider(runcontext)
 
-    assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "ert_case"
-    assert myfmu._realization_name == "realization-0"
-    assert myfmu._realization_number == 0
-    assert myfmu._ensemble_name == "pred"
+    assert fmu._runcontext.casepath is not None
+    assert fmu._runcontext.casepath.name == "ert_case"
+    assert fmu._realization_name == "realization-0"
+    assert fmu._realization_number == 0
+    assert fmu._ensemble_name == "pred"
     # iter_id should have the default value
-    assert myfmu._iteration_number == 0
-    meta = myfmu.get_metadata()
+    assert fmu._iteration_number == 0
+    meta = fmu.get_metadata()
     assert str(meta.case.uuid) == "a40b05e8-e47f-47b1-8fee-f52a5116bd37"
 
 
@@ -125,15 +125,15 @@ def test_fmuprovider_get_real_and_iter_from_env(
     monkeypatch.chdir(runpath_non_equal_real_and_iter)
 
     runcontext = RunContext()
-    myfmu = FmuProvider(runcontext)
+    fmu = FmuProvider(runcontext)
 
-    assert myfmu._runpath == runpath_non_equal_real_and_iter
-    assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "ert_case"
-    assert myfmu._realization_name == "realization-1"
-    assert myfmu._realization_number == 1
-    assert myfmu._ensemble_name == "iter-0"
-    assert myfmu._iteration_number == 0
+    assert fmu._require_runpath() == runpath_non_equal_real_and_iter
+    assert fmu._runcontext.casepath is not None
+    assert fmu._runcontext.casepath.name == "ert_case"
+    assert fmu._realization_name == "realization-1"
+    assert fmu._realization_number == 1
+    assert fmu._ensemble_name == "iter-0"
+    assert fmu._iteration_number == 0
 
 
 def test_fmuprovider_no_iter_dir(
@@ -144,18 +144,18 @@ def test_fmuprovider_no_iter_dir(
     monkeypatch.chdir(runpath_no_iter_dir)
 
     runcontext = RunContext()
-    myfmu = FmuProvider(runcontext)
+    fmu = FmuProvider(runcontext)
 
-    assert myfmu._runpath == runpath_no_iter_dir
-    assert myfmu._casepath == runpath_no_iter_dir.parent
-    assert myfmu._casepath.name == "ert_case_no_iter"
-    assert myfmu._realization_name == "realization-1"
-    assert myfmu._realization_number == 1
-    assert myfmu._ensemble_name == "iter-0"
-    assert myfmu._iteration_number == 0
+    assert fmu._require_runpath() == runpath_no_iter_dir
+    assert fmu._runcontext.casepath == runpath_no_iter_dir.parent
+    assert fmu._runcontext.casepath.name == "ert_case_no_iter"
+    assert fmu._realization_name == "realization-1"
+    assert fmu._realization_number == 1
+    assert fmu._ensemble_name == "iter-0"
+    assert fmu._iteration_number == 0
 
     # also check that it is stored correctly in the metadata
-    meta = myfmu.get_metadata()
+    meta = fmu.get_metadata()
     assert meta.realization is not None
     assert meta.realization.name == "realization-1"
     assert meta.realization.id == 1
@@ -199,11 +199,11 @@ def test_fmuprovider_prehook_case(
     monkeypatch.chdir(runpath_prehook)
     logger.debug("Case root proposed is: %s", caseroot)
     runcontext = RunContext(casepath_proposed=caseroot, fmu_context=FMUContext.case)
-    myfmu = FmuProvider(runcontext)
+    fmu = FmuProvider(runcontext)
 
-    assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "prehook"
-    assert myfmu._realization_name == ""
+    assert fmu._runcontext.casepath is not None
+    assert fmu._runcontext.casepath.name == "prehook"
+    assert fmu._realization_name == ""
 
 
 def test_fmuprovider_detect_no_case_metadata(
@@ -215,9 +215,9 @@ def test_fmuprovider_detect_no_case_metadata(
     """
     with pytest.warns(UserWarning, match="case metadata"):
         runcontext = RunContext()
-        myfmu = FmuProvider(runcontext)
+        fmu = FmuProvider(runcontext)
     with pytest.raises(InvalidMetadataError, match="Missing casepath"):
-        myfmu.get_metadata()
+        fmu.get_metadata()
 
 
 def test_fmuprovider_case_run(runpath_prehook: Path, monkeypatch: MonkeyPatch) -> None:
@@ -241,11 +241,11 @@ def test_fmuprovider_case_run(runpath_prehook: Path, monkeypatch: MonkeyPatch) -
     runcontext = RunContext(
         fmu_context=FMUContext.case, casepath_proposed=runpath_prehook
     )
-    myfmu = FmuProvider(runcontext)
-    meta = myfmu.get_metadata()
+    fmu = FmuProvider(runcontext)
+    meta = fmu.get_metadata()
     assert meta.realization is None
-    assert myfmu._casepath is not None
-    assert myfmu._casepath.name == runpath_prehook.name
+    assert fmu._runcontext.casepath is not None
+    assert fmu._runcontext.casepath.name == runpath_prehook.name
 
 
 def test_fmuprovider_valid_restart_env(
@@ -306,7 +306,7 @@ def test_fmuprovider_restart_env_no_iter_dir(
     runcontext = RunContext()
     meta_restart_from = FmuProvider(runcontext).get_metadata()
     assert meta_restart_from.iteration is not None
-    assert meta_restart_from.iteration.name == DEFAULT_ENSMEBLE_NAME
+    assert meta_restart_from.iteration.name == DEFAULT_ENSEMBLE_NAME
 
     # using a relative path as input
     monkeypatch.setenv(RESTART_PATH_ENVNAME, str(runpath_no_iter_dir))
@@ -382,12 +382,12 @@ def test_fmuprovider_workflow_reference(
 
     # workflow input is a string
     runcontext = RunContext()
-    myfmu_meta = FmuProvider(
+    fmu_meta = FmuProvider(
         runcontext,
         workflow=Workflow(reference="workflow as string"),
     ).get_metadata()
-    assert myfmu_meta.workflow is not None
-    assert myfmu_meta.workflow.model_dump(mode="json") == {
+    assert fmu_meta.workflow is not None
+    assert fmu_meta.workflow.model_dump(mode="json") == {
         "reference": "workflow as string"
     }
 
@@ -398,13 +398,13 @@ def test_fmuprovider_workflow_reference(
         )
 
     # test that workflow as a dict still gives valid results
-    myfmu_meta = FmuProvider(
+    fmu_meta = FmuProvider(
         runcontext,
         workflow={"reference": "workflow as dict"},  # type: ignore[arg-type]
     ).get_metadata()
 
-    assert myfmu_meta.workflow is not None
-    assert myfmu_meta.workflow.model_dump(mode="json") == {
+    assert fmu_meta.workflow is not None
+    assert fmu_meta.workflow.model_dump(mode="json") == {
         "reference": "workflow as dict"
     }
 
