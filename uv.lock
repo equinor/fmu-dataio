@@ -227,20 +227,20 @@ wheels = [
 
 [[package]]
 name = "azure-core"
-version = "1.38.2"
+version = "1.38.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/fe/5c7710bc611a4070d06ba801de9a935cc87c3d4b689c644958047bdf2cba/azure_core-1.38.2.tar.gz", hash = "sha256:67562857cb979217e48dc60980243b61ea115b77326fa93d83b729e7ff0482e7", size = 363734, upload-time = "2026-02-18T19:33:05.6Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c8/29/9641b73248745774a52c7ce7f965ed1febbdea787ec21caad3ae6891d18a/azure_core-1.38.3.tar.gz", hash = "sha256:a7931fd445cb4af8802c6f39c6a326bbd1e34b115846550a8245fa656ead6f8e", size = 367267, upload-time = "2026-03-12T20:28:21.122Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/23/6371a551800d3812d6019cd813acd985f9fac0fedc1290129211a73da4ae/azure_core-1.38.2-py3-none-any.whl", hash = "sha256:074806c75cf239ea284a33a66827695ef7aeddac0b4e19dda266a93e4665ead9", size = 217957, upload-time = "2026-02-18T19:33:07.696Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/3d/ac86083efa45a439d0bbfb7947615227813d368b9e1e93d23fd30de6fec0/azure_core-1.38.3-py3-none-any.whl", hash = "sha256:bf59d29765bf4748ab9edf25f98a30b7ea9797f43e367c06d846a30b29c1f845", size = 218231, upload-time = "2026-03-12T20:28:22.462Z" },
 ]
 
 [[package]]
 name = "azure-identity"
-version = "1.25.2"
+version = "1.25.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-core" },
@@ -249,9 +249,9 @@ dependencies = [
     { name = "msal-extensions" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c2/3a/439a32a5e23e45f6a91f0405949dc66cfe6834aba15a430aebfc063a81e7/azure_identity-1.25.2.tar.gz", hash = "sha256:030dbaa720266c796221c6cdbd1999b408c079032c919fef725fcc348a540fe9", size = 284709, upload-time = "2026-02-11T01:55:42.323Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c5/0e/3a63efb48aa4a5ae2cfca61ee152fbcb668092134d3eb8bfda472dd5c617/azure_identity-1.25.3.tar.gz", hash = "sha256:ab23c0d63015f50b630ef6c6cf395e7262f439ce06e5d07a64e874c724f8d9e6", size = 286304, upload-time = "2026-03-13T01:12:20.892Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9b/77/f658c76f9e9a52c784bd836aaca6fd5b9aae176f1f53273e758a2bcda695/azure_identity-1.25.2-py3-none-any.whl", hash = "sha256:1b40060553d01a72ba0d708b9a46d0f61f56312e215d8896d836653ffdc6753d", size = 191423, upload-time = "2026-02-11T01:55:44.245Z" },
+    { url = "https://files.pythonhosted.org/packages/49/9a/417b3a533e01953a7c618884df2cb05a71e7b68bdbce4fbdb62349d2a2e8/azure_identity-1.25.3-py3-none-any.whl", hash = "sha256:f4d0b956a8146f30333e071374171f3cfa7bdb8073adb8c3814b65567aa7447c", size = 192138, upload-time = "2026-03-13T01:12:22.951Z" },
 ]
 
 [[package]]
@@ -1001,6 +1001,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fmu-config" },
     { name = "fmu-datamodels" },
+    { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "jsonschema" },
     { name = "numpy" },
@@ -1057,6 +1058,7 @@ requires-dist = [
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
     { name = "fmu-config", specifier = ">=1.1.0" },
     { name = "fmu-datamodels", specifier = "~=0.20.0" },
+    { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
     { name = "hypothesis", marker = "extra == 'dev'" },
@@ -1104,6 +1106,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3f/b4/358b9a25761396c2438680a2d0d5b6d61772036cdc45ef7f8e114353b7e2/fmu_datamodels-0.20.1.tar.gz", hash = "sha256:96ccd263aada8529eb051ab5208746836a2db90b2a84b220a01a5da1504fe83b", size = 385938, upload-time = "2026-03-12T09:49:24.376Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/64/86/32ed1559bfba669ec1a8ffb2b1d6af43125b541a345a2f998cee2406d277/fmu_datamodels-0.20.1-py3-none-any.whl", hash = "sha256:63310b7043e64642384de7231716fa2ca88292814438fff7675fad09f171d116", size = 52651, upload-time = "2026-03-12T09:49:22.69Z" },
+]
+
+[[package]]
+name = "fmu-settings"
+version = "0.24.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "annotated-types" },
+    { name = "fmu-config" },
+    { name = "fmu-datamodels" },
+    { name = "pandas" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8b/1d/53b6ad8b675eb8b994bc1f5efc333615816331257e6f266b1359e6f56200/fmu_settings-0.24.0.tar.gz", hash = "sha256:6df7cfc6ede21f860025ec46df4d708dfec5573e22f2de6fa2b99c2447249f3c", size = 136544, upload-time = "2026-03-12T15:47:36.675Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9e/0f/a47c967f1315778ad59157c39c941813f90ce28719d80813e4a058bc5a2a/fmu_settings-0.24.0-py3-none-any.whl", hash = "sha256:7907904cde469f38070c384ed6849dfaff6fec67faee176791718a00374e62c0", size = 51897, upload-time = "2026-03-12T15:47:35.079Z" },
 ]
 
 [[package]]
