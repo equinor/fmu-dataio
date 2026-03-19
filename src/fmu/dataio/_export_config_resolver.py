@@ -24,9 +24,9 @@ from fmu.datamodels.fmu_results.enums import (
 from fmu.datamodels.fmu_results.fields import Display, Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
+from ._export_models import AllowedContentSeismic
 from ._logging import null_logger
 from ._runcontext import FMUEnvironment, RunContext
-from .providers.objectdata._export_models import AllowedContentSeismic
 
 logger: Final = null_logger(__name__)
 
