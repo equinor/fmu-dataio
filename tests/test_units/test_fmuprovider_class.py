@@ -92,7 +92,7 @@ def test_fmuprovider_ert_provider_missing_parameter_txt(
     myfmu = FmuProvider(runcontext)
 
     assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "ertrun1"
+    assert myfmu._casepath.name == "ert_case"
     assert myfmu._realization_name == "realization-0"
     assert myfmu._realization_number == 0
 
@@ -108,7 +108,7 @@ def test_fmuprovider_arbitrary_iter_name(
     myfmu = FmuProvider(runcontext)
 
     assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "ertrun1"
+    assert myfmu._casepath.name == "ert_case"
     assert myfmu._realization_name == "realization-0"
     assert myfmu._realization_number == 0
     assert myfmu._ensemble_name == "pred"
@@ -129,7 +129,7 @@ def test_fmuprovider_get_real_and_iter_from_env(
 
     assert myfmu._runpath == runpath_non_equal_real_and_iter
     assert myfmu._casepath is not None
-    assert myfmu._casepath.name == "ertrun1"
+    assert myfmu._casepath.name == "ert_case"
     assert myfmu._realization_name == "realization-1"
     assert myfmu._realization_number == 1
     assert myfmu._ensemble_name == "iter-0"
@@ -148,7 +148,7 @@ def test_fmuprovider_no_iter_dir(
 
     assert myfmu._runpath == runpath_no_iter_dir
     assert myfmu._casepath == runpath_no_iter_dir.parent
-    assert myfmu._casepath.name == "ertrun1_no_iter"
+    assert myfmu._casepath.name == "ert_case_no_iter"
     assert myfmu._realization_name == "realization-1"
     assert myfmu._realization_number == 1
     assert myfmu._ensemble_name == "iter-0"
