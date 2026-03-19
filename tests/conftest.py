@@ -37,10 +37,11 @@ from .utils import _metadata_examples
 
 logger = logging.getLogger(__name__)
 
-ERTRUN = "tests/data/drogon/ertrun1"
-ERTRUN_NO_ITER = "tests/data/drogon/ertrun1_no_iter"
-ERTRUN_REAL0_ITER0 = f"{ERTRUN}/realization-0/iter-0"
-ERTRUN_PRED = f"{ERTRUN}/realization-0/pred"
+ERT_CASE_DATA = "tests/data/drogon/ert_case"
+ERT_CASE_DATA_NO_ITER = "tests/data/drogon/ert_case_no_iter"
+ERT_CASE_DATA_REAL0_ITER0 = f"{ERT_CASE_DATA}/realization-0/iter-0"
+ERT_CASE_DATA_PRED = f"{ERT_CASE_DATA}/realization-0/pred"
+DOT_FMU_DATA = "tests/data/drogon/dot_fmu"
 
 ERTRUN_ENV_PREHOOK = {
     "_ERT_EXPERIMENT_ID": "6a8e1e0f-9315-46bb-9648-8de87151f4c7",
@@ -125,8 +126,8 @@ def runpath_no_case_metadata(
     tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
     """A standard runpath without metadata exported in the case path."""
-    runpath = tmp_path / ERTRUN_REAL0_ITER0
-    shutil.copytree(rootpath / ERTRUN_REAL0_ITER0, runpath)
+    runpath = tmp_path / ERT_CASE_DATA_REAL0_ITER0
+    shutil.copytree(rootpath / ERT_CASE_DATA_REAL0_ITER0, runpath)
 
     _set_fmurun_env_variables(monkeypatch, runpath=runpath)
 
@@ -137,8 +138,8 @@ def runpath_no_case_metadata(
 @pytest.fixture(scope="function")
 def runpath_prehook(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
     """Runpath mocking a prehook context."""
-    runpath = tmp_path / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, runpath)
+    runpath = tmp_path / ERT_CASE_DATA
+    shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
 
     _set_fmurun_env_variables(monkeypatch, runpath=runpath, case_only=True)
 
@@ -149,8 +150,8 @@ def runpath_prehook(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) ->
 @pytest.fixture(scope="function")
 def runpath_no_dotfmu(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
     """Runpath mocking an FMU run without a .fmu/ directory."""
-    runpath = tmp_path / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, runpath)
+    runpath = tmp_path / ERT_CASE_DATA
+    shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
     iter_path = runpath / "realization-0/iter-0"
 
     _set_fmurun_env_variables(monkeypatch, runpath=iter_path)
@@ -160,12 +161,26 @@ def runpath_no_dotfmu(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) 
 
 
 @pytest.fixture(scope="function")
+def runpath(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
+    """Runpath mocking an FMU run with a .fmu/ directory."""
+    runpath = tmp_path / ERT_CASE_DATA
+    shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
+    shutil.copytree(rootpath / DOT_FMU_DATA, runpath / ".fmu")
+
+    iter_path = runpath / "realization-0/iter-0"
+    _set_fmurun_env_variables(monkeypatch, runpath=iter_path)
+    monkeypatch.chdir(iter_path)
+
+    return iter_path
+
+
+@pytest.fixture(scope="function")
 def runpath_non_equal_real_and_iter(
     tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
     """Runpath with non-equal real and iter num."""
-    runpath = tmp_path / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, runpath)
+    runpath = tmp_path / ERT_CASE_DATA
+    shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
     rootpath = runpath / "realization-1/iter-0"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
@@ -181,8 +196,8 @@ def runpath_no_iter_dir(
     tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
     """Runpath without an iter dir."""
-    runpath = tmp_path / ERTRUN_NO_ITER
-    shutil.copytree(rootpath / ERTRUN_NO_ITER, runpath)
+    runpath = tmp_path / ERT_CASE_DATA_NO_ITER
+    shutil.copytree(rootpath / ERT_CASE_DATA_NO_ITER, runpath)
     rootpath = runpath / "realization-1"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
@@ -198,8 +213,8 @@ def runpath_no_dotfmu_pred(
     tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path
 ) -> Path:
     """Prediction runpath with no .fmu/ dir."""
-    runpath = tmp_path / ERTRUN
-    shutil.copytree(rootpath / ERTRUN, runpath)
+    runpath = tmp_path / ERT_CASE_DATA
+    shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
     rootpath = runpath / "realization-0/pred"
 
     _set_fmurun_env_variables(monkeypatch, runpath=rootpath)
@@ -213,8 +228,8 @@ def runpath_pred_files(tmp_path: Path, rootpath: Path) -> Path:
     """Copies prediction run files into the tmp path.
 
     Typically used in combination with another runpath fixture."""
-    runpath = tmp_path / ERTRUN_PRED
-    shutil.copytree(rootpath / ERTRUN_PRED, runpath, dirs_exist_ok=True)
+    runpath = tmp_path / ERT_CASE_DATA_PRED
+    shutil.copytree(rootpath / ERT_CASE_DATA_PRED, runpath, dirs_exist_ok=True)
     return runpath
 
 

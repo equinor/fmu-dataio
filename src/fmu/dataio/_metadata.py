@@ -10,14 +10,11 @@ dependencies on the internals.
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final
+from typing import Any, Final
 
 from pydantic import Field
 
-from fmu.datamodels.common.access import Asset, Ssdl, SsdlAccess
-from fmu.datamodels.common.masterdata import Masterdata
-from fmu.datamodels.common.tracklog import Tracklog
+from fmu.datamodels import Asset, Masterdata, Ssdl, SsdlAccess, Tracklog
 from fmu.datamodels.fmu_results import data, fields
 from fmu.datamodels.fmu_results.fmu_results import ObjectMetadata
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
@@ -25,20 +22,16 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from ._export_config import ExportConfig
 from ._logging import null_logger
 from .exceptions import InvalidMetadataError
-from .providers._filedata import FileDataProvider, SharePathConstructor
-from .providers._fmu import FmuProvider
-from .providers.objectdata._base import UnsetData
-from .providers.objectdata._provider import (
+from .providers import (
+    FileDataProvider,
+    FmuProvider,
     ObjectDataProvider,
+    SharePathConstructor,
+    UnsetData,
     objectdata_provider_factory,
 )
+from .types import ExportableData
 from .version import __version__
-
-if TYPE_CHECKING:
-    from ._export_config import ExportConfig
-    from ._runcontext import RunContext
-    from .providers.objectdata._base import ObjectDataProvider
-    from .types import ExportableData
 
 logger: Final = null_logger(__name__)
 
@@ -56,89 +49,49 @@ class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
     preprocessed: bool | None = Field(alias="_preprocessed", default=None)
 
 
-def _get_meta_filedata(
-    runcontext: RunContext,
-    objdata: ObjectDataProvider,
-    share_path: Path,
-) -> fields.File:
-    """Derive metadata for the file."""
-    return FileDataProvider(runcontext, objdata, share_path).get_metadata()
-
-
-def _get_meta_fmu(fmudata: FmuProvider) -> fields.FMU | None:
-    try:
-        return fmudata.get_metadata()
-    except InvalidMetadataError:
-        return None
-
-
-def _get_meta_access(export_config: ExportConfig) -> SsdlAccess:
-    return SsdlAccess(
-        asset=(
-            export_config.config.access.asset
-            if isinstance(export_config.config, GlobalConfiguration)
-            else Asset(name="")
-        ),
-        classification=export_config.classification,
-        ssdl=Ssdl(
-            access_level=export_config.classification,
-            rep_include=export_config.rep_include,
-        ),
-    )
-
-
-def _get_meta_display(
-    export_config: ExportConfig, objdata: ObjectDataProvider
-) -> fields.Display:
-    return fields.Display(name=export_config.display.name or objdata.name)
-
-
 def generate_export_metadata(
     objdata: ObjectDataProvider, export_config: ExportConfig
 ) -> ObjectMetadataExport:
     """
     Generates metadata for the object being exported.
 
-    Arguments:
-        objdata: Provides metadata about the object itself
-        export_config: Configuration being used to export the object
-
     Metadata about the object is gathered from the object data provider passed to this
     function. Additional metadata comes from several sources created in this function
     call:
 
     - SharePathConstruct: Resolves the filepath where data will be exported to.
-    - FmuProvider: Gathers data about the current FMU and run context. This includes
-          things like Ert environments variables, or whether we're running in RMS.
+    - FmuProvider: Gathers data about the current FMU and run context (Ert environment
+          variables, whether we're running in RMS, etc.)
+    - FileDataProvider: Derives file-level metadata from the run context and share path.
+
+    Arguments:
+        objdata: Provides metadata about the object itself.
+        export_config: Configuration being used to export the object.
 
     Returns:
         Pydantic model containing the complete metadata that will be exported.
     """
     share_path = SharePathConstructor(export_config, objdata).get_share_path()
-    fmudata = (
-        FmuProvider(
-            runcontext=export_config.runcontext,
-            model=(export_config.config.model if export_config.config else None),
-            workflow=export_config.workflow,
-            share_path=share_path,
-        )
-        if export_config.runcontext.inside_fmu
-        else None
-    )
+    ctx = export_config.runcontext
+    config = export_config.config
+    global_config = config if isinstance(config, GlobalConfiguration) else None
 
     return ObjectMetadataExport(  # type: ignore[call-arg]
         class_=objdata.classname,
-        fmu=_get_meta_fmu(fmudata) if fmudata else None,
-        masterdata=(
-            export_config.config.masterdata
-            if isinstance(export_config.config, GlobalConfiguration)
-            else None
+        fmu=_build_fmu_metadata(export_config, share_path),
+        masterdata=global_config.masterdata if global_config else None,
+        access=SsdlAccess(
+            asset=global_config.access.asset if global_config else Asset(name=""),
+            classification=export_config.classification,
+            ssdl=Ssdl(
+                access_level=export_config.classification,
+                rep_include=export_config.rep_include,
+            ),
         ),
-        access=_get_meta_access(export_config),
         data=objdata.get_metadata(),
-        file=_get_meta_filedata(export_config.runcontext, objdata, share_path),
+        file=FileDataProvider(ctx, objdata, share_path).get_metadata(),
         tracklog=Tracklog.initialize(__version__, export_config.tracklog_source),
-        display=_get_meta_display(export_config, objdata),
+        display=fields.Display(name=export_config.display.name or objdata.name),
         preprocessed=export_config.preprocessed,
     )
 
@@ -154,8 +107,28 @@ def generate_metadata(
 def _generate_metadata(
     export_config: ExportConfig, objdata: ObjectDataProvider
 ) -> dict[str, Any]:
-    """Generate metadata dict from object data provider."""
+    """Generate metadata without exporting."""
     return generate_export_metadata(
         objdata=objdata,
         export_config=export_config,
     ).model_dump(mode="json", exclude_none=True, by_alias=True)
+
+
+def _build_fmu_metadata(
+    export_config: ExportConfig,
+    share_path: fields.Path,
+) -> fields.FMU | None:
+    ctx = export_config.runcontext
+    if not ctx.inside_fmu:
+        return None
+
+    provider = FmuProvider(
+        runcontext=ctx,
+        model=export_config.config.model if export_config.config else None,
+        workflow=export_config.workflow,
+        share_path=share_path,
+    )
+    try:
+        return provider.get_metadata()
+    except InvalidMetadataError:
+        return None

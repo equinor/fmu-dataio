@@ -2011,3 +2011,22 @@ def test_codenames_for_discrete_property(
     # check that discrete and codenames are taken from the property itself
     spec = CPGridPropertySpecification.model_validate(meta["data"]["spec"])
     assert spec.codenames == codenames
+
+
+def test_dataio_export_config_no_fmu_dir_in_path(
+    mock_global_config: dict[str, Any],
+    runpath_no_dotfmu: Path,
+) -> None:
+    """ExportData configures fmu dir to None if no .fmu/ directory."""
+    export_data = ExportData(config=mock_global_config, content="depth")
+    assert export_data._export_config.fmu_dir is None
+
+
+def test_dataio_export_config_with_fmu_dir_in_path(
+    mock_global_config: dict[str, Any],
+    runpath: Path,
+) -> None:
+    """ExportData configures fmu dir if one in runpath."""
+    export_data = ExportData(config=mock_global_config, content="depth")
+    assert export_data._export_config.fmu_dir is not None
+    assert export_data._export_config.fmu_dir.config.load() is not None
