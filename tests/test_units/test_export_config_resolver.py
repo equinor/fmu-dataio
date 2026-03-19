@@ -30,7 +30,7 @@ from fmu.dataio._export_config_resolver import (
     _resolve_vertical_domain,
     _resolve_workflow,
 )
-from fmu.dataio.providers.objectdata._export_models import AllowedContentSeismic
+from fmu.dataio._export_models import AllowedContentSeismic
 
 
 @pytest.fixture

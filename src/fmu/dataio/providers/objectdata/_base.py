@@ -8,12 +8,10 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export_models import UnsetData
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import md5sum
 from fmu.dataio.providers._base import Provider
-from fmu.dataio.providers.objectdata._export_models import (
-    UnsetData,
-)
 from fmu.datamodels.fmu_results.data import AnyData, SmdaEntity, Time, Timestamp
 from fmu.datamodels.fmu_results.global_configuration import (
     StratigraphyElement,

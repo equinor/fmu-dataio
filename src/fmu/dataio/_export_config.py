@@ -34,9 +34,9 @@ from fmu.datamodels.fmu_results.standard_result import AnyStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
 
 from ._export_config_resolver import _resolve_fmu_context, build_from_export_data
+from ._export_models import AllowedContentSeismic
 from ._logging import null_logger
 from ._runcontext import RunContext
-from .providers.objectdata._export_models import AllowedContentSeismic
 
 logger: Final = null_logger(__name__)
 
