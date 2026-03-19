@@ -23,6 +23,7 @@ from fmu.datamodels.fmu_results.enums import (
 )
 from fmu.datamodels.fmu_results.fields import Display, Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.settings import ProjectFMUDirectory, find_nearest_fmu_directory
 
 from ._export_models import AllowedContentSeismic
 from ._logging import null_logger
@@ -113,6 +114,7 @@ def build_from_export_data(
         description=_resolve_description(dataio.description),
         # Config
         config=config,
+        fmu_dir=_resolve_fmu_dir(),
         runcontext=runcontext,
         # Standard result
         standard_result=None,
@@ -562,4 +564,12 @@ def _resolve_global_config(
             )
         else:
             global_configuration.validation_error_warning(e)
+        return None
+
+
+def _resolve_fmu_dir() -> ProjectFMUDirectory | None:
+    try:
+        return find_nearest_fmu_directory()
+    except FileNotFoundError:
+        logger.info("No .fmu/ directory found.")
         return None

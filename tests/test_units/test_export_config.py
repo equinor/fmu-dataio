@@ -102,6 +102,7 @@ def test_builder_methods_return_self(mock_resolve_fmu_context: MagicMock) -> Non
     assert builder.flags() is builder
     assert builder.unit("m") is builder
     assert builder.global_config(None) is builder
+    assert builder.fmu_dir(None) is builder
     assert builder.run_context() is builder
     assert builder.standard_result(StandardResultName.inplace_volumes) is builder
 
@@ -478,3 +479,20 @@ def test_builder_tracklog_source_none_default(
     """Tracklogs source defaults to None."""
     config = minimal_builder.build()
     assert config.tracklog_source is None
+
+
+def test_builder_fmu_directory_none_default(
+    minimal_builder: ExportConfigBuilder, runpath_no_dotfmu: Path
+) -> None:
+    """FMU directory defaults to None if no .fmu/ present."""
+    config = minimal_builder.build()
+    assert config.fmu_dir is None
+
+
+def test_builder_fmu_directory_with_dot_fmu(
+    minimal_builder: ExportConfigBuilder, runpath: Path
+) -> None:
+    """FMU directory loads a .fmu/ directory if present."""
+    config = minimal_builder.build()
+    assert config.fmu_dir is not None
+    assert runpath.is_relative_to(config.fmu_dir.path.parent)

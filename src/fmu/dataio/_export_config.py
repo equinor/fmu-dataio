@@ -32,8 +32,13 @@ from fmu.datamodels.fmu_results.fields import Display, Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.datamodels.fmu_results.standard_result import AnyStandardResult
 from fmu.datamodels.standard_results.enums import StandardResultName
+from fmu.settings import ProjectFMUDirectory
 
-from ._export_config_resolver import _resolve_fmu_context, build_from_export_data
+from ._export_config_resolver import (
+    _resolve_fmu_context,
+    _resolve_fmu_dir,
+    build_from_export_data,
+)
 from ._export_models import AllowedContentSeismic
 from ._logging import null_logger
 from ._runcontext import RunContext
@@ -104,6 +109,7 @@ class ExportConfig:
 
     # Global configuration
     config: GlobalConfiguration | None
+    fmu_dir: ProjectFMUDirectory | None
 
     # Run context
     runcontext: RunContext
@@ -246,6 +252,7 @@ class ExportConfigBuilder:
 
         # Config
         self._config: GlobalConfiguration | None = None
+        self._fmu_dir: ProjectFMUDirectory | None = None
 
         # Run context
         self._runcontext: RunContext | None = None
@@ -377,6 +384,15 @@ class ExportConfigBuilder:
         self._config = config
         return self
 
+    def fmu_dir(self, fmu_dir: ProjectFMUDirectory | None) -> ExportConfigBuilder:
+        """Set project FMU directory.
+
+        Args:
+            fmu_dir: The project FMU directory or None.
+        """
+        self._fmu_dir = fmu_dir
+        return self
+
     def run_context(
         self,
         *,
@@ -449,6 +465,9 @@ class ExportConfigBuilder:
 
         runcontext = self._build_run_context()
 
+        if self._fmu_dir is None:
+            self._fmu_dir = _resolve_fmu_dir()
+
         return ExportConfig(
             content=self._content,
             content_metadata=self._content_metadata,
@@ -477,6 +496,7 @@ class ExportConfigBuilder:
             unit=self._unit,
             undef_is_zero=self._undef_is_zero,
             config=self._config,
+            fmu_dir=self._fmu_dir,
             runcontext=runcontext,
             standard_result=self._standard_result,
             tracklog_source=self._tracklog_source,
