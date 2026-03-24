@@ -16,7 +16,9 @@ from pydantic import (
 )
 
 from fmu.dataio._logging import null_logger
-from fmu.datamodels.fmu_results import data, enums
+from fmu.datamodels import Masterdata, SsdlAccess
+from fmu.datamodels.fmu_results import data, enums, fields
+from fmu.datamodels.fmu_results.fmu_results import ObjectMetadata
 
 logger: Final = null_logger(__name__)
 
@@ -51,3 +53,16 @@ class UnsetData(data.Data):
             FutureWarning,
         )
         return self
+
+
+class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
+    """Wraps the schema ObjectMetadata, adjusting some values to optional for pragmatic
+    purposes when exporting metadata."""
+
+    # These type ignores are for making the field optional
+    fmu: fields.FMU | None  # type: ignore
+    access: SsdlAccess | None  # type: ignore
+    masterdata: Masterdata | None  # type: ignore
+    # !! Keep UnsetData first in this union
+    data: UnsetData | data.AnyData  # type: ignore
+    preprocessed: bool | None = Field(alias="_preprocessed", default=None)

@@ -14,8 +14,8 @@ from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import File
 
 from ._export import export_metadata_file
+from ._export_models import ObjectMetadataExport
 from ._logging import null_logger
-from ._metadata import ObjectMetadataExport
 from ._runcontext import RunContext
 from ._utils import md5sum
 from .exceptions import InvalidMetadataError
