@@ -61,7 +61,13 @@ class FaultRoomSurface:
         self.horizons = self.storage["metadata"].get("horizons")
 
     def _set_faults(self) -> None:
-        self.faults = self.storage["metadata"]["faults"].get("default")
+        """
+        Set faults from groups of faults.
+        """
+        faults = self.storage["metadata"].get("faults", {})
+        self.faults = []
+        for faults_in_group in faults.values():
+            self.faults.extend(faults_in_group)
 
     def _set_juxtaposition(self) -> None:
         self.juxtaposition_fw = self.storage["metadata"]["juxtaposition"].get("fw")

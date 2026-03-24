@@ -405,6 +405,27 @@ def test_faultroom_bbox(
     assert bbox.zmax == 2.3
 
 
+def test_faultroom_fault_groups(
+    faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
+) -> None:
+    """FaultRoomSurface fault groups are derived correctly."""
+
+    # Modify the faultroom object to have faults in group format
+    faultroom_object.storage["metadata"]["faults"] = {
+        "best_faults": ["F1", "F2", "F3"],
+        "even_better_faults": ["F4", "F5"],
+        "absolutely_best_faults": ["F6"],
+    }
+    faultroom_object._set_faults()
+
+    objdata = objectdata_provider_factory(
+        faultroom_object, drogon_exportdata._export_config
+    )
+    spec = objdata.get_spec()
+
+    assert spec.faults == ["F1", "F2", "F3", "F4", "F5", "F6"]
+
+
 def test_faultroom_spec_juxtaposition(
     faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
