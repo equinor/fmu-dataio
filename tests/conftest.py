@@ -21,6 +21,7 @@ from fmu.datamodels.common.masterdata import (
     CoordinateSystem,
     CountryItem,
     DiscoveryItem,
+    FieldItem,
     Masterdata,
     Smda,
     StratigraphicColumn,
@@ -312,7 +313,12 @@ def mock_global_config_validated() -> global_configuration.GlobalConfiguration:
                     identifier="TestStratigraphicColumn",
                     uuid=uuid.UUID("56c92484-8798-4f1f-9f14-d237a3e1a4ff"),
                 ),
-                field=[],
+                field=[
+                    FieldItem(
+                        identifier="TestField",
+                        uuid=uuid.UUID("56c92484-8798-4f1f-9f14-d237a3e1a4ff"),
+                    )
+                ],
             )
         ),
         access=global_configuration.Access(
