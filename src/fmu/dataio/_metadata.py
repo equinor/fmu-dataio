@@ -12,14 +12,12 @@ from __future__ import annotations
 
 from typing import Any, Final
 
-from pydantic import Field
-
-from fmu.datamodels import Asset, Masterdata, Ssdl, SsdlAccess, Tracklog
-from fmu.datamodels.fmu_results import data, fields
-from fmu.datamodels.fmu_results.fmu_results import ObjectMetadata
+from fmu.datamodels import Asset, Ssdl, SsdlAccess, Tracklog
+from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._export_config import ExportConfig
+from ._export_models import ObjectMetadataExport
 from ._logging import null_logger
 from .exceptions import InvalidMetadataError
 from .providers import (
@@ -27,26 +25,12 @@ from .providers import (
     FmuProvider,
     ObjectDataProvider,
     SharePathConstructor,
-    UnsetData,
     objectdata_provider_factory,
 )
 from .types import ExportableData
 from .version import __version__
 
 logger: Final = null_logger(__name__)
-
-
-class ObjectMetadataExport(ObjectMetadata, populate_by_name=True):
-    """Wraps the schema ObjectMetadata, adjusting some values to optional for pragmatic
-    purposes when exporting metadata."""
-
-    # These type ignores are for making the field optional
-    fmu: fields.FMU | None  # type: ignore
-    access: SsdlAccess | None  # type: ignore
-    masterdata: Masterdata | None  # type: ignore
-    # !! Keep UnsetData first in this union
-    data: UnsetData | data.AnyData  # type: ignore
-    preprocessed: bool | None = Field(alias="_preprocessed", default=None)
 
 
 def generate_export_metadata(
