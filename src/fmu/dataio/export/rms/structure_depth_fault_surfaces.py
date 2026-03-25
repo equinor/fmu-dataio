@@ -5,8 +5,7 @@ from typing import Any, Final, Self
 
 import numpy as np
 
-from fmu.dataio._export import export_with_metadata
-from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
 from fmu.dataio._readers.tsurf import (
     AllowedKeywordValues,

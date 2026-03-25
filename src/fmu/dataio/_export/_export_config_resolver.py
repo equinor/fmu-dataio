@@ -7,6 +7,8 @@ from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Final, TypeAlias
 
+from fmu.dataio._logging import null_logger
+from fmu.dataio._runcontext import FMUEnvironment, RunContext
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.data import (
@@ -26,15 +28,14 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import ProjectFMUDirectory, find_nearest_fmu_directory
 
 from ._export_models import AllowedContentSeismic
-from ._logging import null_logger
-from ._runcontext import FMUEnvironment, RunContext
 
 logger: Final = null_logger(__name__)
 
 
 if TYPE_CHECKING:
+    from fmu.dataio import ExportData
+
     from ._export_config import ExportConfig
-    from .dataio import ExportData
 
 AnyContentMetadata: TypeAlias = (
     AllowedContentSeismic | FieldOutline | FieldRegion | FluidContact | Property

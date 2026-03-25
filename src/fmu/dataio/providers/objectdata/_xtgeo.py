@@ -11,7 +11,7 @@ import pyarrow.parquet as pq
 import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
-from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import read_metadata_from_file
 from fmu.dataio.exceptions import ConfigurationError

@@ -22,13 +22,13 @@ from fmu.datamodels.fmu_results.standard_result import (
 )
 from fmu.datamodels.standard_results.enums import StandardResultName
 
-from fmu.dataio._export_config import ExportConfig, ExportConfigBuilder
+from fmu.dataio._export import ExportConfig, ExportConfigBuilder
 
 
 @pytest.fixture
 def mock_resolve_fmu_context() -> Generator[MagicMock]:
     """Avoid environment detection."""
-    with patch("fmu.dataio._export_config._resolve_fmu_context") as mock:
+    with patch("fmu.dataio._export._export_config._resolve_fmu_context") as mock:
         mock.return_value = (None, False)
         yield mock
 
@@ -305,7 +305,7 @@ def test_builder_run_context_explicit() -> None:
     """Explicit run_context() passes values to RunContext correctly."""
     casepath = Path("/my/case")
 
-    with patch("fmu.dataio._export_config.RunContext") as mock_runcontext_cls:
+    with patch("fmu.dataio._export._export_config.RunContext") as mock_runcontext_cls:
         mock_runcontext = MagicMock()
         mock_runcontext.fmu_context = FMUContext.realization
         mock_runcontext.casepath = casepath
