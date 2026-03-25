@@ -238,24 +238,6 @@ def test_config_stratigraphy_empty_entries_alias(
     assert None not in metadata["data"]["alias"]
 
 
-@pytest.mark.xfail(reason="stratigraphic_alias is not implemented")
-def test_config_stratigraphy_empty_entries_stratigraphic_alias(
-    drogon_global_config: dict[str, Any], regsurf: xtgeo.RegularSurface
-) -> None:
-    """Test that empty entries in 'stratigraphic_alias' detected and warned."""
-
-    # Note! stratigraphic_alias is not implemented, but we still check consistency
-
-    cfg = deepcopy(drogon_global_config)
-    cfg["stratigraphy"]["TopVolantis"]["stratigraphic_alias"] += [None]
-
-    with pytest.warns(FutureWarning, match="empty list element"):
-        exp = ExportData(config=cfg, content="depth")
-    metadata = exp.generate_metadata(regsurf)
-
-    assert None not in metadata["data"]["stratigraphic_alias"]
-
-
 def test_config_stratigraphy_empty_name(drogon_global_config: dict[str, Any]) -> None:
     """Test that empty 'name' is detected and warned."""
     cfg = deepcopy(drogon_global_config)

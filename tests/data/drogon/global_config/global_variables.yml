@@ -42,9 +42,6 @@ stratigraphy:
     alias:
       - TopVOLANTIS
       - TOP_VOLANTIS
-    stratigraphic_alias:
-      - TopValysar
-      - Valysar Fm. Top
   TopTherys:
     stratigraphic: true
     name: Therys Fm. Top
