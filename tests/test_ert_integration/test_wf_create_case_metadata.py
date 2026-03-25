@@ -24,6 +24,7 @@ from fmu.datamodels.standard_results.ert_parameters import (
     RawParameter,
     UniformParameter,
 )
+from fmu.settings import get_fmu_directory
 from pytest import CaptureFixture, MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
@@ -115,6 +116,7 @@ def workflow_config(
         verbosity="WARNING",
         global_config=mock_global_config_validated,
         global_config_path=Path("../../fmuconfig/output/global_variables.yml"),
+        fmu_dir=get_fmu_directory(runpath_prehook),
     )
 
 

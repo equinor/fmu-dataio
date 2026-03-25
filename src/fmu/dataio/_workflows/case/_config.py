@@ -13,6 +13,7 @@ from pydantic import ValidationError
 
 from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.settings import ProjectFMUDirectory
 
 if TYPE_CHECKING:
     import ert
@@ -45,6 +46,7 @@ class CaseWorkflowConfig:
     verbosity: str
     global_config: GlobalConfiguration
     global_config_path: Path
+    fmu_dir: ProjectFMUDirectory | None
 
     def __post_init__(self) -> None:
         """Run validation."""
@@ -70,6 +72,7 @@ class CaseWorkflowConfig:
         cls,
         run_paths: ert.Runpaths,
         args: argparse.Namespace,
+        fmu_dir: ProjectFMUDirectory | None = None,
     ) -> Self:
         """Create an instance from Ert workflow arguments."""
         _warn_deprecations(args)
@@ -88,6 +91,7 @@ class CaseWorkflowConfig:
             verbosity="WARNING",
             global_config=global_config,
             global_config_path=config_path,
+            fmu_dir=fmu_dir,
         )
 
 
