@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import shutil
 from pathlib import Path
 from typing import Final
 
@@ -17,6 +18,11 @@ from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._metadata import generate_metadata
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
 from fmu.datamodels.standard_results.enums import StandardResultName
+from fmu.settings import (
+    ProjectFMUDirectory,
+    find_nearest_fmu_directory,
+    get_fmu_directory,
+)
 
 from ._config import CaseWorkflowConfig
 from ._parameters import get_ert_parameters_table
@@ -122,6 +128,23 @@ def _run_workflow(
         _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
 
 
+def _copy_fmu_directory(casepath: Path) -> ProjectFMUDirectory | None:
+    """Copies the .fmu/ directory from the project path, if it exists, to the case path.
+
+    If a .fmu/ directory already exists in the case path it will be overwritten.
+
+    Returns:
+        ProjectFMUDirectory instance on the case path or None.
+    """
+    try:
+        fmu_dir = find_nearest_fmu_directory()
+        shutil.copytree(fmu_dir.path, casepath / ".fmu", dirs_exist_ok=True)
+    except FileNotFoundError:
+        return None
+
+    return get_fmu_directory(casepath)
+
+
 def get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
@@ -196,7 +219,10 @@ class WfExportCaseMetadata(ert.ErtScript):
         """Parse arguments and run the workflow."""
         parser = get_parser()
         args = parser.parse_args(workflow_args)
-        cfg = CaseWorkflowConfig.from_presim_workflow(run_paths, args)
+
+        maybe_fmu_dir = _copy_fmu_directory(args.casepath)
+
+        cfg = CaseWorkflowConfig.from_presim_workflow(run_paths, args, maybe_fmu_dir)
         _run_workflow(ensemble, run_paths, cfg)
 
 

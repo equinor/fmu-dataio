@@ -5,9 +5,13 @@ from unittest.mock import MagicMock, patch
 import pyarrow as pa
 import pytest
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.settings import get_fmu_directory
+from fmu.settings._drogon import create_drogon_fmu_dir
+from pytest import MonkeyPatch
 
 from fmu.dataio._workflows.case.main import (
     CaseWorkflowConfig,
+    _copy_fmu_directory,
     _get_ensemble_name,
     _queue_ert_parameters,
 )
@@ -52,6 +56,7 @@ def workflow_config(
         verbosity="WARNING",
         global_config=mock_global_config_validated,
         global_config_path=Path("../../fmuconfig/output/global_variables.yml"),
+        fmu_dir=get_fmu_directory(runpath_prehook),
     )
 
 
@@ -157,3 +162,51 @@ def test_queue_ert_parameters_queue_table_when_present(
         _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
 
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
+
+
+def test_copy_fmu_directory_no_dot_fmu(tmp_path: Path) -> None:
+    """None is returned when no .fmu/ exists."""
+    assert _copy_fmu_directory(tmp_path) is None
+
+
+def test_copy_fmu_directory_with_fmu(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
+    """Source .fmu/ is copied to destination .fmu/ and returned."""
+    src = tmp_path / "src"
+    src.mkdir()
+    dest = tmp_path / "dest"
+    dest.mkdir()
+
+    monkeypatch.chdir(src)
+
+    src_fmu_dir = create_drogon_fmu_dir(src)
+    assert src_fmu_dir.path.parent == src
+
+    dest_fmu_dir = _copy_fmu_directory(dest)
+    assert dest_fmu_dir is not None
+    assert dest_fmu_dir.path.parent == dest
+    assert (dest / ".fmu").is_dir()
+
+
+def test_copy_fmu_directory_with_fmu_already_exists(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Source .fmu/ is copied to destination where .fmu/ already exists."""
+    src = tmp_path / "src"
+    src.mkdir()
+    dest = tmp_path / "dest"
+    dest.mkdir()
+
+    monkeypatch.chdir(src)
+
+    src_fmu_dir = create_drogon_fmu_dir(src)
+    assert src_fmu_dir.path.parent == src
+
+    dest_fmu_dir = create_drogon_fmu_dir(dest)
+
+    new_dest_fmu_dir = _copy_fmu_directory(dest)
+    assert new_dest_fmu_dir is not None
+    assert new_dest_fmu_dir.path.parent == dest
+    assert (dest / ".fmu").is_dir()
+
+    assert dest_fmu_dir.config.load() != new_dest_fmu_dir.config.load()
+    assert src_fmu_dir.config.load() == new_dest_fmu_dir.config.load()

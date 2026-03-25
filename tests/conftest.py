@@ -27,6 +27,7 @@ from fmu.datamodels.common.masterdata import (
     StratigraphicColumn,
 )
 from fmu.datamodels.fmu_results import fields, global_configuration
+from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
@@ -42,7 +43,6 @@ ERT_CASE_DATA = "tests/data/drogon/ert_case"
 ERT_CASE_DATA_NO_ITER = "tests/data/drogon/ert_case_no_iter"
 ERT_CASE_DATA_REAL0_ITER0 = f"{ERT_CASE_DATA}/realization-0/iter-0"
 ERT_CASE_DATA_PRED = f"{ERT_CASE_DATA}/realization-0/pred"
-DOT_FMU_DATA = "tests/data/drogon/dot_fmu"
 
 ERTRUN_ENV_PREHOOK = {
     "_ERT_EXPERIMENT_ID": "6a8e1e0f-9315-46bb-9648-8de87151f4c7",
@@ -141,6 +141,7 @@ def runpath_prehook(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) ->
     """Runpath mocking a prehook context."""
     runpath = tmp_path / ERT_CASE_DATA
     shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
+    create_drogon_fmu_dir(runpath)
 
     _set_fmurun_env_variables(monkeypatch, runpath=runpath, case_only=True)
 
@@ -166,7 +167,7 @@ def runpath(tmp_path: Path, monkeypatch: MonkeyPatch, rootpath: Path) -> Path:
     """Runpath mocking an FMU run with a .fmu/ directory."""
     runpath = tmp_path / ERT_CASE_DATA
     shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
-    shutil.copytree(rootpath / DOT_FMU_DATA, runpath / ".fmu")
+    create_drogon_fmu_dir(runpath)
 
     iter_path = runpath / "realization-0/iter-0"
     _set_fmurun_env_variables(monkeypatch, runpath=iter_path)
@@ -182,6 +183,8 @@ def runpath_non_equal_real_and_iter(
     """Runpath with non-equal real and iter num."""
     runpath = tmp_path / ERT_CASE_DATA
     shutil.copytree(rootpath / ERT_CASE_DATA, runpath)
+    create_drogon_fmu_dir(runpath)
+
     rootpath = runpath / "realization-1/iter-0"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
@@ -199,6 +202,8 @@ def runpath_no_iter_dir(
     """Runpath without an iter dir."""
     runpath = tmp_path / ERT_CASE_DATA_NO_ITER
     shutil.copytree(rootpath / ERT_CASE_DATA_NO_ITER, runpath)
+    create_drogon_fmu_dir(runpath)
+
     rootpath = runpath / "realization-1"
 
     monkeypatch.setenv("_ERT_ITERATION_NUMBER", "0")
