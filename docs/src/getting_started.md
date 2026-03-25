@@ -152,9 +152,6 @@ not.
 In addition, you may want to use some of the *optional* values:
 
 - `alias` is a list of known aliases for this stratigraphic entity.
-- `stratigraphic_alias` is a list of valid *stratigraphic* aliases for this
-  entry, e.g. when a specific horizon is the top of both a formation and a
-  group, or similar.
 
 From the Drogon tutorial:
 
