@@ -7,8 +7,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final
 
-from fmu.dataio._export_config import ExportConfig
-from fmu.dataio._export_models import UnsetData
+from fmu.dataio._export import ExportConfig, UnsetData
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import md5sum
 from fmu.dataio.providers._base import Provider

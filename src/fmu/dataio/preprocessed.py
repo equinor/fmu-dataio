@@ -13,8 +13,7 @@ from fmu.datamodels.common.enums import TrackLogEventType
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import File
 
-from ._export import export_metadata_file
-from ._export_models import ObjectMetadataExport
+from ._export import ObjectMetadataExport, export_metadata_file
 from ._logging import null_logger
 from ._runcontext import RunContext
 from ._utils import md5sum

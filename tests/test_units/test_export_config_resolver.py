@@ -6,9 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from fmu.datamodels.common.enums import Classification
-from fmu.datamodels.fmu_results.data import (
-    Property,
-)
+from fmu.datamodels.fmu_results.data import Property
 from fmu.datamodels.fmu_results.enums import (
     Content,
     DomainReference,
@@ -17,8 +15,8 @@ from fmu.datamodels.fmu_results.enums import (
 from fmu.datamodels.fmu_results.fields import Workflow
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from fmu.dataio._export_config import ExportConfig
-from fmu.dataio._export_config_resolver import (
+from fmu.dataio._export import AllowedContentSeismic, ExportConfig
+from fmu.dataio._export._export_config_resolver import (
     AnyContentMetadata,
     _content_requires_metadata,
     _resolve_classification,
@@ -30,7 +28,6 @@ from fmu.dataio._export_config_resolver import (
     _resolve_vertical_domain,
     _resolve_workflow,
 )
-from fmu.dataio._export_models import AllowedContentSeismic
 
 
 @pytest.fixture
@@ -387,7 +384,7 @@ def test_resolve_description_invalid_type() -> None:
 def test_export_config_from_export_data_basic(mock_export_data: MagicMock) -> None:
     """ExportConfig is created with resolved values from ExportData."""
     with patch(
-        "fmu.dataio._export_config_resolver._resolve_fmu_context"
+        "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
     ) as mock_fmu_ctx:
         mock_fmu_ctx.return_value = (None, False)
 
@@ -421,7 +418,9 @@ def test_export_config_from_export_data_transformations(
 ) -> None:
     """ExportConfig applies correct transformations to input vals."""
     setattr(mock_export_data, attr, value)
-    with patch("fmu.dataio._export_config_resolver.RunContext") as mock_runcontext:
+    with patch(
+        "fmu.dataio._export._export_config_resolver.RunContext"
+    ) as mock_runcontext:
         mock_runcontext.return_value.fmu_context = None
         mock_runcontext.return_value.casepath = None
         config = ExportConfig.from_export_data(mock_export_data)
@@ -442,7 +441,9 @@ def test_export_config_casepath_from_runcontext(
 ) -> None:
     """ExportConfig.casepath delegates to RunContext."""
     mock_export_data.casepath = casepath_input
-    with patch("fmu.dataio._export_config_resolver.RunContext") as mock_runcontext:
+    with patch(
+        "fmu.dataio._export._export_config_resolver.RunContext"
+    ) as mock_runcontext:
         mock_runcontext.return_value.fmu_context = None
         mock_runcontext.return_value.casepath = expected_casepath
         config = ExportConfig.from_export_data(mock_export_data)
@@ -458,7 +459,7 @@ def test_export_config_from_export_data_with_global_config(
     mock_export_data.config = mock_global_config
 
     with patch(
-        "fmu.dataio._export_config_resolver._resolve_fmu_context"
+        "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
     ) as mock_fmu_ctx:
         mock_fmu_ctx.return_value = (None, False)
 
@@ -467,7 +468,7 @@ def test_export_config_from_export_data_with_global_config(
 
     mock_export_data.config = {}
     with patch(
-        "fmu.dataio._export_config_resolver._resolve_fmu_context"
+        "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
     ) as mock_fmu_ctx:
         mock_fmu_ctx.return_value = (None, False)
 
@@ -477,7 +478,7 @@ def test_export_config_from_export_data_with_global_config(
     mock_export_data.config = {"some": "dict"}
     with (
         patch(
-            "fmu.dataio._export_config_resolver._resolve_fmu_context"
+            "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
         ) as mock_fmu_ctx,
         pytest.warns(UserWarning, match="lacking masterdata"),
     ):
@@ -488,7 +489,7 @@ def test_export_config_from_export_data_with_global_config(
 
     mock_export_data.config = mock_global_config
     with patch(
-        "fmu.dataio._export_config_resolver._resolve_fmu_context"
+        "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
     ) as mock_fmu_ctx:
         mock_fmu_ctx.return_value = (None, False)
 
@@ -500,7 +501,7 @@ def test_export_config_is_immutable(mock_export_data: MagicMock) -> None:
     """ExportConfig is frozen."""
 
     with patch(
-        "fmu.dataio._export_config_resolver._resolve_fmu_context"
+        "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
     ) as mock_fmu_ctx:
         mock_fmu_ctx.return_value = (None, False)
 
@@ -513,8 +514,10 @@ def test_export_config_is_immutable(mock_export_data: MagicMock) -> None:
 def test_export_config_with_ensemble_name(mock_export_data: MagicMock) -> None:
     """with_ensemble_name returns new config with updated ensemble path."""
     with (
-        patch("fmu.dataio._export_config_resolver.RunContext") as mock_runcontext,
-        patch("fmu.dataio._export_config.RunContext") as mock_cfg_runcontext,
+        patch(
+            "fmu.dataio._export._export_config_resolver.RunContext"
+        ) as mock_runcontext,
+        patch("fmu.dataio._export._export_config.RunContext") as mock_cfg_runcontext,
     ):
         mock_casepath = Path("/some/case")
         mock_runcontext.return_value.fmu_context = None
