@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -23,6 +23,7 @@ from fmu.dataio._logging import null_logger
 
 if TYPE_CHECKING:
     import xtgeo
+    from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
     from pytest.MonkeyPatch import MonkeyPatch  # pyright: ignore[reportMissingImports]
 
     from fmu.dataio.export.rms.structure_depth_fault_lines import (
@@ -163,19 +164,19 @@ def test_unknown_name_in_stratigraphy_raises(
 def test_stratigraphy_missing_raises(
     mock_project_variable: MagicMock,
     mock_export_class: _ExportStructureDepthFaultLines,
-    mock_global_config: dict[str, Any],
+    mock_global_config_validated: GlobalConfiguration,
 ) -> None:
     """Test that an error is raised if stratigraphy is missing from the config"""
 
     from fmu.dataio.export.rms import export_structure_depth_fault_lines
 
     # remove the stratigraphy block
-    del mock_global_config["stratigraphy"]
+    mock_global_config_validated.stratigraphy = None
 
     with (
         mock.patch(
-            "fmu.dataio.export._base.load_config_from_path",
-            return_value=mock_global_config,
+            "fmu.dataio.export._base.load_global_config",
+            return_value=mock_global_config_validated,
         ),
         pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
     ):
@@ -195,7 +196,7 @@ def test_config_missing(
     # move up one directory to trigger not finding the config
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
-    with pytest.raises(FileNotFoundError, match="Could not detect"):
+    with pytest.raises(FileNotFoundError, match="Could not find"):
         export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
 
 

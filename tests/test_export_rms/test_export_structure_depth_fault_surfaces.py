@@ -128,7 +128,7 @@ def test_config_missing(
     from fmu.dataio.export.rms import export_structure_depth_fault_surfaces
 
     struct_mod_name = next(iter(mock_structural_model))
-    with pytest.raises(FileNotFoundError, match="Could not detect"):
+    with pytest.raises(FileNotFoundError, match="Could not find"):
         export_structure_depth_fault_surfaces(
             mock_project_variable,
             struct_mod_name,

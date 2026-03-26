@@ -4,15 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import shlex
 import uuid
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Final
 
 import yaml
-
-from fmu.config import utilities as ut
 
 from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._logging import null_logger
@@ -20,7 +17,7 @@ from ._logging import null_logger
 if TYPE_CHECKING:
     from io import BufferedIOBase, BytesIO
 
-    from fmu.dataio.providers.objectdata._base import ObjectDataProvider
+    from fmu.dataio.providers import ObjectDataProvider
 
     from . import types
 
@@ -120,26 +117,6 @@ def prettyprint_dict(inp: dict) -> str:
     return str(json.dumps(inp, indent=2, default=str, ensure_ascii=False))
 
 
-def some_config_from_env(envvar: str = "FMU_GLOBAL_CONFIG") -> dict | None:
-    """Get the config from environment variable.
-
-    This function is only called if config SHALL be fetched from the environment
-    variable.
-    """
-
-    logger.info("Getting config from file via environment %s", envvar)
-    try:
-        return ut.yaml_load(os.environ[envvar], loader="fmu")
-    except KeyError:
-        return None
-    except Exception as e:
-        raise ValueError(
-            "Not able to load config from environment variable "
-            f"{envvar} = {os.environ[envvar]}. "
-            f"The environment variable {envvar} must point to a valid yaml file."
-        ) from e
-
-
 def read_metadata_from_file(filename: str | Path) -> dict:
     """Read the metadata as a dictionary given a filename.
 
@@ -162,23 +139,3 @@ def read_metadata_from_file(filename: str | Path) -> dict:
         raise OSError(f"Cannot find requested metafile: {metafile}")
     with open(metafilepath, encoding="utf-8") as stream:
         return yaml.safe_load(stream)
-
-
-def load_config_from_path(config_path: Path) -> dict[str, Any]:
-    """Retrieve the global config data by reading the global config file."""
-    logger.debug("Set global config...")
-
-    if not isinstance(config_path, Path):
-        raise ValueError("The config_path argument needs to be a path")
-
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Cannot find file for global config: {config_path}")
-
-    config = ut.yaml_load(config_path)
-    if not config:
-        # This should never happen because we don't provide tool=.. to yaml_load.
-        raise RuntimeError(
-            f"Attempted to use unknown tool when loading config: {config_path}"
-        )
-
-    return config

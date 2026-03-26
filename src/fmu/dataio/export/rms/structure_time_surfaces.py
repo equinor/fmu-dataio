@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any, Final
 from fmu.dataio._export import export_with_metadata
 from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
     get_horizons_in_folder,
     get_rms_project_units,
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 _logger: Final = null_logger(__name__)
 
 
-class _ExportStructureTimeSurfaces(SimpleExportRMSBase):
+class _ExportStructureTimeSurfaces(SimpleExportBase):
     def __init__(self, project: Any, horizon_folder: str) -> None:
         super().__init__()
 
