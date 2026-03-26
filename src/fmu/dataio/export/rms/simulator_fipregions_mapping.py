@@ -8,8 +8,8 @@ import xtgeo
 
 from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.datamodels import SimulatorFipregionsMappingResult
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content
@@ -23,7 +23,7 @@ _logger: Final = null_logger(__name__)
 FIPNAME: Final = "FIPNUM"
 
 
-class _ExportFipZoneRegionMapping(SimpleExportRMSBase):
+class _ExportFipZoneRegionMapping(SimpleExportBase):
     def __init__(self, mapping_table: pa.Table) -> None:
         super().__init__()
 

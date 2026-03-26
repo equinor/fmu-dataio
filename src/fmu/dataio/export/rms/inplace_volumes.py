@@ -10,8 +10,8 @@ import pyarrow as pa
 
 from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
 from fmu.dataio.export.rms._utils import (
     check_rmsapi_version,
@@ -59,7 +59,7 @@ _RENAME_COLUMNS_FROM_RMS: Final = {
 }
 
 
-class _ExportVolumetricsRMS(SimpleExportRMSBase):
+class _ExportVolumetricsRMS(SimpleExportBase):
     """Export volumetric tables from RMS to FMU standard result."""
 
     def __init__(

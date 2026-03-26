@@ -13,8 +13,8 @@ from fmu.dataio._readers.tsurf import (
     Header,
     TSurfData,
 )
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import get_rms_project_units
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import (
@@ -27,7 +27,7 @@ from fmu.datamodels.standard_results.enums import StandardResultName
 _logger: Final = null_logger(__name__)
 
 
-class _ExportStructureDepthFaultSurfaces(SimpleExportRMSBase):
+class _ExportStructureDepthFaultSurfaces(SimpleExportBase):
     def __init__(
         self: Self,
         project: Any,
