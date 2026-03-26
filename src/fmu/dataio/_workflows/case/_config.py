@@ -8,10 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Self
 
-import yaml
-from pydantic import ValidationError
-
-from fmu.datamodels.fmu_results import global_configuration
+from fmu.dataio._global_config import GLOBAL_VARIABLES_PATH, load_global_config
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import ProjectFMUDirectory
 
@@ -20,20 +17,6 @@ if TYPE_CHECKING:
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
-
-
-def _load_global_config(global_config_path: Path) -> GlobalConfiguration:
-    """Load this simulation's global config."""
-    logger.debug(f"Loading global config from {global_config_path}")
-    with open(global_config_path, encoding="utf-8") as f:
-        global_config_dict = yaml.safe_load(f)
-    try:
-        return global_configuration.GlobalConfiguration.model_validate(
-            global_config_dict
-        )
-    except ValidationError as e:
-        global_configuration.validation_error_warning(e)
-        raise
 
 
 @dataclass(frozen=True)
@@ -79,10 +62,9 @@ class CaseWorkflowConfig:
 
         # /../ert/model/
         ert_config_path = Path(run_paths.substitutions["<CONFIG_PATH>"])
-        config_path = (
-            ert_config_path.parent.parent / "fmuconfig/output/global_variables.yml"
-        )
-        global_config = _load_global_config(config_path)
+        config_path = ert_config_path / GLOBAL_VARIABLES_PATH
+
+        global_config = load_global_config(config_path)
 
         return cls(
             casepath=args.casepath,

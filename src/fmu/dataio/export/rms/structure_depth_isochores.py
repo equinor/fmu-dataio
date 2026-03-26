@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any, Final
 from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
     get_rms_project_units,
     get_zones_in_folder,
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 _logger: Final = null_logger(__name__)
 
 
-class _ExportStructureDepthIsochores(SimpleExportRMSBase):
+class _ExportStructureDepthIsochores(SimpleExportBase):
     def __init__(self, project: Any, zone_folder: str) -> None:
         super().__init__()
 

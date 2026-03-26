@@ -304,7 +304,7 @@ def test_config_missing(
             "fmu.dataio.export.rms.simulator_fipregions_mapping._create_fipnum_in_project",
             return_value=mapping_table,
         ),
-        pytest.raises(FileNotFoundError, match="Could not detect"),
+        pytest.raises(FileNotFoundError, match="Could not find"),
     ):
         create_fipnum_property(mock_project_variable, "Simgrid", "Region", "Zone")
 

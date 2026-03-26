@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, Self
 
-from fmu.config import utilities as ut
+import yaml
+
 from fmu.dataio._definitions import ERT_RELATIVE_CASE_METADATA_FILE, RMSExecutionMode
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import casepath_has_metadata
@@ -293,6 +294,8 @@ class RunContext:
             return None
 
         case_metafile = self.casepath / ERT_RELATIVE_CASE_METADATA_FILE
-        return CaseMetadata.model_validate(
-            ut.yaml_load(case_metafile, loader="standard")
-        )
+
+        with case_metafile.open(encoding="utf-8") as f:
+            case_metadata_dict = yaml.safe_load(f)
+
+        return CaseMetadata.model_validate(case_metadata_dict)

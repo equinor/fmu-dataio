@@ -172,7 +172,7 @@ def test_config_missing(
     # move up one directory to trigger not finding the config
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
-    with pytest.raises(FileNotFoundError, match="Could not detect"):
+    with pytest.raises(FileNotFoundError, match="Could not find"):
         export_grid_model_static(
             mock_project_variable,
             gridname="Geogrid",

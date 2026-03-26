@@ -8,8 +8,8 @@ from pydantic import BaseModel
 
 from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.attribute_specification import (
     AnyAttributeSpecification,
@@ -63,7 +63,7 @@ class _PropertySpecifications(BaseModel):
         return properties
 
 
-class _ExportStaticGrid(SimpleExportRMSBase):
+class _ExportStaticGrid(SimpleExportBase):
     def __init__(self, grid: xtgeo.Grid) -> None:
         super().__init__()
 
@@ -97,7 +97,7 @@ class _ExportStaticGrid(SimpleExportRMSBase):
         """Data validations before export."""
 
 
-class _ExportStaticGridProperties(SimpleExportRMSBase):
+class _ExportStaticGridProperties(SimpleExportBase):
     def __init__(
         self,
         prop: xtgeo.GridProperty,

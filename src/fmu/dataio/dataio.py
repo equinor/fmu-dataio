@@ -5,7 +5,6 @@ The metadata spec is documented as a JSON schema, stored under schema/.
 
 from __future__ import annotations
 
-import os
 import warnings
 from dataclasses import dataclass, field, fields
 from pathlib import Path
@@ -20,17 +19,16 @@ from ._deprecations import (
     resolve_deprecations,
 )
 from ._export import ExportConfig, export_with_metadata, export_without_metadata
+from ._global_config import load_global_config_from_env
 from ._logging import null_logger
 from ._metadata import generate_metadata
-from ._utils import read_metadata_from_file, some_config_from_env
+from ._utils import read_metadata_from_file
 from .exceptions import ValidationError
 from .preprocessed import ExportPreprocessedData
 
 if TYPE_CHECKING:
     from . import types
 
-
-GLOBAL_ENVNAME: Final = "FMU_GLOBAL_CONFIG"
 
 logger: Final = null_logger(__name__)
 
@@ -577,8 +575,9 @@ class ExportData:
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
 
-        if not self.config and GLOBAL_ENVNAME in os.environ:
-            self.config = some_config_from_env(GLOBAL_ENVNAME) or {}
+        if not self.config:
+            # TODO: Handle this in from_export_data
+            self.config = load_global_config_from_env() or {}
 
         self._resolve_deprecations()
         self._cached_export_config = ExportConfig.from_export_data(self)
