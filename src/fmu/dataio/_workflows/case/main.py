@@ -16,6 +16,7 @@ import ert
 from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._metadata import generate_metadata
+from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
 from fmu.datamodels.standard_results.enums import StandardResultName
 from fmu.settings import (
@@ -82,6 +83,7 @@ def _queue_ert_parameters(
     export_config = (
         ExportConfig.builder()
         .content(Content.parameters)
+        .access(Classification.internal, rep_include=False)
         .table_config(table_index=["REAL"])
         .file_config(name="parameters")
         .global_config(workflow_config.global_config)
