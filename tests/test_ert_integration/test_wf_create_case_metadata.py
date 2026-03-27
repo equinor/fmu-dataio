@@ -791,3 +791,5 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
     assert parameters_metadata["fmu"]["context"]["stage"] == "ensemble"
     assert parameters_metadata["fmu"]["ensemble"] is not None
     assert parameters_metadata["fmu"]["ensemble"]["name"] == "iter-0"
+
+    assert parameters_metadata["access"]["classification"] == "internal"
