@@ -100,6 +100,7 @@ def test_rms_volumetrics_export_class(exportvolumetrics: _ExportVolumetricsRMS) 
 
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
+    assert metadata["data"]["name"] == "Geogrid"
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
 

@@ -30,7 +30,7 @@ of initial volumes from the dynamic simulation against static inplace volumes.
 | Field | Value |
 | --- | --- |
 | Version | NA |
-| Output | `share/results/tables/simulator_fipregions_mapping/fipnum.parquet` |
+| Output | `share/results/tables/simulator_fipregions_mapping/gridname.parquet` |
 | Security classification | 🟡 Internal |
 :::
 
@@ -51,7 +51,8 @@ be used to assign `FIPNUM` values. The mappings between them will be automatical
 ## Result
 
 The table mapping from a unique `FIPNUM` value to corresponding region and zone names will
-be exported to `share/results/tables/simulator_fipregions_mapping/fipnum.parquet`.
+be exported to `share/results/tables/simulator_fipregions_mapping/simgrid.parquet`,
+given that the `FIPNUM` property was generated on a grid model named `Simgrid`.
 
 
 ## Standard result schema
