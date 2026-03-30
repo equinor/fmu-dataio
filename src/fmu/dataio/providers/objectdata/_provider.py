@@ -15,7 +15,7 @@ import pyarrow as pa
 import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
-from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData

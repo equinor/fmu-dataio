@@ -14,6 +14,8 @@ from typing import TYPE_CHECKING, Final, Literal, Self, TypeAlias
 
 from pydantic import TypeAdapter
 
+from fmu.dataio._logging import null_logger
+from fmu.dataio._runcontext import RunContext
 from fmu.datamodels import TracklogSource
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.data import (
@@ -40,14 +42,12 @@ from ._export_config_resolver import (
     build_from_export_data,
 )
 from ._export_models import AllowedContentSeismic
-from ._logging import null_logger
-from ._runcontext import RunContext
 
 logger: Final = null_logger(__name__)
 
 
 if TYPE_CHECKING:
-    from .dataio import ExportData
+    from fmu.dataio import ExportData
 
 AnyContentMetadata: TypeAlias = (
     AllowedContentSeismic | FieldOutline | FieldRegion | FluidContact | Property

@@ -13,7 +13,7 @@ from typing import Final
 
 import ert
 
-from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export import ExportConfig
 from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._metadata import generate_metadata
 from fmu.datamodels.common.enums import Classification
