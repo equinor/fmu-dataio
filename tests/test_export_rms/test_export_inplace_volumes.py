@@ -636,7 +636,10 @@ def test_rms_volumetrics_export_config_invalid(
     from fmu.dataio.export.rms.inplace_volumes import export_inplace_volumes
 
     with (
-        mock.patch("fmu.dataio.export._base.load_config_from_path", return_value={}),
+        mock.patch(
+            "fmu.dataio._global_config.yaml.safe_load",
+            return_value={"foo": "bar"},
+        ),
         pytest.raises(ValueError, match="valid config"),
     ):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
@@ -656,7 +659,7 @@ def test_rms_volumetrics_export_config_missing(
     # move up one directory to trigger not finding the config
     monkeypatch.chdir(rmssetup_with_fmuconfig.parent)
 
-    with pytest.raises(FileNotFoundError, match="Could not detect"):
+    with pytest.raises(FileNotFoundError, match="Could not find"):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 
 

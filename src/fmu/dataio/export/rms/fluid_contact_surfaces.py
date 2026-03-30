@@ -7,8 +7,8 @@ from fmu.dataio._export import export_with_metadata
 from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import (
     get_rms_project_units,
     get_surfaces_in_general2d_folder,
@@ -33,7 +33,7 @@ _logger: Final = null_logger(__name__)
 GENERAL2D_FOLDER = "fluid_contact_surfaces"
 
 
-class _ExportFluidContactSurfaces(SimpleExportRMSBase):
+class _ExportFluidContactSurfaces(SimpleExportBase):
     def __init__(self, project: Any) -> None:
         super().__init__()
 

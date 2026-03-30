@@ -9,8 +9,8 @@ from fmu.dataio._export import export_with_metadata
 from fmu.dataio._export_config import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
+from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._base import SimpleExportRMSBase
 from fmu.dataio.export.rms._utils import get_open_polygons_id
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.data import FieldOutline
@@ -25,7 +25,7 @@ from fmu.datamodels.standard_results.enums import StandardResultName
 _logger: Final = null_logger(__name__)
 
 
-class _ExportFieldOutline(SimpleExportRMSBase):
+class _ExportFieldOutline(SimpleExportBase):
     def __init__(self, project: Any) -> None:
         super().__init__()
 
