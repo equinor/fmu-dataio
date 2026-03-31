@@ -1015,7 +1015,6 @@ wheels = [
 name = "fmu-dataio"
 source = { editable = "." }
 dependencies = [
-    { name = "fmu-config" },
     { name = "fmu-datamodels" },
     { name = "fmu-settings" },
     { name = "fmu-sumo" },
@@ -1072,7 +1071,6 @@ requires-dist = [
     { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
-    { name = "fmu-config", specifier = ">=1.1.0" },
     { name = "fmu-datamodels", specifier = "~=0.20.0" },
     { name = "fmu-settings" },
     { name = "fmu-sumo" },

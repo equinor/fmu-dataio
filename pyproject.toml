@@ -30,17 +30,16 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "fmu-config>=1.1.0",
+    "PyYAML",
     "fmu-datamodels~=0.20.0",
     "fmu-settings",
+    "fmu-sumo",
+    "jsonschema",
     "numpy",
     "pandas",
     "pyarrow",
     "pydantic",
-    "PyYAML",
     "xtgeo>=2.16",
-    "fmu-sumo",
-    "jsonschema",
 ]
 
 [project.urls]
