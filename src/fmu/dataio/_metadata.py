@@ -16,8 +16,7 @@ from fmu.datamodels import Asset, Ssdl, SsdlAccess, Tracklog
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from ._export_config import ExportConfig
-from ._export_models import ObjectMetadataExport
+from ._export import ExportConfig, ObjectMetadataExport
 from ._logging import null_logger
 from .exceptions import InvalidMetadataError
 from .providers import (

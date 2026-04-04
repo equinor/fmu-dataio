@@ -6,8 +6,7 @@ from typing import Any, Final
 import pyarrow as pa
 import xtgeo
 
-from fmu.dataio._export import export_with_metadata
-from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._base import SimpleExportRMSBase

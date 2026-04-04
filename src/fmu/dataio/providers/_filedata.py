@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ShareFolder
-from fmu.dataio._export_config import ExportConfig
+from fmu.dataio._export import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._utils import compute_md5_and_size_from_objdata
 from fmu.datamodels.fmu_results import fields
