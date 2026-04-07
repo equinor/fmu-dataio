@@ -7,6 +7,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Final, TypeAlias
 
+from fmu.dataio._global_config import load_global_config
 from fmu.dataio._logging import null_logger
 from fmu.dataio._runcontext import FMUEnvironment, RunContext
 from fmu.datamodels.common.enums import Classification
@@ -543,12 +544,31 @@ def _resolve_global_config(
 ) -> GlobalConfiguration | None:
     """Resolve user-provided config to GlobalConfiguration.
 
+    Resolves in this order:
+
+        1. .fmu/
+        2. Check environment variable if config == {} (non provided)
+        3. fmuconfig/output/global_variables.yml
+        4. ../../fmuconfig/output/global_variables.yml
+
+    This means the provided config dict _will be ignored_ if provided if global
+    variables can be located by load_global_config().
+
     Args:
         config: User-provided config dict or already-validated GlobalConfiguration.
 
     Returns:
         GlobalConfiguration if valid, None otherwise.
     """
+    try:
+        check_env = config == {}  # If no config provided, default config is empty dict
+        return load_global_config(check_env=check_env)
+    except FileNotFoundError as e:
+        logger.info(
+            "Could not resolve global configuration. Falling back to user input. "
+            f"Error: {e}"
+        )
+
     if isinstance(config, GlobalConfiguration):
         return config
 

@@ -19,7 +19,6 @@ from ._deprecations import (
     resolve_deprecations,
 )
 from ._export import ExportConfig, export_with_metadata, export_without_metadata
-from ._global_config import load_global_config_from_env
 from ._logging import null_logger
 from ._metadata import generate_metadata
 from ._utils import read_metadata_from_file
@@ -574,10 +573,6 @@ class ExportData:
 
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
-
-        if not self.config:
-            # TODO: Handle this in from_export_data
-            self.config = load_global_config_from_env() or {}
 
         self._resolve_deprecations()
         self._cached_export_config = ExportConfig.from_export_data(self)

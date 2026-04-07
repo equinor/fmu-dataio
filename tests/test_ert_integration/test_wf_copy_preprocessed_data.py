@@ -3,6 +3,7 @@ from __future__ import annotations
 import getpass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+from unittest.mock import patch
 
 import ert.__main__
 import pytest
@@ -192,8 +193,15 @@ def test_copy_preprocessed_no_preprocessed_meta(
     """Test that a pure copy happens if the files don't have metadata"""
 
     monkeypatch.chdir(fmu_snakeoil_project)
+
     # an invalid config will trigger no metadata to be created
-    with pytest.warns(UserWarning):
+    with (
+        patch(
+            "fmu.dataio._export._export_config_resolver.load_global_config",
+            side_effect=FileNotFoundError,  # Fall back to user-provided config dict
+        ),
+        pytest.warns(UserWarning),
+    ):
         _export_preprocessed_data({"wrong": "config"}, regsurf)
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
@@ -237,6 +245,7 @@ def test_deprecation_warning_global_variables(
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
+    add_create_case_workflow(ert_config_path)
     add_copy_preprocessed_workflow(ert_config_path)
 
     mocker.patch(
