@@ -21,9 +21,7 @@ from fmu.datamodels.fmu_results.enums import (
 )
 from fmu.datamodels.fmu_results.specification import TableSpecification
 
-from ._base import (
-    ObjectDataProvider,
-)
+from ._base import ObjectData
 from ._utils import is_empty_column
 
 if TYPE_CHECKING:
@@ -164,7 +162,7 @@ def _drop_empty_table_index_columns(
     return [col for col in table_index if col not in empty_columns]
 
 
-class DataFrameDataProvider(ObjectDataProvider):
+class DataFrameData(ObjectData):
     obj: pd.DataFrame
 
     @property
@@ -233,7 +231,7 @@ class DataFrameDataProvider(ObjectDataProvider):
         self.obj.to_csv(file, index=False)
 
 
-class ArrowTableDataProvider(ObjectDataProvider):
+class ArrowTableData(ObjectData):
     obj: pyarrow.Table
 
     @property

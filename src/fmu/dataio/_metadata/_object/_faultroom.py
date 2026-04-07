@@ -6,15 +6,13 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
-from fmu.dataio._metadata.objectdata._utils import Utils
+from fmu.dataio._metadata._object._utils import Utils
 from fmu.datamodels.fmu_results.data import BoundingBox3D
 from fmu.datamodels.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
-from fmu.datamodels.fmu_results.global_configuration import (
-    GlobalConfiguration,
-)
+from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.datamodels.fmu_results.specification import FaultRoomSurfaceSpecification
 
-from ._base import ObjectDataProvider
+from ._base import ObjectData
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -24,7 +22,7 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-class FaultRoomSurfaceProvider(ObjectDataProvider):
+class FaultRoomSurfaceData(ObjectData):
     obj: FaultRoomSurface
 
     @property

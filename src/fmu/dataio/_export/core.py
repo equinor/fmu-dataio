@@ -11,7 +11,7 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio._metadata import (
     SharePathConstructor,
     _generate_metadata,
-    objectdata_provider_factory,
+    create_object_data,
 )
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.manifest._manifest import update_export_manifest
@@ -29,7 +29,7 @@ logger: Final = null_logger(__name__)
 
 def export_without_metadata(export_config: ExportConfig, obj: ExportableData) -> Path:
     """Export object without generating metadata."""
-    objdata = objectdata_provider_factory(obj, export_config)
+    objdata = create_object_data(obj, export_config)
     share_path = SharePathConstructor(export_config, objdata).get_share_path()
     absolute_path = export_config.runcontext.exportroot / share_path
 
@@ -45,7 +45,7 @@ def export_with_metadata(export_config: ExportConfig, obj: ExportableData) -> Pa
             "When exporting standard_results it is required to have a valid config."
         )
 
-    objdata = objectdata_provider_factory(obj, export_config)
+    objdata = create_object_data(obj, export_config)
     metadata = _generate_metadata(export_config, objdata)
 
     outfile = Path(metadata["file"]["absolute_path"])

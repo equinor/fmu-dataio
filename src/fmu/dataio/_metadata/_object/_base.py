@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._export import ExportConfig, UnsetData
 from fmu.dataio._logging import null_logger
-from fmu.dataio._metadata._base import Provider
 from fmu.dataio._utils import md5sum
 from fmu.datamodels.fmu_results.data import AnyData, SmdaEntity, Time, Timestamp
 from fmu.datamodels.fmu_results.global_configuration import (
@@ -33,7 +32,7 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-class ObjectDataProvider(Provider):
+class ObjectData:
     """Base class for providing metadata for data objects in fmu-dataio, e.g. a surface.
 
     The metadata for the 'data' are constructed by:

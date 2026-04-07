@@ -1,4 +1,4 @@
-"""Test the ObjectDataProvider and its derived classes."""
+"""Test the ObjectData and its derived classes."""
 
 from collections.abc import Callable
 from datetime import datetime
@@ -18,18 +18,16 @@ from fmu.datamodels.fmu_results.specification import (
 from pytest import MonkeyPatch
 
 from fmu import dataio
-from fmu.dataio._metadata.objectdata._faultroom import FaultRoomSurfaceProvider
-from fmu.dataio._metadata.objectdata._provider import (
-    objectdata_provider_factory,
+from fmu.dataio import ExportData
+from fmu.dataio._metadata import create_object_data
+from fmu.dataio._metadata._object._faultroom import FaultRoomSurfaceData
+from fmu.dataio._metadata._object._triangulated_surface import (
+    TriangulatedSurfaceData,
 )
-from fmu.dataio._metadata.objectdata._triangulated_surface import (
-    TriangulatedSurfaceProvider,
-)
-from fmu.dataio._metadata.objectdata._utils import get_value_statistics
-from fmu.dataio._metadata.objectdata._xtgeo import RegularSurfaceDataProvider
+from fmu.dataio._metadata._object._utils import get_value_statistics
+from fmu.dataio._metadata._object._xtgeo import RegularSurfaceData
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
-from fmu.dataio.dataio import ExportData
 from fmu.dataio.exceptions import ConfigurationError
 
 
@@ -37,7 +35,7 @@ def test_resolve_stratigraphy_named_from_config(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """Name is resolved from stratigraphy config when present."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     res = objdata._resolve_stratigraphy()
 
     assert res.name == "Whatever Top"
@@ -49,7 +47,7 @@ def test_resolve_stratigraphy_name_differs_from_input(
     regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
     """Stratigraphy name differs from input name."""
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     res = objdata._resolve_stratigraphy()
 
     assert res.name == "VOLANTIS GP. Top"
@@ -68,7 +66,7 @@ def test_resolve_stratigraphy_fallback_to_object_name(
     regsurf.name = "MySurfaceName"
 
     exportdata = ExportData(config=mock_global_config, content="depth")
-    objdata = objectdata_provider_factory(regsurf, exportdata._export_config)
+    objdata = create_object_data(regsurf, exportdata._export_config)
 
     assert objdata.name == "MySurfaceName"
 
@@ -88,7 +86,7 @@ def test_resolve_timedata_single_date(
         name="test",
         timedata=["20230101"],
     )
-    objdata = objectdata_provider_factory(regsurf, exportdata._export_config)
+    objdata = create_object_data(regsurf, exportdata._export_config)
 
     assert objdata.time0 == datetime(2023, 1, 1)
     assert objdata.time1 is None
@@ -109,7 +107,7 @@ def test_resolve_timedata_two_dates(
         name="test",
         timedata=["20240101", "20230101"],  # newer first
     )
-    objdata = objectdata_provider_factory(regsurf, exportdata._export_config)
+    objdata = create_object_data(regsurf, exportdata._export_config)
 
     # Should be sorted so t0 is older
     assert objdata.time0 == datetime(2023, 1, 1)
@@ -131,7 +129,7 @@ def test_resolve_timedata_with_labels(
         name="test",
         timedata=[["20230101", "base"], ["20240101", "monitor"]],
     )
-    objdata = objectdata_provider_factory(regsurf, exportdata._export_config)
+    objdata = create_object_data(regsurf, exportdata._export_config)
 
     assert objdata.time0 == datetime(2023, 1, 1)
     assert objdata.time1 == datetime(2024, 1, 1)
@@ -153,7 +151,7 @@ def test_resolve_timedata_none(
         content="depth",
         name="test",
     )
-    objdata = objectdata_provider_factory(regsurf, exportdata._export_config)
+    objdata = create_object_data(regsurf, exportdata._export_config)
 
     assert objdata.time0 is None
     assert objdata.time1 is None
@@ -174,7 +172,7 @@ def test_resolve_stratigraphy_not_in_config(
         content="depth",
         name="NotInStratigraphy",
     )
-    objdata = objectdata_provider_factory(regsurf, exportdata._export_config)
+    objdata = create_object_data(regsurf, exportdata._export_config)
 
     assert objdata.name == "NotInStratigraphy"
     assert objdata._strat_element.stratigraphic is False
@@ -197,46 +195,44 @@ def test_validate_forcefolder_absolute_raises(
     )
 
     with pytest.raises(ValueError, match="Can't use absolute path"):
-        objectdata_provider_factory(regsurf, exportdata._export_config)
+        create_object_data(regsurf, exportdata._export_config)
 
 
 def test_factory_raises_on_unknown_type(mock_exportdata: ExportData) -> None:
     """Factory raises NotImplementedError for unknown types."""
     with pytest.raises(NotImplementedError, match="not currently supported"):
-        objectdata_provider_factory(object(), mock_exportdata._export_config)
+        create_object_data(object(), mock_exportdata._export_config)
 
 
 def test_factory_returns_correct_provider_regularsurface(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
-    """Factory returns RegularSurfaceDataProvider for RegularSurface."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
-    assert isinstance(objdata, RegularSurfaceDataProvider)
+    """Factory returns RegularSurfaceData for RegularSurface."""
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
+    assert isinstance(objdata, RegularSurfaceData)
 
 
 def test_factory_returns_correct_provider_faultroom(
     faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
-    """Factory returns FaultRoomSurfaceProvider for FaultRoomSurface."""
-    objdata = objectdata_provider_factory(
-        faultroom_object, drogon_exportdata._export_config
-    )
-    assert isinstance(objdata, FaultRoomSurfaceProvider)
+    """Factory returns FaultRoomSurfaceData for FaultRoomSurface."""
+    objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
+    assert isinstance(objdata, FaultRoomSurfaceData)
 
 
 def test_factory_returns_correct_provider_tsurf(
     tsurf: TSurfData, drogon_exportdata: ExportData
 ) -> None:
-    """Factory returns TriangulatedSurfaceProvider for TSurfData."""
-    objdata = objectdata_provider_factory(tsurf, drogon_exportdata._export_config)
-    assert isinstance(objdata, TriangulatedSurfaceProvider)
+    """Factory returns TriangulatedSurfaceData for TSurfData."""
+    objdata = create_object_data(tsurf, drogon_exportdata._export_config)
+    assert isinstance(objdata, TriangulatedSurfaceData)
 
 
 def test_regularsurface_extension(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """RegularSurface has correct extension."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     assert objdata.extension == ".gri"
 
 
@@ -244,7 +240,7 @@ def test_regularsurface_classname(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """RegularSurface has correct classname."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     assert objdata.classname.value == "surface"
 
 
@@ -252,7 +248,7 @@ def test_regularsurface_spec_bbox(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """RegularSurface spec and bbox are derived correctly."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     specs = objdata.get_spec()
     bbox = objdata.get_bbox()
 
@@ -268,7 +264,7 @@ def test_regularsurface_get_bbox_ignores_nan(
 
     regsurf.values[0, :] = np.nan
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
 
     bbox = objdata.get_bbox()
 
@@ -302,7 +298,7 @@ def test_gridproperty_spec_value_statistics(
     gridprop.values[:, :, 0] = 0
     gridprop.values[:, :, 2] = 10
 
-    objdata = objectdata_provider_factory(gridprop, mock_exportdata._export_config)
+    objdata = create_object_data(gridprop, mock_exportdata._export_config)
     specs = objdata.get_spec()
 
     stats = get_value_statistics(gridprop.values)
@@ -322,7 +318,7 @@ def test_regularsurface_spec_value_statistics(mock_exportdata: ExportData) -> No
     regsurf.values[0, :] = 0
     regsurf.values[2, :] = 10
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     specs = objdata.get_spec()
 
     stats = get_value_statistics(regsurf.values)
@@ -344,7 +340,7 @@ def test_regularsurface_spec_value_statistics_with_nan(
     regsurf = xtgeo.RegularSurface(ncol=3, nrow=3, xinc=1, yinc=1, values=5)
     regsurf.values[0, :] = np.nan
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     specs = objdata.get_spec()
 
     assert specs.value_statistics.min == 5
@@ -363,7 +359,7 @@ def test_regularsurface_spec_value_statistics_only_nan(
     regsurf = xtgeo.RegularSurface(ncol=3, nrow=3, xinc=1, yinc=1, values=5)
     regsurf.values[:] = np.nan
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     specs = objdata.get_spec()
 
     assert specs.value_statistics is None
@@ -373,7 +369,7 @@ def test_regularsurface_metadata(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
     """RegularSurface metadata is derived correctly."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = objdata.get_metadata()
 
     assert metadata.root.content == "depth"
@@ -384,9 +380,7 @@ def test_faultroom_properties(
     faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
     """FaultRoomSurface has correct properties."""
-    objdata = objectdata_provider_factory(
-        faultroom_object, drogon_exportdata._export_config
-    )
+    objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
 
     assert objdata.extension == ".json"
     assert objdata.layout == "triangulated"
@@ -396,9 +390,7 @@ def test_faultroom_bbox(
     faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
     """FaultRoomSurface bbox is derived correctly."""
-    objdata = objectdata_provider_factory(
-        faultroom_object, drogon_exportdata._export_config
-    )
+    objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
     bbox = objdata.get_bbox()
 
     assert bbox.xmin == 1.1
@@ -418,9 +410,7 @@ def test_faultroom_fault_groups(
     }
     faultroom_object._set_faults()
 
-    objdata = objectdata_provider_factory(
-        faultroom_object, drogon_exportdata._export_config
-    )
+    objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
     spec = objdata.get_spec()
 
     assert spec.faults == ["F1", "F2", "F3", "F4", "F5", "F6"]
@@ -430,9 +420,7 @@ def test_faultroom_spec_juxtaposition(
     faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
     """FaultRoomSurface juxtaposition names are resolved from stratigraphy."""
-    objdata = objectdata_provider_factory(
-        faultroom_object, drogon_exportdata._export_config
-    )
+    objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
     spec = objdata.get_spec()
 
     assert isinstance(spec, FaultRoomSurfaceSpecification)
@@ -444,9 +432,7 @@ def test_faultroom_export_to_file(
     faultroom_object: FaultRoomSurface, drogon_exportdata: ExportData
 ) -> None:
     """FaultRoomSurface exports to JSON format."""
-    objdata = objectdata_provider_factory(
-        faultroom_object, drogon_exportdata._export_config
-    )
+    objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
 
     buffer = BytesIO()
     objdata.export_to_file(buffer)
@@ -458,7 +444,7 @@ def test_faultroom_export_to_file(
 
 def test_tsurf_properties(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
     """TSurf has correct properties."""
-    objdata = objectdata_provider_factory(tsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(tsurf, drogon_exportdata._export_config)
 
     assert objdata.classname.value == "surface"
     assert objdata.efolder == "maps"
@@ -469,7 +455,7 @@ def test_tsurf_properties(tsurf: TSurfData, drogon_exportdata: ExportData) -> No
 
 def test_tsurf_bbox(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
     """TSurf bbox is derived correctly."""
-    objdata = objectdata_provider_factory(tsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(tsurf, drogon_exportdata._export_config)
     bbox = objdata.get_bbox()
 
     assert bbox.xmin == 0.1
@@ -482,7 +468,7 @@ def test_tsurf_bbox(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
 
 def test_tsurf_spec(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
     """TSurf spec is derived correctly."""
-    objdata = objectdata_provider_factory(tsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(tsurf, drogon_exportdata._export_config)
     spec = objdata.get_spec()
 
     assert isinstance(spec, TriangulatedSurfaceSpecification)
@@ -492,7 +478,7 @@ def test_tsurf_spec(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
 
 def test_tsurf_export_to_file(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
     """TSurf exports to correct format."""
-    objdata = objectdata_provider_factory(tsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(tsurf, drogon_exportdata._export_config)
 
     buffer = BytesIO()
     objdata.export_to_file(buffer)
@@ -508,9 +494,7 @@ def test_table_invalid_format_raises(
     mock_exportdata.table_fformat = "roff"
 
     with pytest.raises(ConfigurationError):
-        _ = objectdata_provider_factory(
-            dataframe, mock_exportdata._export_config
-        ).extension
+        _ = create_object_data(dataframe, mock_exportdata._export_config).extension
 
     mock_exportdata.table_fformat = "csv"  # reset
 
@@ -519,7 +503,7 @@ def test_compute_md5_and_size(
     gridproperty: xtgeo.GridProperty, mock_exportdata: ExportData
 ) -> None:
     """MD5 and size computation matches metadata."""
-    objdata = objectdata_provider_factory(gridproperty, mock_exportdata._export_config)
+    objdata = create_object_data(gridproperty, mock_exportdata._export_config)
 
     metadata = mock_exportdata.generate_metadata(gridproperty)
     checksum, size = objdata.compute_md5_and_size()

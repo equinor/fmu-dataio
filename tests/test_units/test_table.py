@@ -14,8 +14,8 @@ from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, StandardTableIndex
-from fmu.dataio._metadata import objectdata_provider_factory
-from fmu.dataio._metadata.objectdata._tables import _derive_index
+from fmu.dataio._metadata import create_object_data
+from fmu.dataio._metadata._object._tables import _derive_index
 
 
 def _read_dict(file_path: str) -> dict[str, Any]:
@@ -276,9 +276,7 @@ def test_table_index_timeseries(
         simulationtimeseries_exportdata (dict): metadata
         drogon_summary (pa.Table): table with summary data from sumo
     """
-    objdata = objectdata_provider_factory(
-        drogon_summary, timeseries_exportdata._export_config
-    )
+    objdata = create_object_data(drogon_summary, timeseries_exportdata._export_config)
     assert objdata.table_index == ["DATE"], "Incorrect table index "
 
 
@@ -291,7 +289,7 @@ def test_table_index_real_summary(
         simulationtimeseries_exportdata (dict): metadata
         drogon_summary (pa.Table): table with summary data from sumo
     """
-    objdata = objectdata_provider_factory(
+    objdata = create_object_data(
         drogon_summary, simulationtimeseries_exportdata._export_config
     )
     assert objdata.table_index == ["DATE"], "Incorrect table index "

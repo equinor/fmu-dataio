@@ -18,20 +18,18 @@ from fmu.dataio._utils import compute_md5_and_size_from_objdata
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.enums import FMUContext
 
-from ._base import Provider
-
 logger: Final = null_logger(__name__)
 
 if TYPE_CHECKING:
     from fmu.dataio._runcontext import RunContext
 
-    from .objectdata._provider import ObjectDataProvider
+    from .objectdata._provider import ObjectData
 
 
 class SharePathConstructor:
     """Class for providing the export share location for an object"""
 
-    def __init__(self, export_config: ExportConfig, objdata: ObjectDataProvider):
+    def __init__(self, export_config: ExportConfig, objdata: ObjectData):
         self.export_config = export_config
         self.objdata = objdata
 
@@ -127,7 +125,7 @@ class SharePathConstructor:
         return re.sub(r"__+", "_", filestem)
 
 
-class FileDataProvider(Provider):
+class FileMetadata:
     """Class for providing metadata for the 'files' block in fmu-dataio.
 
     Example::
@@ -140,7 +138,7 @@ class FileDataProvider(Provider):
     def __init__(
         self,
         runcontext: RunContext,
-        objdata: ObjectDataProvider,
+        objdata: ObjectData,
         share_path: Path,
     ) -> None:
         self.objdata = objdata

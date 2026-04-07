@@ -1,4 +1,4 @@
-"""Module for DataIO _ObjectData
+"""Module for creating ObjectData instances.
 
 This contains evaluation of the valid objects that can be handled and is mostly used
 in the ``data`` block but some settings are applied later in the other blocks
@@ -22,18 +22,18 @@ from fmu.dataio._readers.tsurf import TSurfData
 from fmu.datamodels.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
 
 from ._base import (
-    ObjectDataProvider,
+    ObjectData,
 )
-from ._faultroom import FaultRoomSurfaceProvider
-from ._tables import ArrowTableDataProvider, DataFrameDataProvider
-from ._triangulated_surface import TriangulatedSurfaceProvider
+from ._faultroom import FaultRoomSurfaceData
+from ._tables import ArrowTableData, DataFrameData
+from ._triangulated_surface import TriangulatedSurfaceData
 from ._xtgeo import (
-    CPGridDataProvider,
-    CPGridPropertyDataProvider,
-    CubeDataProvider,
-    PointsDataProvider,
-    PolygonsDataProvider,
-    RegularSurfaceDataProvider,
+    CPGridData,
+    CPGridPropertyData,
+    CubeData,
+    PointsData,
+    PolygonsData,
+    RegularSurfaceData,
 )
 
 if TYPE_CHECKING:
@@ -44,47 +44,45 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-def objectdata_provider_factory(
-    obj: ExportableData, export_config: ExportConfig
-) -> ObjectDataProvider:
+def create_object_data(obj: ExportableData, export_config: ExportConfig) -> ObjectData:
     """Factory function that generates metadata for a particular data object. This
     function will return an instance of an object-independent (i.e., typeable) class
-    derived from ObjectDataProvider.
+    derived from ObjectData.
 
     Returns:
-        A subclass of ObjectDataProvider
+        A subclass of ObjectData
 
     Raises:
         NotImplementedError: when receiving an object we don't know how to generate
         metadata for.
     """
     if isinstance(obj, xtgeo.RegularSurface):
-        return RegularSurfaceDataProvider(obj, export_config)
+        return RegularSurfaceData(obj, export_config)
     if isinstance(obj, xtgeo.Polygons):
-        return PolygonsDataProvider(obj, export_config)
+        return PolygonsData(obj, export_config)
     if isinstance(obj, xtgeo.Points):
-        return PointsDataProvider(obj, export_config)
+        return PointsData(obj, export_config)
     if isinstance(obj, xtgeo.Cube):
-        return CubeDataProvider(obj, export_config)
+        return CubeData(obj, export_config)
     if isinstance(obj, xtgeo.Grid):
-        return CPGridDataProvider(obj, export_config)
+        return CPGridData(obj, export_config)
     if isinstance(obj, xtgeo.GridProperty):
-        return CPGridPropertyDataProvider(obj, export_config)
+        return CPGridPropertyData(obj, export_config)
     if isinstance(obj, pd.DataFrame):
-        return DataFrameDataProvider(obj, export_config)
+        return DataFrameData(obj, export_config)
     if isinstance(obj, FaultRoomSurface):
-        return FaultRoomSurfaceProvider(obj, export_config)
+        return FaultRoomSurfaceData(obj, export_config)
     if isinstance(obj, TSurfData):
-        return TriangulatedSurfaceProvider(obj, export_config)
+        return TriangulatedSurfaceData(obj, export_config)
     if isinstance(obj, dict):
-        return DictionaryDataProvider(obj, export_config)
+        return DictionaryData(obj, export_config)
     if isinstance(obj, pa.Table):
-        return ArrowTableDataProvider(obj, export_config)
+        return ArrowTableData(obj, export_config)
 
     raise NotImplementedError(f"This data type is not currently supported: {type(obj)}")
 
 
-class DictionaryDataProvider(ObjectDataProvider):
+class DictionaryData(ObjectData):
     obj: dict
 
     @property
