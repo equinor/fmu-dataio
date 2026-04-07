@@ -18,19 +18,19 @@ from fmu.datamodels.fmu_results.specification import (
 from pytest import MonkeyPatch
 
 from fmu import dataio
+from fmu.dataio._metadata.objectdata._faultroom import FaultRoomSurfaceProvider
+from fmu.dataio._metadata.objectdata._provider import (
+    objectdata_provider_factory,
+)
+from fmu.dataio._metadata.objectdata._triangulated_surface import (
+    TriangulatedSurfaceProvider,
+)
+from fmu.dataio._metadata.objectdata._utils import get_value_statistics
+from fmu.dataio._metadata.objectdata._xtgeo import RegularSurfaceDataProvider
 from fmu.dataio._readers.faultroom import FaultRoomSurface
 from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.dataio import ExportData
 from fmu.dataio.exceptions import ConfigurationError
-from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
-from fmu.dataio.providers.objectdata._provider import (
-    objectdata_provider_factory,
-)
-from fmu.dataio.providers.objectdata._triangulated_surface import (
-    TriangulatedSurfaceProvider,
-)
-from fmu.dataio.providers.objectdata._utils import get_value_statistics
-from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
 
 
 def test_resolve_stratigraphy_named_from_config(

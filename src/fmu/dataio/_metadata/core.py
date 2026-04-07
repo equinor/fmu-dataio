@@ -12,22 +12,18 @@ from __future__ import annotations
 
 from typing import Any, Final
 
+from fmu.dataio._export import ExportConfig, ObjectMetadataExport
+from fmu.dataio._logging import null_logger
+from fmu.dataio.exceptions import InvalidMetadataError
+from fmu.dataio.types import ExportableData
+from fmu.dataio.version import __version__
 from fmu.datamodels import Asset, Ssdl, SsdlAccess, Tracklog
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from ._export import ExportConfig, ObjectMetadataExport
-from ._logging import null_logger
-from .exceptions import InvalidMetadataError
-from .providers import (
-    FileDataProvider,
-    FmuProvider,
-    ObjectDataProvider,
-    SharePathConstructor,
-    objectdata_provider_factory,
-)
-from .types import ExportableData
-from .version import __version__
+from ._filedata import FileDataProvider, SharePathConstructor
+from ._fmu import FmuProvider
+from .objectdata import ObjectDataProvider, objectdata_provider_factory
 
 logger: Final = null_logger(__name__)
 

@@ -21,13 +21,13 @@ from pytest import MonkeyPatch
 
 from fmu.dataio._deprecations import DeprecationError
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._metadata import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio._utils import (
     prettyprint_dict,
     uuid_from_string,
 )
 from fmu.dataio.dataio import ExportData, read_metadata
-from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
 
 # pylint: disable=no-member
 

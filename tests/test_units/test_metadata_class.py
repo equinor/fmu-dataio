@@ -16,10 +16,9 @@ from fmu.datamodels.fmu_results import FmuResultsSchema
 from pytest import MonkeyPatch
 
 import fmu.dataio as dio
-from fmu.dataio._metadata import generate_export_metadata
+from fmu.dataio import ExportData
+from fmu.dataio._metadata import generate_export_metadata, objectdata_provider_factory
 from fmu.dataio._utils import prettyprint_dict, read_metadata_from_file
-from fmu.dataio.dataio import ExportData
-from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 # pylint: disable=no-member
 

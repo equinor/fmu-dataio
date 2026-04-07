@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
+from fmu.dataio._metadata.objectdata._utils import Utils, get_value_statistics
 from fmu.dataio.dataio import ExportData
-from fmu.dataio.providers.objectdata._utils import Utils, get_value_statistics
 
 
 def test_stratigraphy(drogon_exportdata: ExportData) -> None:
