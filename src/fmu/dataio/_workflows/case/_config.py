@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Self
 
-from fmu.dataio._global_config import GLOBAL_VARIABLES_PATH, load_global_config
+from fmu.dataio._global_config import RELATIVE_GLOBAL_VARIABLES_PATH, load_global_config
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import ProjectFMUDirectory
 
@@ -62,7 +62,7 @@ class CaseWorkflowConfig:
 
         # /../ert/model/
         ert_config_path = Path(run_paths.substitutions["<CONFIG_PATH>"])
-        config_path = ert_config_path / GLOBAL_VARIABLES_PATH
+        config_path = ert_config_path / RELATIVE_GLOBAL_VARIABLES_PATH
 
         global_config = load_global_config(config_path)
 

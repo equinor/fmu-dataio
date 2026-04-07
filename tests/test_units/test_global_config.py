@@ -4,15 +4,14 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
-import yaml
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from pytest import MonkeyPatch
 
 from fmu.dataio._global_config import (
     GLOBAL_CONFIG_ENV_VAR,
     _build_global_configuration,
+    _resolve_global_config_path,
     load_global_config,
-    load_global_config_from_env,
     load_global_config_from_global_variables,
 )
 from fmu.dataio.exceptions import ValidationError
@@ -58,50 +57,6 @@ def test_build_global_configuration_standard_result(
         _build_global_configuration(mock_global_config, standard_result=True)
 
 
-def test_load_global_config_from_env(
-    monkeypatch: MonkeyPatch, drogon_global_config_path: Path
-) -> None:
-    """Loading from env works with a default environment variable."""
-    monkeypatch.setenv(GLOBAL_CONFIG_ENV_VAR, str(drogon_global_config_path))
-
-    config_dict = load_global_config_from_env()
-    assert config_dict is not None
-
-    with drogon_global_config_path.open(encoding="utf-8") as f:
-        assert config_dict == yaml.safe_load(f)
-
-
-def test_load_global_config_from_non_default_env(
-    monkeypatch: MonkeyPatch, drogon_global_config_path: Path
-) -> None:
-    """Loading from env works with a non-default environment variable."""
-    monkeypatch.setenv("foo_var", str(drogon_global_config_path))
-
-    config_dict = load_global_config_from_env("foo_var")
-    assert config_dict is not None
-
-    with drogon_global_config_path.open(encoding="utf-8") as f:
-        assert config_dict == yaml.safe_load(f)
-
-
-def test_load_invalid_global_config_from_non_default_env(
-    tmp_path: Path, monkeypatch: MonkeyPatch
-) -> None:
-    """Loading from env raises on invalid config with a non-default environment var."""
-    bad_global_config = tmp_path / "global_variables.yml"
-    bad_global_config.write_bytes(b"\x01")
-
-    monkeypatch.setenv(GLOBAL_CONFIG_ENV_VAR, str(bad_global_config))
-
-    with pytest.raises(ValueError, match="Unable to load config"):
-        load_global_config_from_env()
-
-
-def test_load_invalid_global_config_from_non_existent_path(tmp_path: Path) -> None:
-    """Loading from env works with a non-default environment variable."""
-    assert load_global_config_from_env() is None
-
-
 def test_load_config_from_global_variables(drogon_global_config_path: Path) -> None:
     """Valid case of loading global config from global variables."""
     global_config = load_global_config_from_global_variables(drogon_global_config_path)
@@ -122,6 +77,92 @@ def test_load_invalid_config_from_global_variables(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="Unable to load config"):
         load_global_config_from_global_variables(bad_global_config)
+
+
+def test_resolve_global_config_path_resolves_to_existing_path(
+    drogon_global_config_path: Path,
+) -> None:
+    """Tests that resolution returns itself if provided a valid path."""
+    assert (
+        _resolve_global_config_path(drogon_global_config_path)
+        == drogon_global_config_path
+    )
+
+
+@pytest.mark.parametrize(
+    "given",
+    [
+        None,
+        Path("foo"),
+        Path("global_variables.yml"),
+    ],
+)
+def test_resolve_global_config_path_raises_if_not_options_found(
+    tmp_path: Path, given: Path
+) -> None:
+    """Tests that an exception is raised if no config file found."""
+    with pytest.raises(FileNotFoundError, match="Could not find the global"):
+        _resolve_global_config_path(given)
+
+
+@pytest.mark.parametrize(
+    "mock_cwd",
+    [
+        Path("."),
+        Path("ert/model"),
+        Path("rms/model"),
+    ],
+)
+@pytest.mark.parametrize("check_env", [True, False])
+def test_resolve_global_config_path_from_known_paths(
+    runpath: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+    mock_cwd: Path,
+    check_env: bool,
+) -> None:
+    """Global configuration path resolves correctly with different inputs.
+
+    Tests the most common path, and also if check_env differs."""
+    fmuconfig_output_dir = runpath / "fmuconfig" / "output"
+    fmuconfig_output_dir.mkdir(parents=True)
+
+    config_path = fmuconfig_output_dir / "global_variables.yml"
+    shutil.copy(drogon_global_config_path, config_path)
+
+    cwd_dir = runpath / mock_cwd
+    cwd_dir.mkdir(parents=True, exist_ok=True)
+
+    # Call from runpath, ert model path, and rms model path
+    monkeypatch.chdir(cwd_dir)
+    if check_env:
+        monkeypatch.setenv(GLOBAL_CONFIG_ENV_VAR, str(drogon_global_config_path))
+
+    expected_config_path = drogon_global_config_path if check_env else config_path
+
+    assert (
+        _resolve_global_config_path(None, check_env=check_env) == expected_config_path
+    )
+    # Always resolves to config_path if valid
+    assert _resolve_global_config_path(config_path, check_env=check_env) == config_path
+
+
+def test_resolve_global_config_path_exists(
+    runpath: Path, monkeypatch: MonkeyPatch, drogon_global_config_path: Path
+) -> None:
+    """Default global configuration path is used when no .fmu/ is present."""
+    fmuconfig_output_dir = runpath / "fmuconfig" / "output"
+    fmuconfig_output_dir.mkdir(parents=True)
+    shutil.copy(
+        drogon_global_config_path, fmuconfig_output_dir / "global_variables.yml"
+    )
+
+    ert_model_dir = runpath / "ert" / "model"
+    ert_model_dir.mkdir(parents=True)
+
+    monkeypatch.chdir(ert_model_dir)
+    global_config = load_global_config()
+    assert isinstance(global_config, GlobalConfiguration)
 
 
 def test_load_global_config_returns_global_configuration(
@@ -156,6 +197,6 @@ def test_load_global_config_passes_standard_result_to_build(
 ) -> None:
     """Standard result argument is passed back to global config builder."""
     with patch("fmu.dataio._global_config._build_global_configuration") as mock_build:
-        load_global_config(drogon_global_config_path, standard_result)
+        load_global_config(drogon_global_config_path, standard_result=standard_result)
 
     assert mock_build.call_args[0][1] == standard_result
