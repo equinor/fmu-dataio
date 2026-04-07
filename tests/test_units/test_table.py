@@ -14,8 +14,8 @@ from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import STANDARD_TABLE_INDEX_COLUMNS, StandardTableIndex
-from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
-from fmu.dataio.providers.objectdata._tables import _derive_index
+from fmu.dataio._metadata import objectdata_provider_factory
+from fmu.dataio._metadata.objectdata._tables import _derive_index
 
 
 def _read_dict(file_path: str) -> dict[str, Any]:

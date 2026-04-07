@@ -8,6 +8,11 @@ from typing import Final
 import yaml
 from pydantic import ValidationError
 
+from fmu.dataio._metadata import (
+    ERT_RELATIVE_CASE_METADATA_FILE,
+    FmuProvider,
+    ShareFolder,
+)
 from fmu.dataio.version import __version__
 from fmu.datamodels.common.enums import TrackLogEventType
 from fmu.datamodels.fmu_results.enums import FMUContext
@@ -19,8 +24,6 @@ from ._runcontext import RunContext
 from ._utils import md5sum
 from .exceptions import InvalidMetadataError
 from .manifest._manifest import update_export_manifest
-from .providers._filedata import ShareFolder
-from .providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE, FmuProvider
 
 logger: Final = null_logger(__name__)
 

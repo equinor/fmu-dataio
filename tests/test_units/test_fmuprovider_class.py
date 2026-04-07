@@ -12,14 +12,14 @@ from fmu.datamodels.fmu_results.fields import Workflow
 from pytest import MonkeyPatch
 
 from fmu import dataio
-from fmu.dataio._runcontext import FMUEnvironment, RunContext
-from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
-from fmu.dataio.exceptions import InvalidMetadataError
-from fmu.dataio.providers._fmu import (
+from fmu.dataio._metadata._fmu import (
     DEFAULT_ENSEMBLE_NAME,
     RESTART_PATH_ENVNAME,
     FmuProvider,
 )
+from fmu.dataio._runcontext import FMUEnvironment, RunContext
+from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
+from fmu.dataio.exceptions import InvalidMetadataError
 
 logger = logging.getLogger(__name__)
 WORKFLOW = {"reference": "some_work_flow"}

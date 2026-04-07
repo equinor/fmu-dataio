@@ -12,8 +12,8 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from fmu import dataio
 from fmu.dataio._export import export_metadata_file
+from fmu.dataio._metadata import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio.exceptions import InvalidMetadataError
-from fmu.dataio.providers._fmu import ERT_RELATIVE_CASE_METADATA_FILE
 
 logger = logging.getLogger(__name__)
 

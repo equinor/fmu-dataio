@@ -12,8 +12,11 @@ from pytest import MonkeyPatch
 
 from fmu.dataio import ExportData
 from fmu.dataio._definitions import ExportFolder, ShareFolder
-from fmu.dataio.providers._filedata import FileDataProvider, SharePathConstructor
-from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
+from fmu.dataio._metadata import (
+    FileDataProvider,
+    SharePathConstructor,
+    objectdata_provider_factory,
+)
 
 
 @pytest.mark.parametrize(

@@ -8,11 +8,13 @@ from typing import TYPE_CHECKING, Final
 import yaml
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._metadata import _generate_metadata
+from fmu.dataio._metadata import (
+    SharePathConstructor,
+    _generate_metadata,
+    objectdata_provider_factory,
+)
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.manifest._manifest import update_export_manifest
-from fmu.dataio.providers._filedata import SharePathConstructor
-from fmu.dataio.providers.objectdata._provider import objectdata_provider_factory
 
 if TYPE_CHECKING:
     from collections.abc import Callable
