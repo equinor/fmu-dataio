@@ -12,9 +12,7 @@ from fmu.datamodels.fmu_results.specification import (
     TriangulatedSurfaceSpecification,
 )
 
-from ._base import (
-    ObjectDataProvider,
-)
+from ._base import ObjectData
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -24,7 +22,7 @@ if TYPE_CHECKING:
 logger: Final = null_logger(__name__)
 
 
-class TriangulatedSurfaceProvider(ObjectDataProvider):
+class TriangulatedSurfaceData(ObjectData):
     """Provider for triangulated surface data."""
 
     obj: TSurfData

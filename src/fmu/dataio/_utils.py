@@ -20,7 +20,7 @@ from ._logging import null_logger
 if TYPE_CHECKING:
     from io import BufferedIOBase, BytesIO
 
-    from fmu.dataio.providers.objectdata._base import ObjectDataProvider
+    from fmu.dataio._metadata.objectdata._base import ObjectData
 
     from . import types
 
@@ -57,7 +57,7 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
     return hash_md5.hexdigest()
 
 
-def compute_md5_and_size_from_objdata(objdata: ObjectDataProvider) -> tuple[str, int]:
+def compute_md5_and_size_from_objdata(objdata: ObjectData) -> tuple[str, int]:
     """Compute an MD5 sum for an object."""
     try:
         return objdata.compute_md5_and_size()

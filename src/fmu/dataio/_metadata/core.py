@@ -21,15 +21,15 @@ from fmu.datamodels import Asset, Ssdl, SsdlAccess, Tracklog
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from ._filedata import FileDataProvider, SharePathConstructor
-from ._fmu import FmuProvider
-from .objectdata import ObjectDataProvider, objectdata_provider_factory
+from ._file import FileMetadata, SharePathConstructor
+from ._fmu import FmuMetadata
+from ._object import ObjectData, create_object_data
 
 logger: Final = null_logger(__name__)
 
 
 def generate_export_metadata(
-    objdata: ObjectDataProvider, export_config: ExportConfig
+    objdata: ObjectData, export_config: ExportConfig
 ) -> ObjectMetadataExport:
     """
     Generates metadata for the object being exported.
@@ -39,9 +39,9 @@ def generate_export_metadata(
     call:
 
     - SharePathConstruct: Resolves the filepath where data will be exported to.
-    - FmuProvider: Gathers data about the current FMU and run context (Ert environment
+    - FmuMetadata: Gathers data about the current FMU and run context (Ert environment
           variables, whether we're running in RMS, etc.)
-    - FileDataProvider: Derives file-level metadata from the run context and share path.
+    - FileMetadata: Derives file-level metadata from the run context and share path.
 
     Arguments:
         objdata: Provides metadata about the object itself.
@@ -68,7 +68,7 @@ def generate_export_metadata(
             ),
         ),
         data=objdata.get_metadata(),
-        file=FileDataProvider(ctx, objdata, share_path).get_metadata(),
+        file=FileMetadata(ctx, objdata, share_path).get_metadata(),
         tracklog=Tracklog.initialize(__version__, export_config.tracklog_source),
         display=fields.Display(name=export_config.display.name or objdata.name),
         preprocessed=export_config.preprocessed,
@@ -79,12 +79,12 @@ def generate_metadata(
     export_config: ExportConfig, obj: ExportableData
 ) -> dict[str, Any]:
     """Generate metadata without exporting."""
-    objdata = objectdata_provider_factory(obj, export_config)
+    objdata = create_object_data(obj, export_config)
     return _generate_metadata(export_config, objdata)
 
 
 def _generate_metadata(
-    export_config: ExportConfig, objdata: ObjectDataProvider
+    export_config: ExportConfig, objdata: ObjectData
 ) -> dict[str, Any]:
     """Generate metadata without exporting."""
     return generate_export_metadata(
@@ -101,7 +101,7 @@ def _build_fmu_metadata(
     if not ctx.inside_fmu:
         return None
 
-    provider = FmuProvider(
+    provider = FmuMetadata(
         runcontext=ctx,
         model=export_config.config.model if export_config.config else None,
         workflow=export_config.workflow,

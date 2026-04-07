@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from fmu.dataio._metadata import (
     ERT_RELATIVE_CASE_METADATA_FILE,
-    FmuProvider,
+    FmuMetadata,
     ShareFolder,
 )
 from fmu.dataio.version import __version__
@@ -179,7 +179,7 @@ class ExportPreprocessedData:
                 "Please re-export your objects to disk."
             )
 
-        meta_existing["fmu"] = FmuProvider(self._runcontext).get_metadata()
+        meta_existing["fmu"] = FmuMetadata(self._runcontext).get_metadata()
         meta_existing["file"] = self._get_meta_file(objfile, checksum_md5_file)
 
         try:

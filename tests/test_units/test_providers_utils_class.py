@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from fmu.dataio._metadata.objectdata._utils import Utils, get_value_statistics
+from fmu.dataio._metadata._object._utils import Utils, get_value_statistics
 from fmu.dataio.dataio import ExportData
 
 

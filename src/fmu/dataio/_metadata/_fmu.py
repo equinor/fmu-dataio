@@ -1,6 +1,6 @@
 """Contains the FMU provider class.
 
-The FmuProvider will from the environment and eventually API's detect valid
+The FmuMetadata class will from the environment and eventually API's detect valid
 fields to the FMU data block.
 
 Note that FMU may potentially have different providers, e.g. ERT versions
@@ -47,8 +47,6 @@ from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
 from fmu.datamodels.fmu_results.fields import Workflow
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
-from ._base import Provider
-
 if TYPE_CHECKING:
     from uuid import UUID
 
@@ -60,7 +58,7 @@ DEFAULT_ENSEMBLE_NAME: Final = "iter-0"
 logger: Final = null_logger(__name__)
 
 
-class FmuProvider(Provider):
+class FmuMetadata:
     """Class for providing metadata regarding the ERT run.
 
     Args:

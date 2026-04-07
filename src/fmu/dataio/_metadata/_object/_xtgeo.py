@@ -28,7 +28,7 @@ from fmu.datamodels.fmu_results.specification import (
     ZoneDefinition,
 )
 
-from ._base import ObjectDataProvider
+from ._base import ObjectData
 from ._tables import _derive_index
 from ._utils import get_value_statistics
 
@@ -101,7 +101,7 @@ def lack_of_geometry_warn() -> None:
     )
 
 
-class RegularSurfaceDataProvider(ObjectDataProvider):
+class RegularSurfaceData(ObjectData):
     obj: xtgeo.RegularSurface
 
     @property
@@ -180,7 +180,7 @@ class RegularSurfaceDataProvider(ObjectDataProvider):
         self.obj.to_file(file, fformat="irap_binary")
 
 
-class PolygonsDataProvider(ObjectDataProvider):
+class PolygonsData(ObjectData):
     obj: xtgeo.Polygons
 
     def __init__(self, obj: xtgeo.Polygons, export_config: ExportConfig) -> None:
@@ -295,7 +295,7 @@ class PolygonsDataProvider(ObjectDataProvider):
             self.obj_dataframe.to_csv(file, index=False)
 
 
-class PointsDataProvider(ObjectDataProvider):
+class PointsData(ObjectData):
     obj: xtgeo.Points
 
     def __init__(self, obj: xtgeo.Points, export_config: ExportConfig) -> None:
@@ -410,7 +410,7 @@ class PointsDataProvider(ObjectDataProvider):
             self.obj_dataframe.to_csv(file, index=False)
 
 
-class CubeDataProvider(ObjectDataProvider):
+class CubeData(ObjectData):
     obj: xtgeo.Cube
 
     @property
@@ -497,7 +497,7 @@ class CubeDataProvider(ObjectDataProvider):
         self.obj.to_file(file, fformat="segy")
 
 
-class CPGridDataProvider(ObjectDataProvider):
+class CPGridData(ObjectData):
     obj: xtgeo.Grid
 
     @property
@@ -586,7 +586,7 @@ class CPGridDataProvider(ObjectDataProvider):
         self.obj.to_file(file, fformat="roff")
 
 
-class CPGridPropertyDataProvider(ObjectDataProvider):
+class CPGridPropertyData(ObjectData):
     obj: xtgeo.GridProperty
 
     @property

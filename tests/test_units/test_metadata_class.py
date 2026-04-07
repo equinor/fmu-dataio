@@ -17,7 +17,7 @@ from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio import ExportData
-from fmu.dataio._metadata import generate_export_metadata, objectdata_provider_factory
+from fmu.dataio._metadata import create_object_data, generate_export_metadata
 from fmu.dataio._utils import prettyprint_dict, read_metadata_from_file
 
 # pylint: disable=no-member
@@ -57,7 +57,7 @@ def test_metadata_dollars(
 def test_generate_meta_tracklog_fmu_dataio_version(
     regsurf: xtgeo.RegularSurface, mock_exportdata: ExportData
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
     tracklog = metadata.tracklog
 
@@ -87,7 +87,7 @@ def test_generate_meta_tracklog_komodo_version(
     fake_komodo_release = "<FAKE_KOMODO_RELEASE_VERSION>"
     monkeypatch.setenv("KOMODO_RELEASE", fake_komodo_release)
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
 
     tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
@@ -107,7 +107,7 @@ def test_generate_meta_tracklog_backup_komodo_version(
     monkeypatch.delenv("KOMODO_RELEASE", raising=False)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", komodo_release)
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
 
@@ -133,7 +133,7 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
     monkeypatch.setenv("KOMODO_RELEASE", komodo_release)
     monkeypatch.setenv("KOMODO_RELEASE_BACKUP", backup_komodo_release)
 
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
     tracklog = TracklogEvent.model_validate(metadata.tracklog[0])
     assert tracklog.sysinfo is not None
@@ -146,7 +146,7 @@ def test_generate_meta_tracklog_komodo_version_preferred_over_backup(
 def test_generate_meta_tracklog_operating_system(
     mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
 
     tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
@@ -161,7 +161,7 @@ def test_generate_meta_tracklog_operating_system(
 def test_generate_metadata_tracklog_source_defaults_to_none(
     mock_exportdata: ExportData, regsurf: xtgeo.RegularSurface
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     metadata = generate_export_metadata(objdata, mock_exportdata._export_config)
 
     tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
@@ -175,7 +175,7 @@ def test_generate_metadata_tracklog_in_metadata_from_export_config(
 ) -> None:
     export_config = mock_exportdata._export_config.with_tracklog_source("foo", "1.2.3")
 
-    objdata = objectdata_provider_factory(regsurf, export_config)
+    objdata = create_object_data(regsurf, export_config)
     metadata = generate_export_metadata(objdata, export_config)
 
     tracklog_item = TracklogEvent.model_validate(metadata.tracklog[0])
@@ -192,7 +192,7 @@ def test_generate_metadata_tracklog_in_metadata_from_export_config(
 def test_populate_meta_objectdata(
     regsurf: xtgeo.RegularSurface, drogon_exportdata: ExportData
 ) -> None:
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, drogon_exportdata._export_config)
 
     # print(drogon_exportdata._export_config.name)
@@ -215,7 +215,7 @@ def test_bbox_zmin_zmax_presence(
     of the bbox types (2D/3D) inside the pydantic model. If 2D is first zmin/zmax
     will be ignored even if present.
     """
-    objdata = objectdata_provider_factory(polygons, drogon_exportdata._export_config)
+    objdata = create_object_data(polygons, drogon_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, drogon_exportdata._export_config)
 
     # polygons shall have data.spec
@@ -273,7 +273,7 @@ def test_metadata_populate_masterdata_is_empty(
 
     assert some._export_config.config is None
 
-    objdata = objectdata_provider_factory(regsurf, some._export_config)
+    objdata = create_object_data(regsurf, some._export_config)
     mymeta = generate_export_metadata(objdata, some._export_config)
     assert "masterdata" not in mymeta
 
@@ -284,11 +284,11 @@ def test_metadata_populate_masterdata_is_present_ok(
     regsurf: xtgeo.RegularSurface,
 ) -> None:
     """Testing the masterdata part with OK metdata."""
-    objdata = objectdata_provider_factory(regsurf, mock_exportdata._export_config)
+    objdata = create_object_data(regsurf, mock_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, mock_exportdata._export_config)
     assert mymeta.masterdata == mock_exportdata._export_config.config.masterdata
 
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, drogon_exportdata._export_config)
     assert mymeta.masterdata == drogon_exportdata._export_config.config.masterdata
 
@@ -309,7 +309,7 @@ def test_metadata_populate_access_miss_cfg_access(
         edata = dio.ExportData(config=cfg1_edited, content="depth")
     assert edata._export_config.config is None
 
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     # check that the default "internal" is used
     assert mymeta.access.classification == "internal"
@@ -320,7 +320,7 @@ def test_metadata_populate_access_ok_config(
 ) -> None:
     """Testing the access part, now with config ok access."""
 
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, drogon_exportdata._export_config)
     assert mymeta.access.model_dump(mode="json", exclude_none=True) == {
         "asset": {"name": "Drogon"},
@@ -343,7 +343,7 @@ def test_metadata_populate_from_argument(
         rep_include=True,
         content="depth",
     )
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
 
     assert mymeta.access.model_dump(mode="json", exclude_none=True) == {
@@ -365,7 +365,7 @@ def test_metadata_populate_partial_access_ssdl(
     # rep_include only, but in config
     edata = dio.ExportData(config=mock_global_config, rep_include=True, content="depth")
 
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is True
@@ -378,7 +378,7 @@ def test_metadata_populate_partial_access_ssdl(
         classification="restricted",
         content="depth",
     )
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is False  # default
@@ -401,7 +401,7 @@ def test_metadata_populate_wrong_config(
     assert edata._export_config.config is None
 
     # use default 'internal' if wrong in config
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     meta = generate_export_metadata(objdata, edata._export_config)
     assert meta.access is not None
     assert meta.access.classification == "internal"
@@ -429,7 +429,7 @@ def test_metadata_access_correct_input(
         classification="restricted",
         rep_include=False,
     )
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is False
@@ -443,7 +443,7 @@ def test_metadata_access_correct_input(
         classification="internal",
         rep_include=True,
     )
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is True
@@ -468,7 +468,7 @@ def test_metadata_access_deprecated_input(
         )
     assert edata.config
 
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.access_level == "restricted"
@@ -510,7 +510,7 @@ def test_metadata_access_no_input(
     # rep_include from config is deprecated
     with pytest.warns(FutureWarning, match="Use the 'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is True
@@ -521,7 +521,7 @@ def test_metadata_access_no_input(
     configcopy = deepcopy(mock_global_config)
     del configcopy["access"]["classification"]
     edata = dio.ExportData(config=mock_global_config, content="depth")
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is False  # default
@@ -538,7 +538,7 @@ def test_metadata_rep_include_deprecation(
     configcopy["access"]["ssdl"] = {"rep_include": True}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is True
@@ -546,7 +546,7 @@ def test_metadata_rep_include_deprecation(
     configcopy["access"]["ssdl"] = {"rep_include": False}
     with pytest.warns(FutureWarning, match="'rep_include' argument"):
         edata = dio.ExportData(config=configcopy, content="depth")
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is False
@@ -554,7 +554,7 @@ def test_metadata_rep_include_deprecation(
     # check that default value is used if not present
     del configcopy["access"]["ssdl"]["rep_include"]
     edata = dio.ExportData(config=mock_global_config, content="depth")
-    objdata = objectdata_provider_factory(regsurf, edata._export_config)
+    objdata = create_object_data(regsurf, edata._export_config)
     mymeta = generate_export_metadata(objdata, edata._export_config)
     assert mymeta.access is not None
     assert mymeta.access.ssdl.rep_include is False  # default
@@ -570,7 +570,7 @@ def test_metadata_display_name_not_given(
 ) -> None:
     """Test that display.name == data.name when not explicitly provided."""
 
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, drogon_exportdata._export_config)
 
     assert mymeta.display.name == objdata.name
@@ -583,7 +583,7 @@ def test_metadata_display_name_given(
 
     drogon_exportdata.display_name = "My Display Name"
 
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     mymeta = generate_export_metadata(objdata, drogon_exportdata._export_config)
 
     assert mymeta.display.name == "My Display Name"
@@ -600,7 +600,7 @@ def test_generate_full_metadata(
 ) -> None:
     """Generating the full metadata block for a xtgeo surface."""
 
-    objdata = objectdata_provider_factory(regsurf, drogon_exportdata._export_config)
+    objdata = create_object_data(regsurf, drogon_exportdata._export_config)
     metadata_result = generate_export_metadata(
         objdata, drogon_exportdata._export_config
     )
