@@ -1,14 +1,12 @@
 """Module for handling deprecated arguments."""
 
-import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final
 
+from fmu.dataio._logging import null_logger
+from fmu.dataio.types import WarningTuple
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
-
-from ._logging import null_logger
-from .types import WarningTuple
 
 logger: Final = null_logger(__name__)
 
@@ -19,10 +17,6 @@ class DeprecationResolution:
 
     warnings: list[WarningTuple] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
-
-
-class DeprecationError(ValueError):
-    """Raised when deprecated argument usage is invalid."""
 
 
 def resolve_deprecations(
@@ -400,14 +394,3 @@ def _check_format_options(
             )
         ]
     return []
-
-
-def future_warning_preprocessed() -> None:
-    warnings.warn(
-        "Using the ExportData class for re-exporting preprocessed data is no "
-        "longer supported. Use the dedicated ExportPreprocessedData class "
-        "instead. In a deprecation period the ExportPreprocessedData is used "
-        "under the hood when a filepath is input to ExportData. "
-        "Please update your script, as this will be discontinued in the future.",
-        FutureWarning,
-    )
