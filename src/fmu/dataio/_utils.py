@@ -17,8 +17,6 @@ from ._logging import null_logger
 if TYPE_CHECKING:
     from io import BufferedIOBase, BytesIO
 
-    from fmu.dataio._metadata.objectdata._base import ObjectData
-
     from . import types
 
 
@@ -52,18 +50,6 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
             break
         hash_md5.update(chunk)
     return hash_md5.hexdigest()
-
-
-def compute_md5_and_size_from_objdata(objdata: ObjectData) -> tuple[str, int]:
-    """Compute an MD5 sum for an object."""
-    try:
-        return objdata.compute_md5_and_size()
-    except Exception as e:
-        logger.debug(
-            f"Exception {e} occured when trying to compute md5 from memory stream "
-            f"for an object of type {type(objdata.obj)}. Will use tempfile instead."
-        )
-        return objdata.compute_md5_and_size_using_temp_file()
 
 
 def uuid_from_string(string: str) -> uuid.UUID:

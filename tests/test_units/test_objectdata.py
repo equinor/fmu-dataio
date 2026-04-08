@@ -19,6 +19,7 @@ from pytest import MonkeyPatch
 
 from fmu import dataio
 from fmu.dataio import ExportData
+from fmu.dataio._export.serialize import compute_md5_and_size, export_object
 from fmu.dataio._metadata import create_object_data
 from fmu.dataio._metadata._object._faultroom import FaultRoomSurfaceData
 from fmu.dataio._metadata._object._triangulated_surface import (
@@ -435,7 +436,7 @@ def test_faultroom_export_to_file(
     objdata = create_object_data(faultroom_object, drogon_exportdata._export_config)
 
     buffer = BytesIO()
-    objdata.export_to_file(buffer)
+    export_object(objdata, buffer)
     buffer.seek(0)
 
     expected = """{\n    "metadata": {\n        "horizons":"""
@@ -481,7 +482,7 @@ def test_tsurf_export_to_file(tsurf: TSurfData, drogon_exportdata: ExportData) -
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
 
     buffer = BytesIO()
-    objdata.export_to_file(buffer)
+    export_object(objdata, buffer)
     buffer.seek(0)
 
     assert buffer.read(14).decode("utf-8") == "GOCAD TSurf 1\n"
@@ -506,7 +507,7 @@ def test_compute_md5_and_size(
     objdata = create_object_data(gridproperty, mock_exportdata._export_config)
 
     metadata = mock_exportdata.generate_metadata(gridproperty)
-    checksum, size = objdata.compute_md5_and_size()
+    checksum, size = compute_md5_and_size(objdata)
 
     assert metadata["file"]["checksum_md5"] == checksum
     assert metadata["file"]["size_bytes"] == size

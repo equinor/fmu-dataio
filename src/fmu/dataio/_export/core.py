@@ -15,11 +15,11 @@ from fmu.dataio._metadata import (
 )
 from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.manifest._manifest import update_export_manifest
+from fmu.dataio.types import ExportableData
+
+from .serialize import export_object
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-    from io import BytesIO
-
     from fmu.dataio.types import ExportableData
 
     from ._export_config import ExportConfig
@@ -33,7 +33,7 @@ def export_without_metadata(export_config: ExportConfig, obj: ExportableData) ->
     share_path = SharePathConstructor(export_config, objdata).get_share_path()
     absolute_path = export_config.runcontext.exportroot / share_path
 
-    export_object_to_file(absolute_path, objdata.export_to_file)
+    _write_object(absolute_path, objdata)
 
     return absolute_path
 
@@ -51,7 +51,7 @@ def export_with_metadata(export_config: ExportConfig, obj: ExportableData) -> Pa
     outfile = Path(metadata["file"]["absolute_path"])
     metafile = outfile.parent / f".{outfile.name}.yml"
 
-    export_object_to_file(outfile, objdata.export_to_file)
+    _write_object(outfile, objdata)
     logger.info("Actual file is %s", outfile)
 
     export_metadata_file(metafile, metadata)
@@ -69,15 +69,10 @@ def _update_manifest_if_needed(export_config: ExportConfig, outfile: Path) -> No
     update_export_manifest(outfile, casepath=export_config.runcontext.casepath)
 
 
-def export_object_to_file(
-    file: Path | BytesIO,
-    export_function: Callable[[Path | BytesIO], None],
-) -> None:
-    """Export an object to file or memory buffer using a provided export function."""
-    if isinstance(file, Path):
-        file.parent.mkdir(parents=True, exist_ok=True)
-
-    export_function(file)
+def _write_object(file: Path, objdata: ExportableData) -> None:
+    """Write an object to a file, creating parent directories as needed."""
+    file.parent.mkdir(parents=True, exist_ok=True)
+    export_object(objdata, file)
 
 
 def export_metadata_file(file: Path, metadata: dict) -> None:

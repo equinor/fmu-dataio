@@ -13,8 +13,8 @@ from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ShareFolder
 from fmu.dataio._export import ExportConfig
+from fmu.dataio._export.serialize import compute_md5_and_size
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import compute_md5_and_size_from_objdata
 from fmu.datamodels.fmu_results import fields
 from fmu.datamodels.fmu_results.enums import FMUContext
 
@@ -153,7 +153,7 @@ class FileMetadata:
         absolute_path = exportroot / share_path
         relative_path = absolute_path.relative_to(casepath or exportroot)
 
-        checksum, size = compute_md5_and_size_from_objdata(self.objdata)
+        checksum, size = compute_md5_and_size(self.objdata)
 
         logger.info("Returning metadata pydantic model fields.File")
         return fields.File(

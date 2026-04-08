@@ -3,9 +3,6 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Final
 
-import pyarrow as pa
-import pyarrow.parquet as pq
-
 from fmu.dataio._definitions import (
     STANDARD_TABLE_INDEX_COLUMNS,
     ExportFolder,
@@ -25,11 +22,8 @@ from ._base import ObjectData
 from ._utils import is_empty_column
 
 if TYPE_CHECKING:
-    from io import BytesIO
-    from pathlib import Path
-
     import pandas as pd
-    import pyarrow
+    import pyarrow as pa
 
 logger: Final = null_logger(__name__)
 
@@ -221,18 +215,9 @@ class DataFrameData(ObjectData):
             size=int(self.obj.size),
         )
 
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        logger.info(
-            "Exporting dataframe to csv. Note: index columns will not be "
-            "preserved unless calling 'reset_index()' on the dataframe."
-        )
-        self.obj.to_csv(file, index=False)
-
 
 class ArrowTableData(ObjectData):
-    obj: pyarrow.Table
+    obj: pa.Table
 
     @property
     def classname(self) -> ObjectMetadataClass:
@@ -279,8 +264,3 @@ class ArrowTableData(ObjectData):
             num_rows=self.obj.num_rows,
             size=self.obj.num_columns * self.obj.num_rows,
         )
-
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        pq.write_table(self.obj, where=pa.output_stream(file))

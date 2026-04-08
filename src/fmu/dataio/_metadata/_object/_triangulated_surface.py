@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._logging import null_logger
-from fmu.dataio._readers import tsurf as reader
 from fmu.datamodels.fmu_results.data import BoundingBox3D
 from fmu.datamodels.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
 from fmu.datamodels.fmu_results.specification import (
@@ -15,8 +13,6 @@ from fmu.datamodels.fmu_results.specification import (
 from ._base import ObjectData
 
 if TYPE_CHECKING:
-    from io import BytesIO
-
     from fmu.dataio._readers.tsurf import TSurfData
 
 logger: Final = null_logger(__name__)
@@ -68,8 +64,3 @@ class TriangulatedSurfaceData(ObjectData):
             num_vertices=self.obj.num_vertices(),
             num_triangles=self.obj.num_triangles(),
         )
-
-    def export_to_file(self, output: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        reader.write_tsurf_to_file(self.obj, output)
