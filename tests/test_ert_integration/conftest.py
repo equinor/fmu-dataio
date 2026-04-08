@@ -8,6 +8,7 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 
@@ -95,6 +96,13 @@ def fmu_snakeoil_project(
     )
 
     return tmp_path
+
+
+@pytest.fixture
+def fmu_snakeoil_project_with_dotfmu(fmu_snakeoil_project: Path) -> Path:
+    """fmu_snakeoil_project with an additional .fmu/ directory."""
+    create_drogon_fmu_dir(fmu_snakeoil_project)
+    return fmu_snakeoil_project
 
 
 @pytest.fixture

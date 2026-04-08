@@ -10,9 +10,11 @@ import yaml
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import (
+    Access,
     GlobalConfiguration,
     validation_error_warning,
 )
+from fmu.settings import find_nearest_fmu_directory
 
 GLOBAL_CONFIG_ENV_VAR: Final[str] = "FMU_GLOBAL_CONFIG"
 RUNPATH_GLOBAL_VARIABLES_PATH: Final[Path] = Path(
@@ -112,6 +114,62 @@ def _resolve_global_config_path(
     )
 
 
+def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
+    """Loads and validates a global configuration from .fmu if one can be found.
+
+    It is possible (though unlikely) a valid configuration cannot be constructed from
+    the data stored in .fmu.
+
+    Returns:
+        Valid GlobalConfiguration object, or None if:
+            - .fmu/ cannot be found
+            - data in .fmu/ is invalid or cannot be loaded
+            - data in .fmu/ does not validate against current GlobalConfiguration model
+    """
+    try:
+        fmu_dir = find_nearest_fmu_directory()
+    except FileNotFoundError:
+        logger.info("No .fmu/ directory found to load global configuration from.")
+        return None
+
+    config = fmu_dir.config.load()
+    if config.masterdata is None or config.access is None or config.model is None:
+        return None
+
+    try:
+        cfg_access = Access.model_validate(config.access.model_dump(mode="json"))
+    except pydantic.ValidationError as err:
+        logger.warning(
+            "Could not build valid global configuration access from .fmu/. "
+            f".fmu directory: {fmu_dir.path}, error: {err}"
+        )
+        return None
+
+    try:
+        stratigraphy = fmu_dir._mappings.build_global_config_stratigraphy()
+    except pydantic.ValidationError as err:
+        logger.warning(
+            "Could not build valid global configuration stratigraphy from .fmu/. "
+            f".fmu directory: {fmu_dir.path}, error: {err}"
+        )
+        return None
+
+    try:
+        # TODO: Use _build_global_configuration if/when .fmu/ is required.
+        return GlobalConfiguration(
+            masterdata=config.masterdata,
+            access=cfg_access,
+            model=config.model,
+            stratigraphy=stratigraphy,
+        )
+    except pydantic.ValidationError as err:
+        logger.warning(
+            "Could not build valid global configuration from .fmu/. "
+            f".fmu directory: {fmu_dir.path}, error: {err}"
+        )
+    return None
+
+
 def load_global_config(
     config_path: Path | None = None,
     *,
@@ -133,7 +191,9 @@ def load_global_config(
     Returns:
         Validated GlobalConfiguration object
     """
-    # TODO: Check .fmu
+    if fmu_settings_global_config := load_global_config_from_fmu_settings():
+        return fmu_settings_global_config
+
     resolved_config_path = _resolve_global_config_path(config_path, check_env)
     return load_global_config_from_global_variables(
         resolved_config_path, standard_result

@@ -157,6 +157,32 @@ def test_create_case_metadata_runs_successfully(
     assert fmu_case["tracklog"][0]["user"]["id"] == getpass.getuser()
 
 
+def test_create_case_metadata_uses_dotfmu_config(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When .fmu/ exists, case metadata model is sourced from .fmu/ not yml."""
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
+
+    fmu_case_yml = (
+        fmu_snakeoil_project_with_dotfmu
+        / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
+    )
+    assert fmu_case_yml.exists()
+
+    with open(fmu_case_yml, encoding="utf-8") as f:
+        fmu_case = yaml.safe_load(f)
+
+    # .fmu has model.name="Drogon", global_variables.yml has "global_variables"
+    assert fmu_case["fmu"]["model"]["name"] == "Drogon"
+
+
 def test_create_case_metadata_warns_without_overwriting(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:

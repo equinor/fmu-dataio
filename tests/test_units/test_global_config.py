@@ -3,8 +3,10 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
+import pydantic
 import pytest
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
+from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 from fmu.dataio._global_config import (
@@ -12,6 +14,7 @@ from fmu.dataio._global_config import (
     _build_global_configuration,
     _resolve_global_config_path,
     load_global_config,
+    load_global_config_from_fmu_settings,
     load_global_config_from_global_variables,
 )
 from fmu.dataio.exceptions import ValidationError
@@ -200,3 +203,201 @@ def test_load_global_config_passes_standard_result_to_build(
         load_global_config(drogon_global_config_path, standard_result=standard_result)
 
     assert mock_build.call_args[0][1] == standard_result
+
+
+def test_load_from_fmu_settings_returns_config_when_dotfmu_exists(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """A valid .fmu/ directory produces a GlobalConfiguration."""
+    create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config_from_fmu_settings()
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "Drogon"  # not 'global_variables'
+
+
+def test_load_from_fmu_settings_returns_none_when_no_dotfmu(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """No .fmu/ directory means None is returned."""
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config_from_fmu_settings()
+    assert result is None
+
+
+def test_load_from_fmu_settings_returns_none_when_config_incomplete(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """If the .fmu config is missing required fields, returns None."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    fmu_dir.config.set("masterdata", None)
+
+    result = load_global_config_from_fmu_settings()
+    assert result is None
+
+
+def test_load_from_fmu_settings_returns_none_on_invalid_access(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """If access data cannot be validated, returns None."""
+    create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    with patch(
+        "fmu.dataio._global_config.Access.model_validate",
+        side_effect=pydantic.ValidationError.from_exception_data(
+            title="Access", line_errors=[]
+        ),
+    ):
+        result = load_global_config_from_fmu_settings()
+    assert result is None
+
+
+def test_load_from_fmu_settings_returns_none_on_invalid_stratigraphy(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """If stratigraphy cannot be built, returns None."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    with (
+        patch.object(
+            fmu_dir._mappings,
+            "build_global_config_stratigraphy",
+            side_effect=pydantic.ValidationError.from_exception_data(
+                title="Stratigraphy", line_errors=[]
+            ),
+        ),
+        patch(
+            "fmu.dataio._global_config.find_nearest_fmu_directory",
+            return_value=fmu_dir,
+        ),
+    ):
+        result = load_global_config_from_fmu_settings()
+    assert result is None
+
+
+def test_load_from_fmu_settings_has_stratigraphy(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """The GlobalConfiguration from .fmu/ includes stratigraphy data."""
+    create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config_from_fmu_settings()
+    assert result is not None
+    assert result.stratigraphy is not None
+    assert len(result.stratigraphy.root) > 0
+
+
+def test_load_global_config_prefers_fmu_settings(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """When .fmu/ exists, load_global_config prefers it over global_variables.yml."""
+    create_drogon_fmu_dir(tmp_path)
+
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config()
+    assert isinstance(result, GlobalConfiguration)
+    # .fmu has model.name="Drogon", global_variables has model.name="global_variables"
+    assert result.model.name == "Drogon"
+
+
+def test_load_global_config_falls_back_to_global_variables(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """When no .fmu/ exists, load_global_config uses global_variables.yml."""
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config()
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "global_variables"
+
+
+def test_load_global_config_raises_when_neither_source_exists(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """When no .fmu/ and no global_variables.yml, raises FileNotFoundError."""
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(FileNotFoundError):
+        load_global_config()
+
+
+def test_load_global_config_falls_back_when_fmu_settings_incomplete(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """When .fmu/ config is incomplete, falls back to global_variables.yml."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+
+    fmu_dir.config.set("masterdata", None)
+
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config()
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "global_variables"
+
+
+def test_load_global_config_with_explicit_path_still_prefers_fmu_settings(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """Even when an explicit config_path is given, .fmu/ is preferred."""
+    create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    result = load_global_config(config_path=drogon_global_config_path)
+    assert isinstance(result, GlobalConfiguration)
+    # .fmu is still preferred
+    assert result.model.name == "Drogon"
+
+
+def test_load_global_config_from_runpath_with_dotfmu(
+    runpath: Path,
+    drogon_global_config_path: Path,
+) -> None:
+    """Integration test on runpath with .fmu/."""
+    result = load_global_config()
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "Drogon"
+    assert result.stratigraphy is not None
+
+
+def test_load_global_config_from_runpath_without_dotfmu(
+    runpath_no_dotfmu: Path,
+    drogon_global_config_path: Path,
+) -> None:
+    """Integration test on runpath without .fmu/."""
+    fmuconfig_output = runpath_no_dotfmu / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    result = load_global_config()
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "global_variables"
