@@ -12,13 +12,10 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
-from ._deprecations import (
-    DeprecationError,
-    _check_vertical_domain_dict,
-    future_warning_preprocessed,
-    resolve_deprecations,
-)
 from ._export import ExportConfig, export_with_metadata, export_without_metadata
+from ._export.deprecations import (
+    _check_vertical_domain_dict,
+)
 from ._logging import null_logger
 from ._metadata import generate_metadata
 from ._utils import read_metadata_from_file
@@ -30,6 +27,17 @@ if TYPE_CHECKING:
 
 
 logger: Final = null_logger(__name__)
+
+
+def _future_warning_preprocessed() -> None:
+    warnings.warn(
+        "Using the ExportData class for re-exporting preprocessed data is no "
+        "longer supported. Use the dedicated ExportPreprocessedData class "
+        "instead. In a deprecation period the ExportPreprocessedData is used "
+        "under the hood when a filepath is input to ExportData. "
+        "Please update your script, as this will be discontinued in the future.",
+        FutureWarning,
+    )
 
 
 # ======================================================================================
@@ -574,7 +582,6 @@ class ExportData:
     def __post_init__(self) -> None:
         logger.info("Running __post_init__ ExportData")
 
-        self._resolve_deprecations()
         self._cached_export_config = ExportConfig.from_export_data(self)
 
         object.__setattr__(self, "_initialized", True)
@@ -613,51 +620,6 @@ class ExportData:
             for warning, category in maybe_warnings:
                 warnings.warn(warning, category)
 
-    def _resolve_deprecations(self) -> None:
-        """Resolve deprecated arguments and emit warnings.
-
-        Raises:
-            DeprecationError: If invalid argument combinations are detected.
-        """
-        resolution = resolve_deprecations(
-            # Objects with replacements
-            config=self.config,
-            # Arguments with replacements
-            access_ssdl=self.access_ssdl or None,
-            classification=self.classification,
-            rep_include=self.rep_include,
-            content=self.content,
-            vertical_domain=self.vertical_domain,
-            workflow=self.workflow,
-            # Arguments with no effect
-            runpath=self.runpath,
-            grid_model=self.grid_model,
-            legacy_time_format=self.legacy_time_format,
-            createfolder=self.createfolder,
-            verifyfolder=self.verifyfolder,
-            reuse_metadata_rule=self.reuse_metadata_rule,
-            realization=self.realization,
-            aggregation=self.aggregation,
-            table_include_index=self.table_include_index,
-            verbosity=self.verbosity,
-            allow_forcefolder_absolute=self.allow_forcefolder_absolute,
-            include_ertjobs=self.include_ertjobs,
-            depth_reference=self.depth_reference,
-            meta_format=self.meta_format,
-            # Format options
-            arrow_fformat=self.arrow_fformat,
-            cube_fformat=self.cube_fformat,
-            grid_fformat=self.grid_fformat,
-            surface_fformat=self.surface_fformat,
-            dict_fformat=self.dict_fformat,
-        )
-
-        for message, category in resolution.warnings:
-            warnings.warn(message, category)
-
-        if resolution.errors:
-            raise DeprecationError("\n".join(resolution.errors))
-
     def _apply_deprecated_kwargs(self, kwargs: dict[str, Any]) -> None:
         """Deprecated. Updates attributes from kwargs."""
         if not kwargs:
@@ -683,7 +645,6 @@ class ExportData:
             setattr(self, key, value)
             logger.debug(f"Set attribute {key}={value}")
 
-        self._resolve_deprecations()
         # Values have changed, so we need a new configuration.
         self._cached_export_config = ExportConfig.from_export_data(self)
 
@@ -738,7 +699,7 @@ class ExportData:
         if isinstance(obj, str | Path):
             if self._export_config.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
-            future_warning_preprocessed()
+            _future_warning_preprocessed()
             return ExportPreprocessedData(
                 casepath=self._export_config.casepath,
                 is_observation=self._export_config.is_observation,
@@ -784,7 +745,7 @@ class ExportData:
             self._apply_deprecated_kwargs(kwargs)
             if self._export_config.casepath is None:
                 raise TypeError("No 'casepath' argument provided")
-            future_warning_preprocessed()
+            _future_warning_preprocessed()
             return ExportPreprocessedData(
                 casepath=self._export_config.casepath,
                 is_observation=self._export_config.is_observation,

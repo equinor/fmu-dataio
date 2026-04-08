@@ -1,4 +1,5 @@
-from __future__ import annotations
+class DeprecationError(ValueError):
+    """Raised when deprecated argument usage is invalid."""
 
 
 class InvalidMetadataError(Exception):

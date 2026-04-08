@@ -177,7 +177,7 @@ class ExportConfig:
             An immutable ExportConfig with all resolved values.
         """
 
-        return build_from_export_data(cls, dataio)
+        return build_from_export_data(dataio)
 
 
 class ExportConfigBuilder:

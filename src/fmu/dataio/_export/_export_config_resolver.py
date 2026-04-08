@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Final, TypeAlias
 from fmu.dataio._global_config import load_global_config
 from fmu.dataio._logging import null_logger
 from fmu.dataio._runcontext import FMUEnvironment, RunContext
+from fmu.dataio.exceptions import DeprecationError
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.data import (
@@ -29,6 +30,7 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import ProjectFMUDirectory, find_nearest_fmu_directory
 
 from ._export_models import AllowedContentSeismic
+from .deprecations import resolve_deprecations
 
 logger: Final = null_logger(__name__)
 
@@ -43,9 +45,7 @@ AnyContentMetadata: TypeAlias = (
 )
 
 
-def build_from_export_data(
-    export_config: type[ExportConfig], dataio: ExportData
-) -> ExportConfig:
+def build_from_export_data(export_data: ExportData) -> ExportConfig:
     """Create an ExportConfig from an ExportData instance.
 
     This is effectively an adapter to user input.
@@ -58,14 +58,16 @@ def build_from_export_data(
     """
     from ._export_config import ExportConfig  # Avoid circular import
 
+    _resolve_deprecations(export_data)
+
     vertical_domain, domain_reference = _resolve_vertical_domain(
-        dataio.vertical_domain, dataio.domain_reference
+        export_data.vertical_domain, export_data.domain_reference
     )
-    config = _resolve_global_config(dataio.config)
-    casepath_input = Path(dataio.casepath) if dataio.casepath else None
+    config = _resolve_global_config(export_data.config)
+    casepath_input = Path(export_data.casepath) if export_data.casepath else None
 
     fmu_context, preprocessed = _resolve_fmu_context(
-        dataio.fmu_context, dataio.preprocessed
+        export_data.fmu_context, export_data.preprocessed
     )
 
     runcontext = RunContext(
@@ -75,45 +77,45 @@ def build_from_export_data(
 
     return ExportConfig(
         # Content
-        content=_resolve_content_enum(dataio.content) or "unset",
+        content=_resolve_content_enum(export_data.content) or "unset",
         content_metadata=_resolve_content_metadata(
-            dataio.content_metadata, dataio.content
+            export_data.content_metadata, export_data.content
         ),
         # File/path
-        name=dataio.name,
-        tagname=dataio.tagname,
-        forcefolder=dataio.forcefolder,
-        subfolder=dataio.subfolder,
-        parent=dataio.parent,
-        filename_timedata_reverse=dataio.filename_timedata_reverse,
-        geometry=dataio.geometry,
+        name=export_data.name,
+        tagname=export_data.tagname,
+        forcefolder=export_data.forcefolder,
+        subfolder=export_data.subfolder,
+        parent=export_data.parent,
+        filename_timedata_reverse=export_data.filename_timedata_reverse,
+        geometry=export_data.geometry,
         # Domain
         vertical_domain=vertical_domain,
         domain_reference=domain_reference,
         # FMU context
         preprocessed=preprocessed,
-        display=Display(name=dataio.display_name),
-        workflow=_resolve_workflow(dataio.workflow),
+        display=Display(name=export_data.display_name),
+        workflow=_resolve_workflow(export_data.workflow),
         # Classification/access
         classification=_resolve_classification(
-            dataio.classification, dataio.access_ssdl, config
+            export_data.classification, export_data.access_ssdl, config
         ),
         rep_include=_resolve_rep_include(
-            dataio.rep_include, dataio.access_ssdl, config
+            export_data.rep_include, export_data.access_ssdl, config
         ),
-        is_prediction=dataio.is_prediction,
-        is_observation=dataio.is_observation,
+        is_prediction=export_data.is_prediction,
+        is_observation=export_data.is_observation,
         # Table
-        table_index=dataio.table_index,
-        table_fformat=dataio.table_fformat,
-        polygons_fformat=dataio.polygons_fformat,
-        points_fformat=dataio.points_fformat,
+        table_index=export_data.table_index,
+        table_fformat=export_data.table_fformat,
+        polygons_fformat=export_data.polygons_fformat,
+        points_fformat=export_data.points_fformat,
         # Time
-        timedata=dataio.timedata,
+        timedata=export_data.timedata,
         # Other
-        unit=dataio.unit or "",
-        undef_is_zero=dataio.undef_is_zero,
-        description=_resolve_description(dataio.description),
+        unit=export_data.unit or "",
+        undef_is_zero=export_data.undef_is_zero,
+        description=_resolve_description(export_data.description),
         # Config
         config=config,
         fmu_dir=_resolve_fmu_dir(),
@@ -121,6 +123,52 @@ def build_from_export_data(
         # Standard result
         standard_result=None,
     )
+
+
+def _resolve_deprecations(export_data: ExportData) -> None:
+    """Resolve deprecated arguments and emit warnings.
+
+    Raises:
+        DeprecationError: If invalid argument combinations are detected.
+    """
+    resolution = resolve_deprecations(
+        # Objects with replacements
+        config=export_data.config,
+        # Arguments with replacements
+        access_ssdl=export_data.access_ssdl or None,
+        classification=export_data.classification,
+        rep_include=export_data.rep_include,
+        content=export_data.content,
+        vertical_domain=export_data.vertical_domain,
+        workflow=export_data.workflow,
+        # Arguments with no effect
+        runpath=export_data.runpath,
+        grid_model=export_data.grid_model,
+        legacy_time_format=export_data.legacy_time_format,
+        createfolder=export_data.createfolder,
+        verifyfolder=export_data.verifyfolder,
+        reuse_metadata_rule=export_data.reuse_metadata_rule,
+        realization=export_data.realization,
+        aggregation=export_data.aggregation,
+        table_include_index=export_data.table_include_index,
+        verbosity=export_data.verbosity,
+        allow_forcefolder_absolute=export_data.allow_forcefolder_absolute,
+        include_ertjobs=export_data.include_ertjobs,
+        depth_reference=export_data.depth_reference,
+        meta_format=export_data.meta_format,
+        # Format options
+        arrow_fformat=export_data.arrow_fformat,
+        cube_fformat=export_data.cube_fformat,
+        grid_fformat=export_data.grid_fformat,
+        surface_fformat=export_data.surface_fformat,
+        dict_fformat=export_data.dict_fformat,
+    )
+
+    for message, category in resolution.warnings:
+        warnings.warn(message, category)
+
+    if resolution.errors:
+        raise DeprecationError("\n".join(resolution.errors))
 
 
 def _resolve_content_enum(content: str | dict[str, Any] | None) -> Content | None:

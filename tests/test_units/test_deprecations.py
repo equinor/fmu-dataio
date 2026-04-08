@@ -4,10 +4,7 @@ from typing import Any
 
 import pytest
 
-from fmu.dataio._deprecations import (
-    DeprecationResolution,
-    resolve_deprecations,
-)
+from fmu.dataio._export.deprecations import DeprecationResolution, resolve_deprecations
 
 
 def _default_args() -> dict[str, Any]:
