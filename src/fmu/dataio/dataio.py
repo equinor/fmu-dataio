@@ -658,31 +658,30 @@ class ExportData:
         if resolution.errors:
             raise DeprecationError("\n".join(resolution.errors))
 
-    def _apply_deprecated_kwargs(self, newsettings: dict) -> None:
-        """Update instance settings (properties) from other routines."""
-        # if no newsettings (kwargs) this routine is not needed
-        if not newsettings:
+    def _apply_deprecated_kwargs(self, kwargs: dict[str, Any]) -> None:
+        """Deprecated. Updates attributes from kwargs."""
+        if not kwargs:
             return
 
         warnings.warn(
             "In the future it will not be possible to enter following arguments "
-            f"inside the export() / generate_metadata() methods: {list(newsettings)}. "
+            f"inside the export() / generate_metadata() methods: {list(kwargs)}. "
             "Please move them up to initialization of the ExportData instance.",
             FutureWarning,
         )
-        logger.info("Try new settings %s", newsettings)
 
-        if "config" in newsettings:
+        if "config" in kwargs:
             raise ValueError("Cannot have 'config' outside instance initialization")
 
-        available_arguments = [field.name for field in fields(ExportData)]
-        for setting, value in newsettings.items():
-            if setting not in available_arguments:
-                logger.warning("Unsupported key, raise an error")
-                raise ValidationError(f"The input key '{setting}' is not supported")
+        known_attrs = [field.name for field in fields(ExportData)]
 
-            setattr(self, setting, value)
-            logger.info("New setting OK for %s", setting)
+        for key, value in kwargs.items():
+            if key not in known_attrs:
+                raise ValidationError(
+                    f"Cannot update attribute '{key}'. Not a valid attribute."
+                )
+            setattr(self, key, value)
+            logger.debug(f"Set attribute {key}={value}")
 
         self._resolve_deprecations()
         # Values have changed, so we need a new configuration.
@@ -696,7 +695,7 @@ class ExportData:
         self,
         obj: types.ExportableData,
         compute_md5: bool = True,
-        **kwargs: object,
+        **kwargs: dict[str, Any],
     ) -> dict:
         """Generate and return the complete metadata for a provided object.
 
