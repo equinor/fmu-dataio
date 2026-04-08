@@ -2,14 +2,10 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from datetime import datetime
-from io import BytesIO
-from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._export import ExportConfig, UnsetData
 from fmu.dataio._logging import null_logger
-from fmu.dataio._utils import md5sum
 from fmu.datamodels.fmu_results.data import AnyData, SmdaEntity, Time, Timestamp
 from fmu.datamodels.fmu_results.global_configuration import (
     StratigraphyElement,
@@ -192,19 +188,6 @@ class ObjectData:
         """Return the constructed metadata."""
         return self._metadata
 
-    def compute_md5_and_size(self) -> tuple[str, int]:
-        """Compute MD5 sum and buffer size using in-memory buffer."""
-        buffer = BytesIO()
-        self.export_to_file(buffer)
-        return md5sum(buffer), buffer.getbuffer().nbytes
-
-    def compute_md5_and_size_using_temp_file(self) -> tuple[str, int]:
-        """Compute MD5 sum and file size using a temporary file."""
-        with NamedTemporaryFile(buffering=0, suffix=".tmp") as tf:
-            path = Path(tf.name)
-            self.export_to_file(path)
-            return md5sum(path), path.stat().st_size
-
     @property
     @abstractmethod
     def classname(self) -> MetadataClass:
@@ -233,10 +216,6 @@ class ObjectData:
     @property
     @abstractmethod
     def table_index(self) -> list[str] | None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def export_to_file(self, file: Path | BytesIO) -> None:
         raise NotImplementedError
 
     @abstractmethod

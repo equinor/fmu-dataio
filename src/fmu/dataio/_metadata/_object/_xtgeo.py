@@ -6,8 +6,6 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Final
 
 import numpy as np
-import pyarrow as pa
-import pyarrow.parquet as pq
 import xtgeo
 
 from fmu.dataio._definitions import ExportFolder, FileExtension
@@ -33,8 +31,6 @@ from ._tables import _derive_index
 from ._utils import get_value_statistics
 
 if TYPE_CHECKING:
-    from io import BytesIO
-
     import pandas as pd
 
     from fmu.dataio.types import ExportableData
@@ -174,11 +170,6 @@ class RegularSurfaceData(ObjectData):
             value_statistics=get_value_statistics(self.obj.values),
         )
 
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        self.obj.to_file(file, fformat="irap_binary")
-
 
 class PolygonsData(ObjectData):
     obj: xtgeo.Polygons
@@ -280,19 +271,6 @@ class PolygonsData(ObjectData):
             num_rows=num_rows,
             size=int(df.size),
         )
-
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        if self.fmt == FileFormat.parquet:
-            table = pa.Table.from_pandas(self.obj_dataframe)
-            pq.write_table(table, where=pa.output_stream(file))
-
-        elif self.fmt == FileFormat.irap_ascii:
-            self.obj.to_file(file)
-
-        else:
-            self.obj_dataframe.to_csv(file, index=False)
 
 
 class PointsData(ObjectData):
@@ -396,19 +374,6 @@ class PointsData(ObjectData):
             num_rows=num_rows,
         )
 
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        if self.fmt == FileFormat.parquet:
-            table = pa.Table.from_pandas(self.obj_dataframe)
-            pq.write_table(table, where=pa.output_stream(file))
-
-        elif self.fmt == FileFormat.irap_ascii:
-            self.obj.to_file(file)
-
-        else:
-            self.obj_dataframe.to_csv(file, index=False)
-
 
 class CubeData(ObjectData):
     obj: xtgeo.Cube
@@ -490,11 +455,6 @@ class CubeData(ObjectData):
             rotation=npfloat_to_float(required["rotation"]),
             undef=npfloat_to_float(required["undef"]),
         )
-
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        self.obj.to_file(file, fformat="segy")
 
 
 class CPGridData(ObjectData):
@@ -580,11 +540,6 @@ class CPGridData(ObjectData):
             key=lambda x: x.min_layer_idx,
         )
 
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        self.obj.to_file(file, fformat="roff")
-
 
 class CPGridPropertyData(ObjectData):
     obj: xtgeo.GridProperty
@@ -642,8 +597,3 @@ class CPGridPropertyData(ObjectData):
             return None
 
         return get_geometry_ref(Path(geometry_path), self.obj)
-
-    def export_to_file(self, file: Path | BytesIO) -> None:
-        """Export the object to file or memory buffer"""
-
-        self.obj.to_file(file, fformat="roff")
