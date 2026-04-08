@@ -907,7 +907,7 @@ def test_global_config_from_env(
     assert isinstance(edata.config, dict)
     assert isinstance(edata._export_config.config, GlobalConfiguration)
     assert edata._export_config.config.masterdata.smda
-    assert edata._export_config.config.model.name == "ff"
+    assert edata._export_config.config.model.name == "global_variables"
 
     # do not use global config from environment when explicitly given
     edata = ExportData(config=mock_global_config, content="depth")
@@ -2012,3 +2012,13 @@ def test_dataio_export_config_with_fmu_dir_in_path(
     export_data = ExportData(config=mock_global_config, content="depth")
     assert export_data._export_config.fmu_dir is not None
     assert export_data._export_config.fmu_dir.config.load() is not None
+
+
+def test_dataio_global_config_loaded_from_dotfmu(
+    mock_global_config: dict[str, Any],
+    runpath: Path,
+) -> None:
+    """ExportData loads global config from .fmu/ when present, ignoring user config."""
+    # mock_global_config has model.name="Test", .fmu has model.name="Drogon"
+    export_data = ExportData(config=mock_global_config, content="depth")
+    assert export_data._export_config.config.model.name == "Drogon"
