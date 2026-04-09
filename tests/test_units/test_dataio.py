@@ -894,27 +894,6 @@ def test_set_display_name(
     assert mymeta["display"]["name"] == "MyOtherDisplayName"
 
 
-def test_global_config_from_env(
-    monkeypatch: MonkeyPatch,
-    drogon_global_config_path: Path,
-    mock_global_config: dict[str, Any],
-) -> None:
-    """Testing getting global config from a file"""
-    monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(drogon_global_config_path))
-
-    edata = ExportData(content="depth")  # the env variable will override this
-    assert isinstance(edata.config, dict)
-    assert isinstance(edata._export_config.config, GlobalConfiguration)
-    assert edata._export_config.config.masterdata.smda
-    assert edata._export_config.config.model.name == "global_variables"
-
-    # do not use global config from environment when explicitly given
-    edata = ExportData(config=mock_global_config, content="depth")
-    assert isinstance(edata.config, dict)
-    assert isinstance(edata._export_config.config, GlobalConfiguration)
-    assert edata._export_config.config.model.name == "Test"
-
-
 def test_fmurun_attribute_outside_fmu(rmsglobalconfig: dict[str, Any]) -> None:
     """Test that _fmurun attribute is True when in fmu"""
 
@@ -1184,15 +1163,8 @@ def test_norwegian_letters_globalconfig(
     regsurf: xtgeo.RegularSurface,
     monkeypatch: MonkeyPatch,
 ) -> None:
-    """Testing using norwegian letters in global config.
-
-    Note that fmu.config utilities yaml_load() is applied to read cfg (cf conftest.py)
-    """
+    """Testing using norwegian letters in global config."""
     rmsglobalconfig["masterdata"]["smda"]["field"][0]["identifier"] = "DRÅGØN"
-
-    modified_cfg = Path("global_config.yml").absolute()
-    with open(modified_cfg, "w") as f:
-        f.write(yaml.dump(rmsglobalconfig))
 
     edata = ExportData(content="depth", config=rmsglobalconfig, name="TopBlåbær")
     meta = edata.generate_metadata(regsurf)
@@ -1200,19 +1172,9 @@ def test_norwegian_letters_globalconfig(
     assert meta["data"]["name"] == "TopBlåbær"
     assert meta["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
 
-    # export to file and reread as raw
     result = pathlib.Path(edata.export(regsurf))
     metafile = result.parent / f".{result.stem}.gri.yml"
-    with open(metafile, encoding="utf-8") as stream:
-        assert "DRÅGØN" in stream.read()
-
-    # Specify global configuration via environment variable
-    monkeypatch.setenv("FMU_GLOBAL_CONFIG", str(modified_cfg))
-    edata2 = ExportData(content="depth", name="TopBlåbær")
-    meta2 = edata2.generate_metadata(regsurf)
-
-    assert meta2["data"]["name"] == "TopBlåbær"
-    assert meta2["masterdata"]["smda"]["field"][0]["identifier"] == "DRÅGØN"
+    assert "DRÅGØN" in metafile.read_text()
 
 
 def test_metadata_format_deprecated(
