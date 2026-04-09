@@ -1,6 +1,5 @@
 """Module to produce a GlobalConfiguration object or dictionary."""
 
-import os
 from pathlib import Path
 from typing import Any, Final
 
@@ -16,7 +15,6 @@ from fmu.datamodels.fmu_results.global_configuration import (
 )
 from fmu.settings import find_nearest_fmu_directory
 
-GLOBAL_CONFIG_ENV_VAR: Final[str] = "FMU_GLOBAL_CONFIG"
 RUNPATH_GLOBAL_VARIABLES_PATH: Final[Path] = Path(
     "fmuconfig/output/global_variables.yml"
 )
@@ -76,9 +74,7 @@ def load_global_config_from_global_variables(
     return _build_global_configuration(config_dict, standard_result)
 
 
-def _resolve_global_config_path(
-    config_path: Path | None, check_env: bool = False
-) -> Path:
+def _resolve_global_config_path(config_path: Path | None) -> Path:
     """Resolves a global variables configuration path.
 
     Will fall back to other possible locations if None or passed/known paths cannot be
@@ -86,21 +82,12 @@ def _resolve_global_config_path(
 
     Order:
         1. Provided path
-        2. Path provided in environment variable, if check_env=True
-        3. Relative to runpath
-        4. Relative to application (RMS, Ert, ...)
+        2. Relative to runpath
+        3. Relative to application (RMS, Ert, ...)
     """
     # If it exists, no need to fall back
     if config_path is not None and config_path.is_file():
         return config_path.resolve()
-
-    if (
-        check_env
-        and (maybe_cfg_path := os.getenv(GLOBAL_CONFIG_ENV_VAR, None)) is not None
-    ):
-        env_config_path = Path(maybe_cfg_path)
-        if env_config_path.is_file():
-            return env_config_path.resolve()
 
     if RUNPATH_GLOBAL_VARIABLES_PATH.is_file():
         return RUNPATH_GLOBAL_VARIABLES_PATH.resolve()
@@ -171,18 +158,13 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
 
 
 def load_global_config(
-    config_path: Path | None = None,
-    *,
-    standard_result: bool = False,
-    check_env: bool = False,
+    config_path: Path | None = None, standard_result: bool = False
 ) -> GlobalConfiguration:
     """Load the global config from standard path and return validated config.
 
     Args:
         config_path: The path to global_variables.yml
         standard_result: If True, modifies validation error message
-        check_env: If True, checks the path set in GLOBAL_CONFIG_ENV_VAR-defined
-            environment variable. Falls back to known paths if that doesn't exist.
 
     Raises:
         FileNotFoundError: If .fmu/ doesn't exist _and_ global_variables.yml doesn't
@@ -194,7 +176,7 @@ def load_global_config(
     if fmu_settings_global_config := load_global_config_from_fmu_settings():
         return fmu_settings_global_config
 
-    resolved_config_path = _resolve_global_config_path(config_path, check_env)
+    resolved_config_path = _resolve_global_config_path(config_path)
     return load_global_config_from_global_variables(
         resolved_config_path, standard_result
     )

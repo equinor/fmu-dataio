@@ -609,8 +609,7 @@ def _resolve_global_config(
         GlobalConfiguration if valid, None otherwise.
     """
     try:
-        check_env = config == {}  # If no config provided, default config is empty dict
-        return load_global_config(check_env=check_env)
+        return load_global_config()
     except FileNotFoundError as e:
         logger.info(
             "Could not resolve global configuration. Falling back to user input. "

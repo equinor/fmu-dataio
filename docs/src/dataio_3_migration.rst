@@ -245,11 +245,10 @@ to the datamodel and could not be uploaded to Sumo. Creating invalid metadata is
 longer supported, if the config is invalid an empty dictionary is returned instead.
 
 
-Providing settings through environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-It was previously possible to have a yml-file specifying global input arguments to
-the ``ExportData`` class, and have an environment variable ``FMU_DATAIO_CONFIG`` pointing
-to that file. This is no longer possible and it will have no effect if provided.
+Providing configuration through environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Providing configuration information through the ``FMU_DATAIO_CONFIG`` or
+``FMU_GLOBAL_CONFIG`` environment variables is no longer supported.
 
 
 Using ExportData to re-export preprocessed data

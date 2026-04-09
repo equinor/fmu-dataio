@@ -10,7 +10,6 @@ from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 from fmu.dataio._global_config import (
-    GLOBAL_CONFIG_ENV_VAR,
     _build_global_configuration,
     _resolve_global_config_path,
     load_global_config,
@@ -116,17 +115,14 @@ def test_resolve_global_config_path_raises_if_not_options_found(
         Path("rms/model"),
     ],
 )
-@pytest.mark.parametrize("check_env", [True, False])
 def test_resolve_global_config_path_from_known_paths(
     runpath: Path,
     monkeypatch: MonkeyPatch,
     drogon_global_config_path: Path,
     mock_cwd: Path,
-    check_env: bool,
 ) -> None:
-    """Global configuration path resolves correctly with different inputs.
+    """Global configuration path resolves correctly with different inputs."""
 
-    Tests the most common path, and also if check_env differs."""
     fmuconfig_output_dir = runpath / "fmuconfig" / "output"
     fmuconfig_output_dir.mkdir(parents=True)
 
@@ -138,16 +134,9 @@ def test_resolve_global_config_path_from_known_paths(
 
     # Call from runpath, ert model path, and rms model path
     monkeypatch.chdir(cwd_dir)
-    if check_env:
-        monkeypatch.setenv(GLOBAL_CONFIG_ENV_VAR, str(drogon_global_config_path))
-
-    expected_config_path = drogon_global_config_path if check_env else config_path
-
-    assert (
-        _resolve_global_config_path(None, check_env=check_env) == expected_config_path
-    )
+    assert _resolve_global_config_path(None) == config_path
     # Always resolves to config_path if valid
-    assert _resolve_global_config_path(config_path, check_env=check_env) == config_path
+    assert _resolve_global_config_path(config_path) == config_path
 
 
 def test_resolve_global_config_path_exists(
