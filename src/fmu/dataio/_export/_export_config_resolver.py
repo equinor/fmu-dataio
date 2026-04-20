@@ -7,12 +7,15 @@ from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Final, TypeAlias
 
-from fmu.dataio._global_config import load_global_config
+from fmu.dataio._global_config import (
+    build_global_configuration,
+    load_global_config,
+    warn_invalid_global_configuration,
+)
 from fmu.dataio._logging import null_logger
 from fmu.dataio._runcontext import FMUEnvironment, RunContext
-from fmu.dataio.exceptions import DeprecationError
+from fmu.dataio.exceptions import DeprecationError, ValidationError
 from fmu.datamodels.common.enums import Classification
-from fmu.datamodels.fmu_results import global_configuration
 from fmu.datamodels.fmu_results.data import (
     FieldOutline,
     FieldRegion,
@@ -620,18 +623,9 @@ def _resolve_global_config(
         return config
 
     try:
-        return GlobalConfiguration.model_validate(config)
-    except global_configuration.ValidationError as e:
-        if "masterdata" not in config:
-            warnings.warn(
-                "The global config file is lacking masterdata definitions, hence "
-                "no metadata will be exported. Follow the simple 'Getting started' "
-                "steps to do necessary preparations and enable metadata export: "
-                "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html ",
-                UserWarning,
-            )
-        else:
-            global_configuration.validation_error_warning(e)
+        return build_global_configuration(config)
+    except ValidationError as err:
+        warn_invalid_global_configuration(err)
         return None
 
 

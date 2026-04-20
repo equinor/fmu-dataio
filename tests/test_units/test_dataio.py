@@ -74,16 +74,15 @@ def test_missing_or_wrong_config_exports_with_warning(
         meta = edata.generate_metadata(regsurf)
     assert "masterdata" not in meta
 
-    # check that obj is created but no metadata is found
-    with pytest.warns(UserWarning, match="without metadata"):
-        out = edata.export(regsurf)
+    out = edata.export(regsurf)
+
     assert "mysurface" in out
     assert Path(out).exists()
     with pytest.raises(OSError, match="Cannot find requested metafile"):
         read_metadata(out)
 
 
-def test_wrong_config_exports_correctly_ouside_fmu(
+def test_wrong_config_exports_correctly_outside_fmu(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
     mock_global_config: dict[str, Any],
@@ -91,17 +90,15 @@ def test_wrong_config_exports_correctly_ouside_fmu(
 ) -> None:
     """
     In case a config is invalid, objects are exported without metadata.
-    Test that the export path is correct and equal one with valid config,
-    outside an fmu run.
+
+    Test that the export path is correct and equal one with valid config, outside an fmu
+    run.
     """
 
     monkeypatch.chdir(tmp_path)
     name = "mysurface"
 
-    with (
-        pytest.warns(UserWarning, match="The global config"),
-        pytest.warns(UserWarning, match="without metadata"),
-    ):
+    with pytest.warns(UserWarning, match="The global config"):
         objpath_cfg_invalid = ExportData(
             config={},
             content="depth",
@@ -143,10 +140,7 @@ def test_wrong_config_exports_correctly_in_fmu(
 
     name = "mysurface"
 
-    with (
-        pytest.warns(UserWarning, match="The global config"),
-        pytest.warns(UserWarning, match="without metadata"),
-    ):
+    with pytest.warns(UserWarning, match="The global config"):
         objpath_cfg_invalid = ExportData(
             config={},
             content="depth",
@@ -196,8 +190,7 @@ def test_config_miss_required_fields(
     with pytest.warns(UserWarning, match="The global config"):
         edata = ExportData(config=cfg, content="depth", name="mysurface")
 
-    with pytest.warns(UserWarning):
-        out = edata.export(regsurf)
+    out = edata.export(regsurf)
 
     assert "mysurface" in out
 
