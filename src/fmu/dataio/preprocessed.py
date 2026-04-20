@@ -1,38 +1,32 @@
-from __future__ import annotations
+"""Module containing ExportPreprocessedData.
+
+The ExportPreprocessedData is used for exporting preprocessed data that already
+contains metadata, into a FMU run.
+"""
 
 import shutil
 import warnings
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 import yaml
 from pydantic import ValidationError
 
-from fmu.dataio._metadata import (
-    ERT_RELATIVE_CASE_METADATA_FILE,
-    FmuMetadata,
-    ShareFolder,
-)
-from fmu.dataio.version import __version__
 from fmu.datamodels.common.enums import TrackLogEventType
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import File
 
+from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._export import ObjectMetadataExport, export_metadata_file
 from ._logging import null_logger
+from ._metadata import FmuMetadata, ShareFolder
 from ._runcontext import RunContext
 from ._utils import md5sum
 from .exceptions import InvalidMetadataError
 from .manifest._manifest import update_export_manifest
+from .version import __version__
 
 logger: Final = null_logger(__name__)
-
-# ######################################################################################
-# ExportPreprocessedData.
-#
-# The ExportPreprocessedData is used for exporting preprocessed data that already
-# contains metadata, into a FMU run.
-# ######################################################################################
 
 
 class ExportPreprocessedData:
@@ -63,7 +57,8 @@ class ExportPreprocessedData:
     ) -> None:
         self._is_observation = is_observation
         self._runcontext = RunContext(
-            casepath_proposed=Path(casepath), fmu_context=FMUContext.case
+            casepath_proposed=Path(casepath),
+            fmu_context=FMUContext.case,
         )
 
         if self._runcontext.env.fmu_context != FMUContext.case:
@@ -106,15 +101,19 @@ class ExportPreprocessedData:
         return objfile
 
     @staticmethod
-    def _read_metadata_file(objmetafile: Path) -> dict | None:
+    def _sidecar_metafile_path(objfile: Path) -> Path:
+        """Return the path to the metadata sidecar for an object file."""
+        return objfile.parent / f".{objfile.name}.yml"
+
+    @staticmethod
+    def _read_metadata_file(objmetafile: Path) -> dict[str, Any] | None:
         """
         Return a metadata file as a dictionary. If the metadata file
         is not present, None will be returned.
         """
-        if objmetafile.exists():
-            with open(objmetafile, encoding="utf-8") as stream:
-                return yaml.safe_load(stream)
-        return None
+        if not objmetafile.is_file():
+            return None
+        return yaml.safe_load(objmetafile.read_text())
 
     def _get_relative_export_path(self, existing_path: Path) -> Path:
         """
@@ -122,29 +121,40 @@ class ExportPreprocessedData:
         file stored somewhere inside the 'share/preprocessed/' folder.
         The existing subfolders and filename will be kept.
         """
-        existing_subfolders_and_filename = str(existing_path).rsplit(
-            ShareFolder.PREPROCESSED, maxsplit=1
-        )[-1]
+        share_folder = (
+            Path(ShareFolder.OBSERVATIONS.value)
+            if self._is_observation
+            else Path(ShareFolder.RESULTS.value)
+        )
+        for parent in existing_path.parents:
+            if parent.name == "preprocessed" and parent.parent.name == "share":
+                return share_folder / existing_path.relative_to(parent)
 
-        if self._is_observation:
-            return (
-                Path(ShareFolder.OBSERVATIONS.value) / existing_subfolders_and_filename
-            )
-        return Path(ShareFolder.RESULTS.value) / existing_subfolders_and_filename
+        raise RuntimeError(
+            f"Path {existing_path} is not inside a '{ShareFolder.PREPROCESSED}' folder."
+        )
 
-    @staticmethod
     def _check_md5sum_consistency(
-        checksum_md5_file: str, checksum_md5_meta: str
+        self, checksum_md5_file: str, checksum_md5_meta: str
     ) -> None:
-        """Check if the md5sum for the file is equal to the one in the metadata"""
+        """Check if the md5sum for the file is equal to the one in the metadata."""
         if checksum_md5_file != checksum_md5_meta:
             warnings.warn(
-                "The preprocessed file seem to have been modified since it was "
-                "initially exported. You are adviced to re-create the preprocessed "
+                "The preprocessed file seems to have been modified since it was "
+                "initially exported. You are advised to re-create the preprocessed "
                 "data to prevent mismatch between the file and its metadata."
             )
 
-    def _get_meta_file(self, objfile: Path, checksum_md5: str) -> File:
+    def _require_preprocessed_flag(self, existing_metadata: dict[str, Any]) -> None:
+        """Remove '_preprocessed' from the metadata and reject non-preprocessed data."""
+        if not existing_metadata.pop("_preprocessed", False):
+            raise ValueError(
+                "Missing entry '_preprocessed' in the metadata. Only files exported "
+                "with ExportData(fmu_context='preprocessed') is supported. "
+                "Please re-export your objects to disk."
+            )
+
+    def _build_file_metadata(self, objfile: Path, checksum_md5: str) -> File:
         """Return a File model with updated paths and checksum_md5"""
         relative_path = self._get_relative_export_path(existing_path=objfile)
         return File(
@@ -153,7 +163,9 @@ class ExportPreprocessedData:
             checksum_md5=checksum_md5,
         )
 
-    def _get_updated_metadata(self, meta_existing: dict, objfile: Path) -> dict:
+    def _get_updated_metadata(
+        self, existing_metadata: dict[str, Any], objfile: Path
+    ) -> dict[str, Any]:
         """
         Update the existing metadata with updated fmu/file/tracklog info:
         - The 'fmu' block will be added
@@ -168,24 +180,22 @@ class ExportPreprocessedData:
         """
 
         checksum_md5_file = md5sum(objfile)
-        if checksum_md5_meta := meta_existing["file"].get("checksum_md5"):
+        if checksum_md5_meta := existing_metadata["file"].get("checksum_md5"):
             self._check_md5sum_consistency(checksum_md5_file, checksum_md5_meta)
 
-        # remove '_preprocessed' key if present and check truthy state of it
-        if not meta_existing.pop("_preprocessed", False):
-            raise ValueError(
-                "Missing entry '_preprocessed' in the metadata. Only files exported "
-                "with ExportData(fmu_context='preprocessed') is supported. "
-                "Please re-export your objects to disk."
-            )
+        self._require_preprocessed_flag(existing_metadata)
 
-        meta_existing["fmu"] = FmuMetadata(self._runcontext).get_metadata()
-        meta_existing["file"] = self._get_meta_file(objfile, checksum_md5_file)
+        existing_metadata["fmu"] = FmuMetadata(
+            runcontext=self._runcontext
+        ).get_metadata()
+        existing_metadata["file"] = self._build_file_metadata(
+            objfile, checksum_md5_file
+        )
 
         try:
             # TODO: Would like to use meta.Root.model_validate() here
-            # but then the '$schema' field is dropped from the meta_existing
-            validated_metadata = ObjectMetadataExport.model_validate(meta_existing)
+            # but then the '$schema' field is dropped from the existing_metadata
+            validated_metadata = ObjectMetadataExport.model_validate(existing_metadata)
             validated_metadata.tracklog.append(TrackLogEventType.merged, __version__)
             return validated_metadata.model_dump(
                 mode="json", exclude_none=True, by_alias=True
@@ -211,10 +221,10 @@ class ExportPreprocessedData:
         """
 
         objfile = self._validate_object(obj)
-        objmetafile = objfile.parent / f".{objfile.name}.yml"
+        objmetafile = self._sidecar_metafile_path(objfile)
 
-        if meta_existing := self._read_metadata_file(objmetafile):
-            return self._get_updated_metadata(meta_existing, objfile)
+        if existing_metadata := self._read_metadata_file(objmetafile):
+            return self._get_updated_metadata(existing_metadata, objfile)
 
         raise RuntimeError(
             f"Could not detect existing metadata with name {objmetafile}"
@@ -229,29 +239,27 @@ class ExportPreprocessedData:
             Full path of exported object file.
         """
         objfile = self._validate_object(obj)
-        objmetafile = objfile.parent / f".{objfile.name}.yml"
+        objmetafile = self._sidecar_metafile_path(objfile)
 
         outfile = self.casepath / self._get_relative_export_path(existing_path=objfile)
         outfile.parent.mkdir(parents=True, exist_ok=True)
 
         # copy existing file to updated path
-        shutil.copy(objfile, outfile)
+        shutil.copy2(objfile, outfile)
         logger.info("Copied input file to: %s", outfile)
 
-        if meta_existing := self._read_metadata_file(objmetafile):
+        if existing_metadata := self._read_metadata_file(objmetafile):
             try:
-                meta_updated = self._get_updated_metadata(meta_existing, objfile)
+                updated_metadata = self._get_updated_metadata(
+                    existing_metadata, objfile
+                )
             except InvalidMetadataError as err:
                 warnings.warn(str(err))
             else:
-                # store metafile to updated path
-                metafile = outfile.parent / f".{outfile.name}.yml"
-                export_metadata_file(file=metafile, metadata=meta_updated)
+                metafile = self._sidecar_metafile_path(outfile)
+                export_metadata_file(file=metafile, metadata=updated_metadata)
                 logger.info("Updated metadata file is: %s", metafile)
-
-                if self._runcontext.inside_fmu:
-                    update_export_manifest(outfile, casepath=self._runcontext.casepath)
-
+                update_export_manifest(outfile, casepath=self._runcontext.casepath)
         else:
             warnings.warn(
                 f"Could not detect existing metadata with name {objmetafile}. "

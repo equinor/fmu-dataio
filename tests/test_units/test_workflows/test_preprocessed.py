@@ -224,7 +224,7 @@ def test_preprocessed_surface_modified_post_export(
     set_ert_env_prehook()
 
     # should issue warning
-    with pytest.warns(UserWarning, match="seem to have been modified"):
+    with pytest.warns(UserWarning, match="seems to have been modified"):
         dataio.ExportPreprocessedData(
             is_observation=True, casepath=runpath_prehook
         ).export(surfacepath)
@@ -385,7 +385,41 @@ def test_export_preprocessed_file_exportdata_casepath_on_export(
 
     # test that generate_metadata() works if casepath is provided
     with pytest.warns(FutureWarning):
-        meta = edata.generate_metadata(surfacepath, casepath=runpath_prehook)
+        meta = edata.generate_metadata(
+            surfacepath,
+            casepath=runpath_prehook,
+        )
 
     assert "fmu" in meta
     assert "merged" in meta["tracklog"][-1]["event"]
+
+
+def test_validate_object_rejects_non_path_input() -> None:
+    """_validate_object rejects inputs that are neither str nor Path."""
+    with pytest.raises(ValueError, match="Only file paths are supported"):
+        dataio.ExportPreprocessedData._validate_object(123)  # type: ignore[arg-type]
+
+
+def test_validate_object_rejects_missing_file(tmp_path: Path) -> None:
+    """_validate_object rejects a path that does not exist on disk."""
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        dataio.ExportPreprocessedData._validate_object(tmp_path / "missing.gri")
+
+
+def test_get_relative_export_path_rejects_misleading_path(
+    runpath_prehook: Path,
+) -> None:
+    """Paths containing 'share/preprocessed' as a substring only are rejected."""
+    edata = dataio.ExportPreprocessedData(casepath=runpath_prehook)
+    misleading = Path("/private/eshare/preprocessed/foo.gri")  # eshare, not share
+    with pytest.raises(RuntimeError, match="not inside a 'share/preprocessed/'"):
+        edata._get_relative_export_path(misleading)
+
+
+def test_require_preprocessed_flag_rejects_missing_key(
+    runpath_prehook: Path,
+) -> None:
+    """Metadata without a truthy '_preprocessed' key is rejected."""
+    edata = dataio.ExportPreprocessedData(casepath=runpath_prehook)
+    with pytest.raises(ValueError, match="Missing entry '_preprocessed'"):
+        edata._require_preprocessed_flag({})
