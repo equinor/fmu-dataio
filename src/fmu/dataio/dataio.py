@@ -656,7 +656,7 @@ class ExportData:
         self,
         obj: types.ExportableData,
         compute_md5: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> dict:
         """Generate and return the complete metadata for a provided object.
 
