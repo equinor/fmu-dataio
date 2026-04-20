@@ -640,7 +640,7 @@ def test_rms_volumetrics_export_config_invalid(
             "fmu.dataio._global_config.yaml.safe_load",
             return_value={"foo": "bar"},
         ),
-        pytest.raises(ValueError, match="valid config"),
+        pytest.raises(ValueError, match="valid global configuration"),
     ):
         export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_volume")
 

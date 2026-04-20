@@ -13,9 +13,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from ._export import ExportConfig, export_with_metadata, export_without_metadata
-from ._export.deprecations import (
-    _check_vertical_domain_dict,
-)
+from ._export.deprecations import _check_vertical_domain_dict
 from ._logging import null_logger
 from ._metadata import generate_metadata
 from ._utils import read_metadata_from_file
@@ -754,15 +752,8 @@ class ExportData:
         logger.info("Object type is: %s", type(obj))
         self._apply_deprecated_kwargs(kwargs)
 
-        if self._export_config.config is None:
-            warnings.warn(
-                "Global configuration was not provided or was invalid. Because of this "
-                "valid metadata cannot be generated. Data will be still exported but "
-                "without metadata.",
-                UserWarning,
-            )
-            export_path = export_without_metadata(self._export_config, obj)
-        else:
-            export_path = export_with_metadata(self._export_config, obj)
-
-        return str(export_path)
+        return str(
+            export_without_metadata(self._export_config, obj)
+            if self._export_config.config is None
+            else export_with_metadata(self._export_config, obj)
+        )

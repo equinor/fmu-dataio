@@ -1,5 +1,6 @@
 """Module to produce a GlobalConfiguration object or dictionary."""
 
+import warnings
 from pathlib import Path
 from typing import Any, Final
 
@@ -11,7 +12,6 @@ from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import (
     Access,
     GlobalConfiguration,
-    validation_error_warning,
 )
 from fmu.settings import find_nearest_fmu_directory
 
@@ -25,31 +25,60 @@ RELATIVE_GLOBAL_VARIABLES_PATH: Final[Path] = (
 logger: Final = null_logger(__name__)
 
 
-def _build_global_configuration(
+_GETTING_STARTED_URL = (
+    "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html"
+)
+
+
+def warn_invalid_global_configuration(err: ValidationError) -> None:
+    """Emit a UserWarning describing an invalid global configuration.
+
+    Intended for callers that intentionally swallow the ValidationError from
+    `build_global_configuration` and continue exporting without metadata.
+    """
+    warnings.warn(
+        "The global configuration has one or more errors that make it impossible "
+        "to create valid metadata. The data will still be exported but no "
+        "metadata will be created. You are strongly encouraged to correct your "
+        f"configuration. Invalid configuration may be disallowed in future "
+        f"versions.\n\n{err}",
+        UserWarning,
+        stacklevel=2,
+    )
+
+
+def build_global_configuration(
     config_dict: dict[str, Any], standard_result: bool = False
 ) -> GlobalConfiguration:
+    """Validate a dictionary as a GlobalConfiguration.
+
+    Raises:
+        ValidationError: If `config_dict` does not validate. The message summarizes
+            the problem in a user-facing way and includes the underlying pydantic
+            errors.
+    """
     try:
         return GlobalConfiguration.model_validate(config_dict)
     except pydantic.ValidationError as err:
-        error_message = "Global variables does not contain valid masterdata.\n"
+        summary = (
+            "The global configuration was not provided."
+            if not config_dict
+            else "The global configuration is invalid."
+        )
 
+        parts = [summary]
         if standard_result:
-            error_message += (
-                "When exporting standard results it is required to have a valid "
-                "config.\n"
+            parts.append(
+                "Exporting standard results requires a valid global configuration."
             )
-        else:
-            validation_error_warning(err)
-
-        if "masterdata" not in config_dict:
-            error_message += (
-                "Follow the 'Getting started' steps to do necessary preparations: "
-                "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html "
+        if "masterdata" not in (config_dict or {}):
+            parts.append(
+                "Follow the 'Getting started' steps to do the necessary setup:\n"
+                f"{_GETTING_STARTED_URL}"
             )
+        parts.append(f"Detailed information:\n{err}")
 
-        raise ValidationError(
-            f"{error_message}\nDetailed information: \n{err}"
-        ) from err
+        raise ValidationError("\n\n".join(parts)) from err
 
 
 def load_global_config_from_global_variables(
@@ -71,7 +100,7 @@ def load_global_config_from_global_variables(
                 f"Unable to load config from {config_path}. Error: {e}"
             ) from e
 
-    return _build_global_configuration(config_dict, standard_result)
+    return build_global_configuration(config_dict, standard_result)
 
 
 def _resolve_global_config_path(config_path: Path | None) -> Path:

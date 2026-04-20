@@ -13,10 +13,10 @@ from typing import Any
 import pytest
 import yaml
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
-from pydantic import ValidationError
 from pytest import MonkeyPatch
 
 from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
+from fmu.dataio.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,6 @@ def test_export_case_metadata_post_init(
     assert icase._metafile == caseroot / "share/metadata/fmu_case.yml"
 
 
-@pytest.mark.filterwarnings("ignore:The global configuration")
 def test_export_case_metadata_post_init_bad_globalconfig(
     monkeypatch: MonkeyPatch,
     runpath_no_case_metadata: Path,

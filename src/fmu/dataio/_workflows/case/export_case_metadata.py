@@ -7,9 +7,10 @@ import warnings
 from pathlib import Path
 from typing import Any, Final, Self
 
-from pydantic import ValidationError
-
 from fmu.dataio._export import export_metadata_file
+from fmu.dataio._global_config import (
+    build_global_configuration,
+)
 from fmu.dataio._logging import null_logger
 from fmu.dataio.version import __version__
 from fmu.datamodels.common import Access, Tracklog, User
@@ -33,6 +34,9 @@ class ExportCaseMetadata:
         config: An object representing the global configuration.
         rootfolder: Absolute path to the case root, including case name.
         casename: Name of case (experiment)
+
+    Raises:
+        ValidationError if global configuration dictionary is not valid
     """
 
     def __init__(
@@ -44,17 +48,9 @@ class ExportCaseMetadata:
         """Initialize the ExportCaseMetadata class."""
 
         # TODO: Receive only validated config
-        if isinstance(config, dict):
-            try:
-                self.config = global_configuration.GlobalConfiguration.model_validate(
-                    config
-                )
-            except ValidationError as e:
-                global_configuration.validation_error_warning(e)
-                raise
-        else:
-            self.config = config
-
+        self.config = (
+            build_global_configuration(config) if isinstance(config, dict) else config
+        )
         self.rootfolder = rootfolder
         self.casename = casename
         self._casepath = Path(self.rootfolder)

@@ -10,8 +10,8 @@ from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 from fmu.dataio._global_config import (
-    _build_global_configuration,
     _resolve_global_config_path,
+    build_global_configuration,
     load_global_config,
     load_global_config_from_fmu_settings,
     load_global_config_from_global_variables,
@@ -21,42 +21,36 @@ from fmu.dataio.exceptions import ValidationError
 
 def test_build_global_configuration_valid(mock_global_config: dict[str, Any]) -> None:
     """Ensures a validated GlobalConfiguration object is returned without error."""
-    global_config = _build_global_configuration(mock_global_config)
+    global_config = build_global_configuration(mock_global_config)
     assert isinstance(global_config, GlobalConfiguration)
 
 
 def test_build_global_configuration_invalid(mock_global_config: dict[str, Any]) -> None:
-    """Exception and warning raised on generally invalid global config."""
+    """Exception raised on generally invalid global config."""
     del mock_global_config["model"]
 
-    with (
-        pytest.raises(ValidationError, match="does not contain valid"),
-        pytest.warns(UserWarning, match="global configuration has one or more errors"),
-    ):
-        _build_global_configuration(mock_global_config)
+    with pytest.raises(ValidationError, match="global configuration is invalid"):
+        build_global_configuration(mock_global_config)
 
 
 def test_build_global_configuration_missing_masterdata(
     mock_global_config: dict[str, Any],
 ) -> None:
-    """Exception and warning raised when 'masterdata' missing."""
+    """Exception raised with 'Getting started' link when 'masterdata' is missing."""
     del mock_global_config["masterdata"]
 
-    with (
-        pytest.raises(ValidationError, match="https://fmu-dataio.readthedocs.io"),
-        pytest.warns(UserWarning, match="global configuration has one or more errors"),
-    ):
-        _build_global_configuration(mock_global_config)
+    with pytest.raises(ValidationError, match="https://fmu-dataio.readthedocs.io"):
+        build_global_configuration(mock_global_config)
 
 
 def test_build_global_configuration_standard_result(
     mock_global_config: dict[str, Any],
 ) -> None:
-    """Exception and warning raised when 'masterdata' missing for a standard result."""
+    """Exception raised when invalid config is given for a standard result export."""
     del mock_global_config["masterdata"]
 
-    with pytest.raises(ValidationError, match="exporting standard results"):
-        _build_global_configuration(mock_global_config, standard_result=True)
+    with pytest.raises(ValidationError, match="Exporting standard results"):
+        build_global_configuration(mock_global_config, standard_result=True)
 
 
 def test_load_config_from_global_variables(drogon_global_config_path: Path) -> None:
@@ -188,7 +182,7 @@ def test_load_global_config_passes_standard_result_to_build(
     drogon_global_config_path: Path, standard_result: bool
 ) -> None:
     """Standard result argument is passed back to global config builder."""
-    with patch("fmu.dataio._global_config._build_global_configuration") as mock_build:
+    with patch("fmu.dataio._global_config.build_global_configuration") as mock_build:
         load_global_config(drogon_global_config_path, standard_result=standard_result)
 
     assert mock_build.call_args[0][1] == standard_result

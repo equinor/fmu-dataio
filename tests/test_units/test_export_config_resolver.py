@@ -94,7 +94,7 @@ def test_resolve_global_config_with_empty_dict() -> None:
 
 def test_resolve_global_config_with_invalid_dict_missing_masterdata() -> None:
     """Invalid config without masterdata returns None and warns."""
-    with pytest.warns(UserWarning, match="lacking masterdata definitions"):
+    with pytest.warns(UserWarning, match="global configuration has one or more errors"):
         result = _resolve_global_config({"some": "data"})
     assert result is None
 
@@ -480,7 +480,7 @@ def test_export_config_from_export_data_with_global_config(
         patch(
             "fmu.dataio._export._export_config_resolver._resolve_fmu_context"
         ) as mock_fmu_ctx,
-        pytest.warns(UserWarning, match="lacking masterdata"),
+        pytest.warns(UserWarning, match="global configuration has one or more errors"),
     ):
         mock_fmu_ctx.return_value = (None, False)
 
