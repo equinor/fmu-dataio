@@ -18,7 +18,10 @@ from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._metadata import generate_metadata
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
-from fmu.datamodels.standard_results.enums import StandardResultName
+from fmu.datamodels.standard_results.enums import (
+    ErtObservations,
+    StandardResultName,
+)
 from fmu.settings import (
     ProjectFMUDirectory,
     find_nearest_fmu_directory,
@@ -26,6 +29,7 @@ from fmu.settings import (
 )
 
 from ._config import CaseWorkflowConfig
+from ._observations import get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
 
@@ -70,16 +74,15 @@ def _get_ensemble_name(
 
 def _queue_ert_parameters(
     ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
     """Export parameter table using fmu-dataio."""
-    table = get_ert_parameters_table(ensemble, run_paths, workflow_config)
+    table = get_ert_parameters_table(ensemble)
     if table is None:
         return
 
-    ensemble_name = _get_ensemble_name(ensemble, run_paths, workflow_config.casepath)
     export_config = (
         ExportConfig.builder()
         .content(Content.parameters)
@@ -99,6 +102,69 @@ def _queue_ert_parameters(
     sumo_uploader.queue_table(table, metadata)
 
 
+def _queue_ert_observations_rft(
+    ensemble: ert.Ensemble,
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export rft observation table using fmu-dataio."""
+    table = get_ert_observations_table(ensemble, "rft")
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.observations)
+        .access(Classification.internal, rep_include=False)
+        .table_config(table_index=ErtObservations.RftColumns.index_columns())
+        .file_config(name=StandardResultName.observations_rft.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .flags(is_observation=True)
+        .standard_result(StandardResultName.observations_rft)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
+def _queue_ert_observations_summary(
+    ensemble: ert.Ensemble,
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export summary observation table using fmu-dataio."""
+
+    table = get_ert_observations_table(ensemble, "summary")
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.observations)
+        .access(Classification.internal, rep_include=False)
+        .table_config(table_index=ErtObservations.SummaryColumns.index_columns())
+        .file_config(name=StandardResultName.observations_summary.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .flags(is_observation=True)
+        .standard_result(StandardResultName.observations_summary)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
 def _upload_files_to_sumo(
     ensemble: ert.Ensemble,
     run_paths: ert.Runpaths,
@@ -106,7 +172,12 @@ def _upload_files_to_sumo(
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
     """Establishes a case on Sumo, uploading initial case and ensemble data as well."""
-    _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
+    ensemble_name = _get_ensemble_name(ensemble, run_paths, workflow_config.casepath)
+    _queue_ert_parameters(ensemble, ensemble_name, workflow_config, sumo_uploader)
+    _queue_ert_observations_rft(ensemble, ensemble_name, workflow_config, sumo_uploader)
+    _queue_ert_observations_summary(
+        ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
     sumo_uploader.upload()
 
 

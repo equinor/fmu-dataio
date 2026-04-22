@@ -136,6 +136,7 @@ filterwarnings = [
     # https://github.com/scikit-learn-contrib/hdbscan/issues/457#issuecomment-773671043
     # https://numpy.org/doc/stable/release/1.20.0-notes.html#size-of-np-ndarray-and-np-void-changed
     "ignore:numpy.ndarray size changed:RuntimeWarning",
+    "ignore:Config contains a SUMMARY key but no forward model steps known to generate summary files:UserWarning",
 ]
 
 [tool.coverage.run]

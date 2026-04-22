@@ -11,12 +11,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import ert.__main__
+import jsonschema
 import polars as pl
 import pyarrow as pa
 import pytest
 import yaml
 from ert.config import GenKwConfig
 from ert.config.distribution import DistributionSettings
+from ert.config.ert_config import create_observation_dataframes
+from fmu.datamodels import (
+    ErtObservationsRftSchema,
+)
 from fmu.datamodels.standard_results.ert_parameters import (
     ConstParameter,
     ErtParameterMetadata,
@@ -28,6 +33,7 @@ from fmu.settings import get_fmu_directory
 from pytest import CaptureFixture, MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
+from fmu.dataio._workflows.case._observations import get_ert_observations_table
 from fmu.dataio._workflows.case._parameters import (
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
@@ -40,6 +46,8 @@ from .ert_config_utils import (
     add_design_matrix,
     add_globvar_parameters,
     add_multregt_parameters,
+    add_observation_config,
+    add_rft_observations,
 )
 
 if TYPE_CHECKING:
@@ -245,9 +253,7 @@ def test_create_case_metadata_caseroot_not_defined(
 
 
 def test_create_case_metadata_deprecated_arguments_warn(
-    fmu_snakeoil_project: Path,
-    monkeypatch: MonkeyPatch,
-    capsys: CaptureFixture[str],
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Now deprecated arguments issue warnings."""
     pathlib.Path(
@@ -461,7 +467,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
 
     def capture_params(
         ensemble: ert.Ensemble,
-        run_paths: ert.Runpaths,
+        ensemble_name: str,
         workflow_config: CaseWorkflowConfig,
         sumo_uploader: SumoUploaderInterface,
     ) -> None:
@@ -593,46 +599,24 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     assert ert_models == datamodels_models
 
 
-def test_get_ert_parameters_table(
-    runpath_prehook: Path,
-    monkeypatch: MonkeyPatch,
-    mock_ert_ensemble: MagicMock,
-    mock_ert_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
-) -> None:
+def test_get_ert_parameters_table(mock_ert_ensemble: MagicMock) -> None:
     """Ert parameters table returned as expected."""
-    table = get_ert_parameters_table(
-        ensemble=mock_ert_ensemble,
-        run_paths=mock_ert_runpaths,
-        workflow_config=workflow_config,
-    )
+    table = get_ert_parameters_table(ensemble=mock_ert_ensemble)
     assert isinstance(table, pa.Table)
     assert len(table) == 3
 
 
-def test_get_ert_parameters_table_empty_scalars(
-    runpath_prehook: Path,
-    mock_ert_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
-) -> None:
+def test_get_ert_parameters_table_empty_scalars() -> None:
     """Empty scalars returns None."""
     ensemble = MagicMock()
     ensemble.load_scalars.return_value = pl.DataFrame()
 
-    table = get_ert_parameters_table(
-        ensemble=ensemble,
-        run_paths=mock_ert_runpaths,
-        workflow_config=workflow_config,
-    )
+    table = get_ert_parameters_table(ensemble=ensemble)
     assert table is None
 
 
 def test_get_ert_parameters_table_subset_realizations(
-    runpath_prehook: Path,
-    monkeypatch: MonkeyPatch,
     mock_ert_ensemble: MagicMock,
-    mock_ert_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Export with only a subset of realizations."""
     scalars_df = pl.DataFrame(
@@ -645,28 +629,15 @@ def test_get_ert_parameters_table_subset_realizations(
     )
     mock_ert_ensemble.load_scalars.return_value = scalars_df
 
-    table = get_ert_parameters_table(
-        ensemble=mock_ert_ensemble,
-        run_paths=mock_ert_runpaths,
-        workflow_config=workflow_config,
-    )
+    table = get_ert_parameters_table(ensemble=mock_ert_ensemble)
 
     assert table is not None
     assert table.column("REAL").to_pylist() == [1, 3]
 
 
-def test_get_ert_parameters_table_schema_columns(
-    runpath_prehook: Path,
-    mock_ert_ensemble: MagicMock,
-    mock_ert_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
-) -> None:
+def test_get_ert_parameters_table_schema_columns(mock_ert_ensemble: MagicMock) -> None:
     """Exported parquet has expected columns with correct types."""
-    table = get_ert_parameters_table(
-        ensemble=mock_ert_ensemble,
-        run_paths=mock_ert_runpaths,
-        workflow_config=workflow_config,
-    )
+    table = get_ert_parameters_table(ensemble=mock_ert_ensemble)
 
     assert table is not None
     schema = table.schema
@@ -680,11 +651,7 @@ def test_get_ert_parameters_table_schema_columns(
     assert len(schema.names) == 5
 
 
-def test_get_ert_parameters_table_missing_config(
-    runpath_prehook: Path,
-    mock_ert_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
-) -> None:
+def test_get_ert_parameters_table_missing_config() -> None:
     """Parameters without config in parameter_configuration are skipped."""
     ensemble = MagicMock()
     ensemble.name = "iter-0"
@@ -699,21 +666,13 @@ def test_get_ert_parameters_table_missing_config(
     ensemble.load_scalars.return_value = scalars_df
     ensemble.experiment.parameter_configuration = {}  # Empty config
 
-    table = get_ert_parameters_table(
-        ensemble=ensemble,
-        run_paths=mock_ert_runpaths,
-        workflow_config=workflow_config,
-    )
+    table = get_ert_parameters_table(ensemble=ensemble)
 
     assert table is not None
     assert table.schema.names == ["REAL"]
 
 
-def test_get_ert_parameters_table_non_genkw_config_skipped(
-    runpath_prehook: Path,
-    mock_ert_runpaths: MagicMock,
-    workflow_config: CaseWorkflowConfig,
-) -> None:
+def test_get_ert_parameters_table_non_genkw_config_skipped() -> None:
     """Non-GenKwConfig parameters are skipped."""
     ensemble = MagicMock()
     ensemble.name = "iter-0"
@@ -731,11 +690,7 @@ def test_get_ert_parameters_table_non_genkw_config_skipped(
         "some_param": MagicMock(spec=[])  # Not a GenKwConfig
     }
 
-    table = get_ert_parameters_table(
-        ensemble=ensemble,
-        run_paths=mock_ert_runpaths,
-        workflow_config=workflow_config,
-    )
+    table = get_ert_parameters_table(ensemble=ensemble)
 
     assert table is not None
     assert table.schema.names == ["REAL"]
@@ -819,3 +774,137 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
     assert parameters_metadata["fmu"]["ensemble"]["name"] == "iter-0"
 
     assert parameters_metadata["access"]["classification"] == "internal"
+
+
+# Running a full integration test with observations is tricky due
+# to ERT config validations. It requires the presence of a forward_model
+# that can produce a response i.e. a flow simulation. With some mocking
+# it was possible to run it fully for rft, but summary observations was not.
+
+
+def test_create_case_metadata_collects_rft_observations_as_expected(
+    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test rft observations are fetched and returned as expected from ert
+    and tried uploaded to Sumo.
+    """
+    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_observation_config(ert_config_path)
+    add_rft_observations(ert_config_path)
+
+    add_create_case_workflow(ert_config_path)
+
+    captured_tables = {}
+
+    def capture_observation_tables(
+        ensemble: ert.Ensemble,
+        obs_type: str,
+    ) -> None:
+        """Captures observation tables from Ert run.
+
+        Requires the Ert runtime context to load from local storage."""
+        df = get_ert_observations_table(ensemble, obs_type)
+        captured_tables[obs_type] = df
+        return df
+
+    def mock_create_observation_dataframes(
+        observations: ert.Ensemble,
+        rft_config: None,
+    ) -> None:
+        """mock"""
+        return create_observation_dataframes(observations, MagicMock())
+
+    with (
+        patch(
+            "ert.storage.local_experiment.create_observation_dataframes",
+            side_effect=mock_create_observation_dataframes,
+        ),
+        patch(
+            "ert.config.ert_config.create_observation_dataframes",
+            side_effect=mock_create_observation_dataframes,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "fmu.dataio._workflows.case.main.get_ert_observations_table",
+            side_effect=capture_observation_tables,
+        ),
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        # only rft table should be queued, summary should be None and not queued
+        from_new_case.return_value.queue_table.assert_called_once()
+
+    assert len(captured_tables) == 2
+
+    assert captured_tables["summary"] is None
+    assert captured_tables["rft"] is not None
+
+    table = captured_tables["rft"]
+
+    assert isinstance(table, pa.Table)
+    assert table.num_rows == 1
+
+    jsonschema.validate(
+        instance=table.to_pylist(), schema=ErtObservationsRftSchema.dump()
+    )  # Throws if invalid
+
+
+def test_create_case_metadata_with_no_observations(
+    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Test no tables are uploaded when observations are not present in ert config"""
+    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path)
+
+    captured_tables = {}
+
+    def capture_observation_tables(
+        ensemble: ert.Ensemble,
+        obs_type: str,
+    ) -> None:
+        """Captures rft observations from Ert run"""
+        df = get_ert_observations_table(ensemble, obs_type)
+        captured_tables[obs_type] = df
+        return df
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "fmu.dataio._workflows.case.main.get_ert_observations_table",
+            side_effect=capture_observation_tables,
+        ),
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        # no tables should be queued
+        from_new_case.return_value.queue_table.assert_not_called()
+
+    assert len(captured_tables) == 2
+
+    assert captured_tables["summary"] is None
+    assert captured_tables["rft"] is None
