@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from textwrap import dedent
 
 import pandas as pd
 
@@ -87,3 +88,53 @@ def add_export_a_surface_forward_model(
                 f"FORWARD_MODEL EXPORT_A_SURFACE(<PROJECT_PATH>={project_path})\n"
             ]
         )
+
+
+def add_observation_config(ert_config_path: Path) -> None:
+    with open(ert_config_path, "a") as f:
+        f.write("OBS_CONFIG observations\n")
+
+
+def add_rft_observations(ert_config_path: Path) -> None:
+    obs_config = dedent(
+        """
+        RFT_OBSERVATION rft_obs
+        {
+            WELL=R_A6;
+            DATE=2018-01-01;
+            PROPERTY=PRESSURE;
+            VALUE=3800;
+            ERROR=30.5;
+            TVD=8400;
+            EAST=9500;
+            NORTH=10500.5;
+            ZONE=ZONE1;
+        };
+        """
+    )
+
+    with open(ert_config_path.parent / "observations", "a") as f:
+        f.write(obs_config)
+
+
+def add_summary_observations(ert_config_path: Path) -> None:
+    obs_config = dedent(
+        """
+        SUMMARY_OBSERVATION FOPR_1
+        {
+        VALUE      = 0.9;
+        ERROR      = 0.05;
+        DATE       = 2020-01-01;
+        KEY        = FOPR;
+        };
+        SUMMARY_OBSERVATION FGPT_1
+        {
+        VALUE      = 100.5;
+        ERROR      = 10;
+        DATE       = 2025-01-01;
+        KEY        = FGPT;
+        };
+        """
+    )
+    with open(ert_config_path.parent / "observations", "a") as f:
+        f.write(obs_config)

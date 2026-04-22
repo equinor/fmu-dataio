@@ -11,8 +11,6 @@ from pydantic import TypeAdapter
 
 from fmu.datamodels import ErtParameterMetadata
 
-from ._config import CaseWorkflowConfig
-
 if TYPE_CHECKING:
     import polars as pl
 
@@ -98,11 +96,7 @@ def _process_parameters(
     return table, realizations
 
 
-def get_ert_parameters_table(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
-    workflow_config: CaseWorkflowConfig,
-) -> pa.Table | None:
+def get_ert_parameters_table(ensemble: ert.Ensemble) -> pa.Table | None:
     """Exports Ert parameters as a Parquet file as the ensemble level."""
 
     scalars_df = ensemble.load_scalars()
