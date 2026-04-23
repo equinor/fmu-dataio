@@ -20,8 +20,6 @@ from fmu.dataio import ExportData
 from fmu.dataio._metadata import create_object_data, generate_export_metadata
 from fmu.dataio._utils import prettyprint_dict, read_metadata_from_file
 
-# pylint: disable=no-member
-
 logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------------------
