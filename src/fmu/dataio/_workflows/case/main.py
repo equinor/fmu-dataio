@@ -217,7 +217,6 @@ class WfExportCaseMetadata(ert.ErtScript):
         ensemble: ert.Ensemble,
         run_paths: ert.Runpaths,
     ) -> None:
-        # pylint: disable=no-self-use
         """Parse arguments and run the workflow."""
         parser = get_parser()
         args = parser.parse_args(workflow_args)

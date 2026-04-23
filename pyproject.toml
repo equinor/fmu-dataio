@@ -162,7 +162,6 @@ ignore = [
 ]
 select = [
     "B",  # flake-8-bugbear
-    "C",  # pylint-convention
     "C90",  # mccabe
     "E",  # pycodestyle-error
     "F",  # pyflakes
@@ -170,7 +169,6 @@ select = [
     "NPY",  # numpy
     "PD",  # pandas-vet
     "PIE",  # flake8-pie
-    # "PL",  # pylint
     "Q",  # flake8-quotes
     "RET",  # flake8-return
     "RSE",  # flake8-raise
@@ -178,7 +176,6 @@ select = [
     "TCH",  # flake8-type-checking
     # "TID",  # flake8-tidy-imports
     "UP",  # pyupgrade
-    "W",  # pylint-warnings
 ]
 
 [tool.ruff.lint.pydocstyle]

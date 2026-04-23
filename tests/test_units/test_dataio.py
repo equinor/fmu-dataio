@@ -28,8 +28,6 @@ from fmu.dataio._utils import (
     uuid_from_string,
 )
 
-# pylint: disable=no-member
-
 logger = logging.getLogger(__name__)
 
 
@@ -256,7 +254,7 @@ def test_config_stratigraphy_stratigraphic_not_bool(
 
 
 def test_apply_deprecated_kwargs_fails(mock_global_config: dict[str, Any]) -> None:
-    # pylint: disable=unexpected-keyword-arg
+
     with pytest.raises(TypeError):
         _ = ExportData(  # type: ignore[call-arg]
             config=mock_global_config,
