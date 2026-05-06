@@ -65,7 +65,7 @@ def test_ert_observations_as_expected(ert_config_path: str) -> None:
 
     ert_config = ErtConfig.from_file(ert_config_path)
     observations = create_observation_dataframes(
-        ert_config.observation_declarations, MagicMock()
+        ert_config.observation_declarations, MagicMock(), ert_config.shape_registry
     )
 
     assert len(observations) == 2
@@ -167,7 +167,7 @@ def test_ert_observations_rft_dataframe_as_expected(ert_config_path: Path) -> No
 
     ert_config = ErtConfig.from_file(ert_config_path)
     observations = create_observation_dataframes(
-        ert_config.observation_declarations, MagicMock()
+        ert_config.observation_declarations, MagicMock(), ert_config.shape_registry
     )
 
     assert len(observations) == 1
@@ -233,7 +233,7 @@ def test_ert_observations_rft_dataframe_validates_against_schema(
 
     ert_config = ErtConfig.from_file(ert_config_path)
     observations = create_observation_dataframes(
-        ert_config.observation_declarations, MagicMock()
+        ert_config.observation_declarations, MagicMock(), ert_config.shape_registry
     )
 
     obs_df = observations["rft"]
