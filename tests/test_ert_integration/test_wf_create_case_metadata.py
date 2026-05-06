@@ -16,7 +16,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 import yaml
-from ert.config import GenKwConfig
+from ert.config import GenKwConfig, ShapeRegistry
 from ert.config.distribution import DistributionSettings
 from ert.config.ert_config import create_observation_dataframes
 from fmu.datamodels import (
@@ -814,9 +814,10 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
     def mock_create_observation_dataframes(
         observations: ert.Ensemble,
         rft_config: None,
+        shape_registry: ShapeRegistry,
     ) -> None:
         """mock"""
-        return create_observation_dataframes(observations, MagicMock())
+        return create_observation_dataframes(observations, MagicMock(), shape_registry)
 
     with (
         patch(
