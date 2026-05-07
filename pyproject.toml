@@ -201,4 +201,11 @@ warn_unused_ignores = true
 [tool.uv]
 exclude-newer = "1 week"
 # Exclude specific package(s) we maintain for quick iteration
-exclude-newer-package = { "fmu-config" = false, "fmu-datamodels" = false }
+
+[tool.uv.exclude-newer-package]
+"fmu-config" = false
+"fmu-datamodels" = false
+"fmu-settings" = false
+"fmu-sumo" = false
+"xtgeo" = false
+"ert" = false
