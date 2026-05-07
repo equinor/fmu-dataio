@@ -9,7 +9,9 @@ description = "Facilitate data io in FMU with rich metadata"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache 2.0" }
-authors = [{ name = "Equinor", email = "xxxxx@equinor.com" }]
+authors = [
+    { name = "Equinor", email = "fg_fmu-atlas@equinor.com" },
+]
 keywords = ["fmu", "sumo"]
 
 classifiers = [
@@ -195,3 +197,15 @@ strict_equality = true
 warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[tool.uv]
+exclude-newer = "1 week"
+# Exclude specific package(s) we maintain for quick iteration
+
+[tool.uv.exclude-newer-package]
+"fmu-config" = false
+"fmu-datamodels" = false
+"fmu-settings" = false
+"fmu-sumo" = false
+"xtgeo" = false
+"ert" = false
