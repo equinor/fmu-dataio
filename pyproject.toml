@@ -83,7 +83,7 @@ docs = [
     "sphinx-copybutton",
     "sphinx-togglebutton",
     "sphinxcontrib-apidoc",
-    "urllib3<2.7",
+    "urllib3",
 ]
 
 [project.entry-points.ert]
@@ -207,6 +207,7 @@ exclude-newer = "1 week"
 "fmu-datamodels" = false
 "fmu-settings" = false
 "fmu-sumo" = false
+"graphite-maps" = false
 "iterative-ensemble-smoother" = false 
 "xtgeo" = false
 "ert" = false
