@@ -919,7 +919,7 @@ wheels = [
 
 [[package]]
 name = "ert"
-version = "21.1.3"
+version = "21.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -979,7 +979,7 @@ dependencies = [
     { name = "xtgeo" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/ef/a79f901c9716a1894857e6d4f4f372673ef83d67068810a0a67126f02a24/ert-21.1.3-py3-none-any.whl", hash = "sha256:a0a4c1ec2f94631c88ac8fb1436cb8f782aa2a0ae4a783d4587b88ee8ac79026", size = 791780, upload-time = "2026-05-12T06:21:57.867Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/b4/7454b869788508a3c0972050d631917ea1ed7808a0e26bd5139bc69d79a5/ert-21.1.4-py3-none-any.whl", hash = "sha256:815a90ca855b45a394a0f900b553b8ab03061ac47dfb670960caa2ace12b80a2", size = 791784, upload-time = "2026-05-12T09:44:26.216Z" },
 ]
 
 [[package]]
@@ -1173,7 +1173,7 @@ wheels = [
 
 [[package]]
 name = "fmu-settings"
-version = "0.30.0"
+version = "0.31.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-types" },
@@ -1183,9 +1183,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/27/43/d91cae861bfb9e0cbd84df964cd1f9036ef737ef4f763202abdca35cc9b5/fmu_settings-0.30.0.tar.gz", hash = "sha256:683bbfdb600ccfb9dc4a1bb5030e05846e4dd037de621999de57ac7f966e49ba", size = 769633, upload-time = "2026-05-06T12:25:18.716Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/70/9a5910411b8ae0cb55fb9cfc4f51e05b874c7b26cd9ac6e86a50d91bc272/fmu_settings-0.31.0.tar.gz", hash = "sha256:bf211c865b6738c697c6f00cc285cd504bd6ecdd2b5ce84f2bd44afd85ace9bc", size = 773182, upload-time = "2026-05-13T06:37:47.754Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cd/d4/0a08e4bd7f913629d4b6d55e482e9b5e04f88263f4449233ae15bfeee7ae/fmu_settings-0.30.0-py3-none-any.whl", hash = "sha256:2b0d6f3fef5434a06360688b6b186a188a1eb97943817832cd27f5e0094a0d73", size = 60124, upload-time = "2026-05-06T12:25:17.041Z" },
+    { url = "https://files.pythonhosted.org/packages/47/d9/3e274b64d02101dda2e67be9f212ac10ef4ef4f392e501325d3b919a166d/fmu_settings-0.31.0-py3-none-any.whl", hash = "sha256:03c809223e24c2aec471c47b7b4866379258d3449799d21be73c27d19c732f11", size = 60259, upload-time = "2026-05-13T06:37:45.851Z" },
 ]
 
 [[package]]
@@ -1615,23 +1615,23 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.152.6"
+version = "6.152.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f0/09/f5219c8fd75ff1f270a6f691df651c206e9316b9d0ce2cbd8b6f82844e1e/hypothesis-6.152.6.tar.gz", hash = "sha256:4a3f21e9a7349a17616626e9010f04360b02e6bf8ff15fdc7c53e76d5517c1e8", size = 467945, upload-time = "2026-05-11T13:12:59.888Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/dd/19d273652eb20dac15f32bbc484f2f6d51ccd8fe51fdb27da3f85f9017e8/hypothesis-6.152.7.tar.gz", hash = "sha256:741dedcede2ae0f32c32929a5992804b61f2b0400403b6a51a881a2b58482782", size = 468147, upload-time = "2026-05-13T04:19:34.124Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/1c/ed568eca3a963dc3e447b01961ae653e0d6f107c2cfd77b3f2b1a5cfc520/hypothesis-6.152.6-py3-none-any.whl", hash = "sha256:b20ffc532e5f2901229348d10ed7cb37fd9723ebf4799df663d2dce1cdce4e32", size = 533724, upload-time = "2026-05-11T13:12:56.182Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/1e/8222edaee03c37350eaa726213614e343a62f1e56396dd000ad9277bfa3d/hypothesis-6.152.7-py3-none-any.whl", hash = "sha256:c0b17dd428fcb6e962f60315f6f4a77816c72fbb281ce9ba73699dabead5ec82", size = 533802, upload-time = "2026-05-13T04:19:30.635Z" },
 ]
 
 [[package]]
 name = "idna"
-version = "3.14"
+version = "3.15"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/05/b1/efac073e0c297ecf2fb33c346989a529d4e19164f1759102dee5953ee17e/idna-3.14.tar.gz", hash = "sha256:466d810d7a2cc1022bea9b037c39728d51ae7dad40d480fc9b7d7ecf98ba8ee3", size = 198272, upload-time = "2026-05-10T20:32:15.935Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/77/7b3966d0b9d1d31a36ddf1746926a11dface89a83409bf1483f0237aa758/idna-3.15.tar.gz", hash = "sha256:ca962446ea538f7092a95e057da437618e886f4d349216d2b1e294abfdb65fdc", size = 199245, upload-time = "2026-05-12T22:45:57.011Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/3c/3f62dee257eb3d6b2c1ef2a09d36d9793c7111156a73b5654d2c2305e5ce/idna-3.14-py3-none-any.whl", hash = "sha256:e677eaf072e290f7b725f9acf0b3a2bd55f9fd6f7c70abe5f0e34823d0accf69", size = 72184, upload-time = "2026-05-10T20:32:14.295Z" },
+    { url = "https://files.pythonhosted.org/packages/d2/23/408243171aa9aaba178d3e2559159c24c1171a641aa83b67bdd3394ead8e/idna-3.15-py3-none-any.whl", hash = "sha256:048adeaf8c2d788c40fee287673ccaa74c24ffd8dcf09ffa555a2fbb59f10ac8", size = 72340, upload-time = "2026-05-12T22:45:55.733Z" },
 ]
 
 [[package]]
@@ -1666,16 +1666,17 @@ wheels = [
 
 [[package]]
 name = "iterative-ensemble-smoother"
-version = "1.2.0"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
     { name = "numpy" },
+    { name = "psutil" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/9a/140d0e7d9bd419e741a0207cc44d90b05367fc9685b7037e79eaece92e70/iterative_ensemble_smoother-1.2.0.tar.gz", hash = "sha256:933fddeb3b355f128a57fd3698c837af202548b18acad46bd5b05e68da2501ad", size = 162553, upload-time = "2026-05-11T05:51:59.144Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/27/1f6b9563a3811f97bad82b6b21be5c0e25ec87e34eff2495a30c2eae9431/iterative_ensemble_smoother-1.1.0.tar.gz", hash = "sha256:3959c5639d1a66f31a9802c0861474c65a8474a7119c05973b0f2ee89b73a7bf", size = 181308, upload-time = "2026-03-27T08:51:11.839Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/fd/2b48babe3be7ddb10a2b6237215686c3293659d06fb62df24e2721af8010/iterative_ensemble_smoother-1.2.0-py3-none-any.whl", hash = "sha256:2cf58e9713b6ddbd60df9e44e2277443fe8b3faddeff08c69fd26e89b61fbb69", size = 41283, upload-time = "2026-05-11T05:51:57.186Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/76/d63e7670b6f84ebfaaacf11b424a7671bc77d9c178579a1697ab90228ca6/iterative_ensemble_smoother-1.1.0-py3-none-any.whl", hash = "sha256:f5449c9d7642d4122e199c0721512b31d81711172ff450d64c26f0849c91e7a5", size = 51440, upload-time = "2026-03-27T08:51:10.3Z" },
 ]
 
 [[package]]
@@ -4816,14 +4817,14 @@ wheels = [
 
 [[package]]
 name = "types-requests"
-version = "2.33.0.20260508"
+version = "2.33.0.20260513"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c7/6b/eb226bdd61a982c9a03e02c657fb4ab001733506e6423906ac142331f2e3/types_requests-2.33.0.20260508.tar.gz", hash = "sha256:81b2ae5f0d20967714a6aa5ef9284c05570d7cb06b7de8f2a77b918b63ddd411", size = 23991, upload-time = "2026-05-08T04:50:56.818Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/f7/3228dd3794941bcb92ca6ca2045a6671a828ec0b47becbef23310bc45559/types_requests-2.33.0.20260513.tar.gz", hash = "sha256:bd845450e954e751373d5d33526742592f298808a3ee3bda7e858e46b839b57f", size = 24714, upload-time = "2026-05-13T05:39:23.481Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/96/080db0afdf2c5cc5fe512b41354e8d114fe8f65e9510c56ff8dfd40216ce/types_requests-2.33.0.20260508-py3-none-any.whl", hash = "sha256:fa01459cca184229713df03709db46a905325906d27e042cd4fd7ea3d15d3400", size = 20722, upload-time = "2026-05-08T04:50:55.548Z" },
+    { url = "https://files.pythonhosted.org/packages/51/f5/233a78be8367a9888de718f002fb27b1ea4be39471cd88aedeafceed872e/types_requests-2.33.0.20260513-py3-none-any.whl", hash = "sha256:d5a965f9d18b6e06b72039a69565de9027e58f36a7f709857da747fbe7521122", size = 21390, upload-time = "2026-05-13T05:39:22.262Z" },
 ]
 
 [[package]]
