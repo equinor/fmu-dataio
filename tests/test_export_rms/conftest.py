@@ -14,7 +14,7 @@ import pytest
 import xtgeo
 
 if TYPE_CHECKING:
-    from fmu.dataio._readers.tsurf import TSurfData
+    from xtgeo import TriangulatedSurface
 
 # retrieved from Drogon in RMS 14.2
 VOLJOB_PARAMS = {
@@ -311,14 +311,14 @@ def mock_structural_model(mock_fault_model: MagicMock) -> dict[str, MagicMock]:
 
 @pytest.fixture
 def fault_surfaces_triangulated(
-    tsurf: TSurfData, mock_fault_model: MagicMock
-) -> Generator[list[TSurfData], None, None]:
+    tsurf: TriangulatedSurface, mock_fault_model: MagicMock
+) -> Generator[list[TriangulatedSurface], None, None]:
     """Mock for triangulated fault surfaces on TSurf format."""
 
     surfaces = []
     for fault_name in mock_fault_model.fault_names:
-        fault = tsurf.model_copy(deep=True)
-        fault.header.name = fault_name
+        fault = tsurf.copy()
+        fault.name = fault_name
         surfaces.append(fault)
 
     yield surfaces

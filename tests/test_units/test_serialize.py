@@ -9,7 +9,6 @@ import xtgeo
 
 from fmu.dataio._export.serialize import compute_md5_and_size, export_object
 from fmu.dataio._metadata import ObjectData, create_object_data
-from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio._utils import md5sum
 from fmu.dataio.dataio import ExportData
 from fmu.dataio.types import ExportableData
@@ -81,7 +80,9 @@ def test_export_dict(make_objdata: Callable[[ExportableData], ObjectData]) -> No
     assert b'"key"' in buffer.read()
 
 
-def test_export_tsurf(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
+def test_export_tsurf(
+    tsurf: xtgeo.TriangulatedSurface, drogon_exportdata: ExportData
+) -> None:
     """TSurf serializes to GOCAD format."""
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
 
