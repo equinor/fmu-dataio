@@ -19,14 +19,13 @@ import pyarrow.parquet as pq
 import xtgeo
 
 from fmu.dataio._logging import null_logger
-from fmu.dataio._readers import tsurf as tsurf_reader
+from fmu.dataio._metadata._object._xtgeo import PointsData, PolygonsData
 from fmu.dataio._readers.faultroom import FaultRoomSurface
-from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio._utils import md5sum
 from fmu.datamodels.fmu_results.enums import FileFormat
 
 if TYPE_CHECKING:
-    from fmu.dataio._metadata.objectdata._base import ObjectData
+    from fmu.dataio._metadata import ObjectData
 
 logger: Final = null_logger(__name__)
 
@@ -41,6 +40,9 @@ def export_object(objdata: ObjectData, file: Path | BytesIO) -> None:
 
     if isinstance(obj, xtgeo.RegularSurface):
         obj.to_file(file, fformat="irap_binary")
+
+    elif isinstance(obj, xtgeo.TriangulatedSurface):
+        obj.to_file(file, fformat="tsurf")
 
     elif isinstance(obj, (xtgeo.Polygons, xtgeo.Points)):
         _export_tabular_xtgeo(objdata, file)
@@ -64,9 +66,6 @@ def export_object(objdata: ObjectData, file: Path | BytesIO) -> None:
     elif isinstance(obj, FaultRoomSurface):
         _export_json(json.dumps(obj.storage, indent=4), file)
 
-    elif isinstance(obj, TSurfData):
-        tsurf_reader.write_tsurf_to_file(obj, file)
-
     elif isinstance(obj, dict):
         _export_json(json.dumps(obj), file)
 
@@ -78,6 +77,8 @@ def export_object(objdata: ObjectData, file: Path | BytesIO) -> None:
 
 def _export_tabular_xtgeo(objdata: ObjectData, file: Path | BytesIO) -> None:
     """Export xtgeo Polygons or Points, respecting the configured format."""
+    assert isinstance(objdata, (PolygonsData, PointsData))  # for mypy
+
     fmt = objdata.fmt
 
     if fmt == FileFormat.parquet:

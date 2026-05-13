@@ -20,7 +20,7 @@ from fmu.dataio.types import ExportableData
 from .serialize import export_object
 
 if TYPE_CHECKING:
-    from fmu.dataio.types import ExportableData
+    from fmu.dataio._metadata import ObjectData
 
     from ._export_config import ExportConfig
 
@@ -69,7 +69,7 @@ def _update_manifest_if_needed(export_config: ExportConfig, outfile: Path) -> No
     update_export_manifest(outfile, casepath=export_config.runcontext.casepath)
 
 
-def _write_object(file: Path, objdata: ExportableData) -> None:
+def _write_object(file: Path, objdata: ObjectData) -> None:
     """Write an object to a file, creating parent directories as needed."""
     file.parent.mkdir(parents=True, exist_ok=True)
     export_object(objdata, file)

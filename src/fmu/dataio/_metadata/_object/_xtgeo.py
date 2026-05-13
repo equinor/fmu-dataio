@@ -23,6 +23,7 @@ from fmu.datamodels.fmu_results.specification import (
     PointSpecification,
     PolygonsSpecification,
     SurfaceSpecification,
+    TriangulatedSurfaceSpecification,
     ZoneDefinition,
 )
 
@@ -168,6 +169,63 @@ class RegularSurfaceData(ObjectData):
             rotation=npfloat_to_float(required["rotation"]),
             undef=1.0e30,
             value_statistics=get_value_statistics(self.obj.values),
+        )
+
+
+class TriangulatedSurfaceData(ObjectData):
+    """Provider for triangulated surface data."""
+
+    obj: xtgeo.TriangulatedSurface
+
+    @property
+    def classname(self) -> ObjectMetadataClass:
+        return ObjectMetadataClass.surface
+
+    @property
+    def efolder(self) -> str:
+        return self.export_config.forcefolder or ExportFolder.maps.value
+
+    @property
+    def extension(self) -> str:
+        return FileExtension.tsurf.value
+
+    @property
+    def fmt(self) -> FileFormat:
+        return FileFormat.tsurf
+
+    @property
+    def layout(self) -> Layout:
+        return Layout.triangulated
+
+    @property
+    def table_index(self) -> None:
+        """Return the table index."""
+
+    def get_geometry(self) -> None:
+        """Derive data.geometry for TriangulatedSurface."""
+
+    def get_bbox(self) -> BoundingBox3D:
+        """Derive data.bbox for TriangulatedSurface."""
+        logger.info("Get bounding box for TriangulatedSurface")
+
+        bbox = self.obj.bounding_box
+        return BoundingBox3D(
+            xmin=bbox.min_x,
+            xmax=bbox.max_x,
+            ymin=bbox.min_y,
+            ymax=bbox.max_y,
+            zmin=bbox.min_z,
+            zmax=bbox.max_z,
+        )
+
+    def get_spec(self) -> TriangulatedSurfaceSpecification:
+        """Derive data.spec for TriangulatedSurface"""
+        logger.info("Get spec for TriangulatedSurface")
+
+        required = self.obj.metadata.required
+        return TriangulatedSurfaceSpecification(
+            num_vertices=required["num_vertices"],
+            num_triangles=required["num_triangles"],
         )
 
 

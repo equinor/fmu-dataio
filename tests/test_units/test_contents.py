@@ -7,7 +7,6 @@ import pytest
 import xtgeo
 from pydantic import ValidationError
 
-from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.dataio import ExportData
 
 
@@ -38,7 +37,7 @@ def test_content_fault_lines(
 
 
 def test_content_fault_surface(
-    tsurf: TSurfData, drogon_global_config: dict[str, Any]
+    tsurf: xtgeo.TriangulatedSurface, drogon_global_config: dict[str, Any]
 ) -> None:
     """Test export of the fault_surface content."""
     meta = ExportData(

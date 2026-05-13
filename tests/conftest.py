@@ -32,7 +32,6 @@ from pytest import MonkeyPatch
 
 import fmu.dataio as dio
 from fmu.dataio._readers.faultroom import FaultRoomSurface
-from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.dataio import ExportData
 
 from .utils import _metadata_examples
@@ -491,18 +490,20 @@ def faultroom_object(drogon_global_config: dict[str, Any]) -> FaultRoomSurface:
 
 
 @pytest.fixture()
-def tsurf() -> TSurfData:
+def tsurf() -> xtgeo.TriangulatedSurface:
     """
-    Create a basic TSurfData object from a dictionary.
+    Create a basic xtgeo.TriangulatedSurface object from a dictionary.
     """
 
     tsurf_dict: dict[str, Any] = {}
-    tsurf_dict["header"] = {"name": "Fault F1"}
-    tsurf_dict["coordinate_system"] = {
-        "name": "Default",
-        "axis_name": ("X", "Y", "Z"),
-        "axis_unit": ("m", "m", "m"),
-        "z_positive": "Depth",
+    tsurf_dict["name"] = "Fault F1"
+    tsurf_dict["free_form_metadata"] = {
+        "tsurf_coord_sys": {
+            "name": "Default",
+            "axis_name": ("X", "Y", "Z"),
+            "axis_unit": ("m", "m", "m"),
+            "zpositive": "Depth",
+        }
     }
     tsurf_dict["vertices"] = np.array(
         [
@@ -512,49 +513,9 @@ def tsurf() -> TSurfData:
             (3.1, 3.2, 3.3),
         ]
     ).astype(np.float64)
-    tsurf_dict["triangles"] = np.array([(1, 2, 3), (1, 2, 4)]).astype(np.int64)
+    tsurf_dict["triangles"] = np.array([(0, 1, 2), (0, 1, 3)]).astype(np.int64)
 
-    return TSurfData.model_validate(tsurf_dict)
-
-
-@pytest.fixture()
-def tsurf_as_lines(tsurf: TSurfData) -> list[str]:
-    """
-    Create lines to simulate the results of parsing a file with a basic TSurf object.
-    """
-
-    vertices_lines = [
-        f"VRTX {i + 1} {tsurf.vertices[i][0]} {tsurf.vertices[i][1]} "
-        f"{tsurf.vertices[i][2]} CNXYZ"
-        for i in range(len(tsurf.vertices))
-    ]
-
-    triangles_lines = [
-        f"TRGL {tsurf.triangles[i][0]} {tsurf.triangles[i][1]} {tsurf.triangles[i][2]}"
-        for i in range(len(tsurf.triangles))
-    ]
-
-    assert tsurf.coordinate_system is not None
-    return [
-        "GOCAD TSurf 1",
-        "HEADER {",
-        f"name: {tsurf.header.name}",
-        "}",
-        "GOCAD_ORIGINAL_COORDINATE_SYSTEM",
-        f"NAME {tsurf.coordinate_system.name}",
-        f'AXIS_NAME "{tsurf.coordinate_system.axis_name[0]}" '
-        f'"{tsurf.coordinate_system.axis_name[1]}" '
-        f'"{tsurf.coordinate_system.axis_name[2]}"',
-        f'AXIS_UNIT "{tsurf.coordinate_system.axis_unit[0]}" '
-        f'"{tsurf.coordinate_system.axis_unit[1]}" '
-        f'"{tsurf.coordinate_system.axis_unit[2]}"',
-        f"ZPOSITIVE {tsurf.coordinate_system.z_positive}",
-        "END_ORIGINAL_COORDINATE_SYSTEM",
-        "TFACE",
-        *vertices_lines,
-        *triangles_lines,
-        "END",
-    ]
+    return xtgeo.TriangulatedSurface.from_dict(tsurf_dict)
 
 
 @pytest.fixture(scope="function")
