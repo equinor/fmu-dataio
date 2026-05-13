@@ -26,7 +26,6 @@ exclude-newer-span = "P1W"
 
 [options.exclude-newer-package]
 iterative-ensemble-smoother = false
-urllib3 = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
 fmu-datamodels = false
 ert = false
 fmu-settings = false
@@ -1095,7 +1094,7 @@ requires-dist = [
     { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
-    { name = "fmu-datamodels", specifier = "~=0.21.0" },
+    { name = "fmu-datamodels", specifier = "~=0.22.0" },
     { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
@@ -1136,14 +1135,14 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "fmu-datamodels"
-version = "0.21.4"
+version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7a/df/d296d78bc8b8e20bbc47c9bdde9d7500bf714f2918271d7a451f46a7344c/fmu_datamodels-0.21.4.tar.gz", hash = "sha256:22d2680f25d19e107557c0e7e9d1e5249e5952d9239069994b44840938ca53ab", size = 405387, upload-time = "2026-05-05T13:39:54.625Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/fc/4faa6fc9073b8f28fd25c2df853e00a3bf6509fb83273e152bea7394f2e9/fmu_datamodels-0.22.0.tar.gz", hash = "sha256:a23addafe64b148527060122566231bdf0e35851dab0f87e5a6938233c95b5ae", size = 425059, upload-time = "2026-05-13T11:09:27.214Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/1e/9b8f38f0f1e4ecf64c41ac8c1c858d11f20769a02539af674ca33afe7c4a/fmu_datamodels-0.21.4-py3-none-any.whl", hash = "sha256:097cd19c4e45dc56bf9d722aba4a33c46472bba7a64bd87e53040f1b5fc9ef2e", size = 55186, upload-time = "2026-05-05T13:39:53.042Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/7a/ba8a39b8195cbe7f2ab38592fe4e7cf76723a2a7597049f70043bdb8f7c9/fmu_datamodels-0.22.0-py3-none-any.whl", hash = "sha256:943508e568425a3b852ebf7059616d8ec0683301c4f2c140419acd4d13f5c08a", size = 56619, upload-time = "2026-05-13T11:09:25.624Z" },
 ]
 
 [[package]]
@@ -4821,11 +4820,11 @@ wheels = [
 
 [[package]]
 name = "urllib3"
-version = "2.7.0"
+version = "2.6.3"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/53/0c/06f8b233b8fd13b9e5ee11424ef85419ba0d8ba0b3138bf360be2ff56953/urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c", size = 433602, upload-time = "2026-05-07T16:13:18.596Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/24/5f1b3bdffd70275f6661c76461e25f024d5a38a46f04aaca912426a2b1d3/urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed", size = 435556, upload-time = "2026-01-07T16:24:43.925Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897", size = 131087, upload-time = "2026-05-07T16:13:17.151Z" },
+    { url = "https://files.pythonhosted.org/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4", size = 131584, upload-time = "2026-01-07T16:24:42.685Z" },
 ]
 
 [[package]]
