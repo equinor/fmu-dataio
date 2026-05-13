@@ -83,7 +83,7 @@ docs = [
     "sphinx-copybutton",
     "sphinx-togglebutton",
     "sphinxcontrib-apidoc",
-    "urllib3<2.7",
+    "urllib3",
 ]
 
 [project.entry-points.ert]
