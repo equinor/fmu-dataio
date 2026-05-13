@@ -79,6 +79,7 @@ documentation](https://xtgeo.readthedocs.io).
 
 - [xtgeo.RegularSurface](https://xtgeo.readthedocs.io/en/stable/datamodels.html#surface-regularsurface).
   Exported as `.gri` files.
+- xtgeo.TriangularSurface. Exported as `.ts` files.
 - [xtgeo.Polygons](https://xtgeo.readthedocs.io/en/stable/datamodels.html#xyz-data-points-and-polygons).
   Exported as `.csv` files by default.
 - [xtgeo.Points](https://xtgeo.readthedocs.io/en/stable/datamodels.html#xyz-data-points-and-polygons)
@@ -122,14 +123,6 @@ GeoJSON files that can be created and exported by the FaultRoom plugin and
 have a particular format that is understood by fmu-dataio.
 
 FaultRoom surfaces are exported as JSON files.
-
-#### GOCAD Surface/TSURF Files
-
-These are triangle-based surfaces. Within FMU, TSURF files can be created and
-exported within RMS. The `TSurfData` class is currently stored in fmu-dataio
-but will eventually exist as an xtgeo type.
-
-TSURF files are exported as `.ts` TSURF files.
 
 #### Something Missing?
 

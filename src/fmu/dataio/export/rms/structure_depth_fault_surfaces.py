@@ -3,16 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Final, Self
 
-import numpy as np
+from xtgeo import TriangulatedSurface
 
 from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
-from fmu.dataio._readers.tsurf import (
-    AllowedKeywordValues,
-    CoordinateSystem,
-    Header,
-    TSurfData,
-)
 from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._utils import get_rms_project_units
@@ -60,8 +54,8 @@ class _ExportStructureDepthFaultSurfaces(SimpleExportBase):
             .build()
         )
 
-    def _export_surface(self: Self, surf: TSurfData) -> ExportResultItem:
-        export_config = self._get_export_config(name=surf.header.name)
+    def _export_surface(self: Self, surf: TriangulatedSurface) -> ExportResultItem:
+        export_config = self._get_export_config(name=surf.name)
         absolute_export_path = export_with_metadata(export_config, surf)
         _logger.debug("Surface exported to: %s", absolute_export_path)
 
@@ -83,16 +77,16 @@ class _ExportStructureDepthFaultSurfaces(SimpleExportBase):
 def _get_fault_surfaces_from_rms(
     project: Any,
     structural_model_name: str,
-) -> list[TSurfData]:
+) -> list[TriangulatedSurface]:
     """
-    Fetch triangulated fault surfaces in TSurf format from RMS.
+    Fetch triangulated fault surfaces as TriangulatedSurface from RMS.
 
     Args:
         project: the 'magic' project variable in RMS
         structural_model_name: name of the structural model
 
     Returns:
-        List of TSurfData objects (GoCAD TSurf) representing
+        List of TriangulatedSurface objects representing
         all fault surfaces in the structural model as triangulations.
     """
 
@@ -104,37 +98,28 @@ def _get_fault_surfaces_from_rms(
 
     fault_model = project.structural_models[structural_model_name].fault_model
 
-    realization = 0
-    tsurf_coord_sys = CoordinateSystem(
-        name="Default",
-        axis_name=AllowedKeywordValues.axis_names["xyz"],
-        axis_unit=(
-            AllowedKeywordValues.axis_units["mmm"]
-            if get_rms_project_units(project) == "metric"
-            else AllowedKeywordValues.axis_units["ft"]
-        ),
-        z_positive=AllowedKeywordValues.z_positives["depth"],
-    )
-
     fault_surfaces = []
     for fault_name in fault_model.fault_names:
-        fault_surface = fault_model.get_fault_triangle_surface(
+        fault_surface = fault_model.get_fault_triangle_surface(name=fault_name)
+
+        tsurf = TriangulatedSurface(
             name=fault_name,
-            realisation=realization,
+            vertices=fault_surface.get_vertices(),
+            triangles=fault_surface.get_triangles(),
         )
 
-        tsurf_header = Header(name=fault_name)
+        # To get coordinate system info in the GOCAD TSurf file
+        # it must be set using metadata in the xtgeo object
+        unit = "m" if get_rms_project_units(project) == "metric" else "ft"
 
-        vertices = fault_surface.get_vertices()
-        # GoCAD TSurf uses 1-based indexing for triangles while RMS uses 0-based
-        triangles = fault_surface.get_triangles().astype(np.int64) + 1
-
-        tsurf = TSurfData(
-            header=tsurf_header,
-            coordinate_system=tsurf_coord_sys,
-            vertices=vertices,
-            triangles=triangles,
-        )
+        tsurf.metadata.freeform = {
+            "tsurf_coord_sys": {
+                "name": "Default",
+                "axis_name": ("X", "Y", "Z"),
+                "axis_unit": (unit, unit, unit),
+                "zpositive": "depth",
+            }
+        }
 
         fault_surfaces.append(tsurf)
 

@@ -18,7 +18,8 @@ from fmu import dataio
 from fmu.dataio._logging import null_logger
 
 if TYPE_CHECKING:
-    from fmu.dataio._readers.tsurf import TSurfData
+    from xtgeo import TriangulatedSurface
+
     from fmu.dataio.export.rms.structure_depth_fault_surfaces import (
         _ExportStructureDepthFaultSurfaces,
     )
@@ -31,7 +32,7 @@ def mock_export_class(
     mock_project_variable: MagicMock,
     monkeypatch: MonkeyPatch,
     rmssetup_with_fmuconfig: Path,
-    fault_surfaces_triangulated: list[TSurfData],
+    fault_surfaces_triangulated: list[TriangulatedSurface],
 ) -> Generator[_ExportStructureDepthFaultSurfaces]:
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
