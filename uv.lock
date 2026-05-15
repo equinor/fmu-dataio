@@ -21,12 +21,12 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer = "2026-05-08T12:58:58.641255Z"
 exclude-newer-span = "P1W"
 
 [options.exclude-newer-package]
 iterative-ensemble-smoother = false
-urllib3 = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
+urllib3 = { timestamp = "2026-05-15T12:58:58.62405Z", span = "PT0S" }
 fmu-datamodels = false
 ert = false
 fmu-settings = false
@@ -1095,7 +1095,7 @@ requires-dist = [
     { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
-    { name = "fmu-datamodels", specifier = "~=0.21.0" },
+    { name = "fmu-datamodels", specifier = "~=0.22.0" },
     { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
@@ -1136,14 +1136,14 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "fmu-datamodels"
-version = "0.21.4"
+version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7a/df/d296d78bc8b8e20bbc47c9bdde9d7500bf714f2918271d7a451f46a7344c/fmu_datamodels-0.21.4.tar.gz", hash = "sha256:22d2680f25d19e107557c0e7e9d1e5249e5952d9239069994b44840938ca53ab", size = 405387, upload-time = "2026-05-05T13:39:54.625Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/fc/4faa6fc9073b8f28fd25c2df853e00a3bf6509fb83273e152bea7394f2e9/fmu_datamodels-0.22.0.tar.gz", hash = "sha256:a23addafe64b148527060122566231bdf0e35851dab0f87e5a6938233c95b5ae", size = 425059, upload-time = "2026-05-13T11:09:27.214Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/1e/9b8f38f0f1e4ecf64c41ac8c1c858d11f20769a02539af674ca33afe7c4a/fmu_datamodels-0.21.4-py3-none-any.whl", hash = "sha256:097cd19c4e45dc56bf9d722aba4a33c46472bba7a64bd87e53040f1b5fc9ef2e", size = 55186, upload-time = "2026-05-05T13:39:53.042Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/7a/ba8a39b8195cbe7f2ab38592fe4e7cf76723a2a7597049f70043bdb8f7c9/fmu_datamodels-0.22.0-py3-none-any.whl", hash = "sha256:943508e568425a3b852ebf7059616d8ec0683301c4f2c140419acd4d13f5c08a", size = 56619, upload-time = "2026-05-13T11:09:25.624Z" },
 ]
 
 [[package]]
