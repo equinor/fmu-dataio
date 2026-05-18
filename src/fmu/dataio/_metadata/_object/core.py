@@ -16,15 +16,11 @@ from fmu.dataio._definitions import ExportFolder, FileExtension
 from fmu.dataio._export import ExportConfig
 from fmu.dataio._logging import null_logger
 from fmu.dataio._readers.faultroom import FaultRoomSurface
-from fmu.dataio._readers.tsurf import TSurfData
 from fmu.datamodels.fmu_results.enums import FileFormat, Layout, ObjectMetadataClass
 
-from ._base import (
-    ObjectData,
-)
+from ._base import ObjectData
 from ._faultroom import FaultRoomSurfaceData
 from ._tables import ArrowTableData, DataFrameData
-from ._triangulated_surface import TriangulatedSurfaceData
 from ._xtgeo import (
     CPGridData,
     CPGridPropertyData,
@@ -32,6 +28,7 @@ from ._xtgeo import (
     PointsData,
     PolygonsData,
     RegularSurfaceData,
+    TriangulatedSurfaceData,
 )
 
 if TYPE_CHECKING:
@@ -54,6 +51,8 @@ def create_object_data(obj: ExportableData, export_config: ExportConfig) -> Obje
     """
     if isinstance(obj, xtgeo.RegularSurface):
         return RegularSurfaceData(obj, export_config)
+    if isinstance(obj, xtgeo.TriangulatedSurface):
+        return TriangulatedSurfaceData(obj, export_config)
     if isinstance(obj, xtgeo.Polygons):
         return PolygonsData(obj, export_config)
     if isinstance(obj, xtgeo.Points):
@@ -68,8 +67,6 @@ def create_object_data(obj: ExportableData, export_config: ExportConfig) -> Obje
         return DataFrameData(obj, export_config)
     if isinstance(obj, FaultRoomSurface):
         return FaultRoomSurfaceData(obj, export_config)
-    if isinstance(obj, TSurfData):
-        return TriangulatedSurfaceData(obj, export_config)
     if isinstance(obj, dict):
         return DictionaryData(obj, export_config)
     if isinstance(obj, pa.Table):

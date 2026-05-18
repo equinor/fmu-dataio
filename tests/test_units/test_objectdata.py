@@ -22,13 +22,12 @@ from fmu.dataio import ExportData
 from fmu.dataio._export.serialize import compute_md5_and_size, export_object
 from fmu.dataio._metadata import create_object_data
 from fmu.dataio._metadata._object._faultroom import FaultRoomSurfaceData
-from fmu.dataio._metadata._object._triangulated_surface import (
+from fmu.dataio._metadata._object._utils import get_value_statistics
+from fmu.dataio._metadata._object._xtgeo import (
+    RegularSurfaceData,
     TriangulatedSurfaceData,
 )
-from fmu.dataio._metadata._object._utils import get_value_statistics
-from fmu.dataio._metadata._object._xtgeo import RegularSurfaceData
 from fmu.dataio._readers.faultroom import FaultRoomSurface
-from fmu.dataio._readers.tsurf import TSurfData
 from fmu.dataio.exceptions import ConfigurationError
 
 
@@ -222,7 +221,7 @@ def test_factory_returns_correct_provider_faultroom(
 
 
 def test_factory_returns_correct_provider_tsurf(
-    tsurf: TSurfData, drogon_exportdata: ExportData
+    tsurf: xtgeo.TriangulatedSurface, drogon_exportdata: ExportData
 ) -> None:
     """Factory returns TriangulatedSurfaceData for TSurfData."""
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
@@ -443,7 +442,9 @@ def test_faultroom_export_to_file(
     assert buffer.read(len(expected)).decode("utf-8") == expected
 
 
-def test_tsurf_properties(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
+def test_tsurf_properties(
+    tsurf: xtgeo.TriangulatedSurface, drogon_exportdata: ExportData
+) -> None:
     """TSurf has correct properties."""
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
 
@@ -454,7 +455,9 @@ def test_tsurf_properties(tsurf: TSurfData, drogon_exportdata: ExportData) -> No
     assert objdata.layout == "triangulated"
 
 
-def test_tsurf_bbox(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
+def test_tsurf_bbox(
+    tsurf: xtgeo.TriangulatedSurface, drogon_exportdata: ExportData
+) -> None:
     """TSurf bbox is derived correctly."""
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
     bbox = objdata.get_bbox()
@@ -467,7 +470,9 @@ def test_tsurf_bbox(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
     assert bbox.zmax == 3.3
 
 
-def test_tsurf_spec(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
+def test_tsurf_spec(
+    tsurf: xtgeo.TriangulatedSurface, drogon_exportdata: ExportData
+) -> None:
     """TSurf spec is derived correctly."""
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
     spec = objdata.get_spec()
@@ -477,7 +482,9 @@ def test_tsurf_spec(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
     assert spec.num_triangles == 2
 
 
-def test_tsurf_export_to_file(tsurf: TSurfData, drogon_exportdata: ExportData) -> None:
+def test_tsurf_export_to_file(
+    tsurf: xtgeo.TriangulatedSurface, drogon_exportdata: ExportData
+) -> None:
     """TSurf exports to correct format."""
     objdata = create_object_data(tsurf, drogon_exportdata._export_config)
 
