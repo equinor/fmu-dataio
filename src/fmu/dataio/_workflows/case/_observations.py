@@ -24,7 +24,7 @@ def _convert_type_large_string_to_string(pa_type: pa.DataType) -> pa.DataType:
 
 
 def _prepare_observations_dataframe(
-    obs_df: pl.DataFrame, obs_type: Literal["rft", "summary"]
+    obs_df: pl.DataFrame, obs_type: Literal["rft", "summary", "breakthrough"]
 ) -> pl.DataFrame:
     """Modify observations dataframe to comply with the standard result schema.
 
@@ -46,7 +46,7 @@ def _prepare_observations_dataframe(
 
 
 def get_ert_observations_table(
-    ensemble: ert.Ensemble, obs_type: Literal["rft", "summary"]
+    ensemble: ert.Ensemble, obs_type: Literal["rft", "summary", "breakthrough"]
 ) -> pa.Table | None:
     """Extract observations from ert storage and process it into an arrow table."""
     logger.info(f"Observation type: {obs_type}")

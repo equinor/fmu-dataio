@@ -848,9 +848,10 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
         # only rft table should be queued, summary should be None and not queued
         from_new_case.return_value.queue_table.assert_called_once()
 
-    assert len(captured_tables) == 2
+    assert len(captured_tables) == 3
 
     assert captured_tables["summary"] is None
+    assert captured_tables["breakthrough"] is None
     assert captured_tables["rft"] is not None
 
     table = captured_tables["rft"]
@@ -905,7 +906,8 @@ def test_create_case_metadata_with_no_observations(
         # no tables should be queued
         from_new_case.return_value.queue_table.assert_not_called()
 
-    assert len(captured_tables) == 2
+    assert len(captured_tables) == 3
 
     assert captured_tables["summary"] is None
+    assert captured_tables["breakthrough"] is None
     assert captured_tables["rft"] is None

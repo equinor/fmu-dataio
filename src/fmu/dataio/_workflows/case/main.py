@@ -102,6 +102,38 @@ def _queue_ert_parameters(
     sumo_uploader.queue_table(table, metadata)
 
 
+def _queue_ert_observations_breakthrough(
+    ensemble: ert.Ensemble,
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export breakthrough observation table using fmu-dataio."""
+
+    table = get_ert_observations_table(ensemble, "breakthrough")
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.observations)
+        .access(Classification.internal, rep_include=False)
+        .table_config(table_index=ErtObservations.BreakthroughColumns.index_columns())
+        .file_config(name=StandardResultName.observations_breakthrough.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .flags(is_observation=True)
+        .standard_result(StandardResultName.observations_breakthrough)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
 def _queue_ert_observations_rft(
     ensemble: ert.Ensemble,
     ensemble_name: str,
@@ -176,6 +208,9 @@ def _upload_files_to_sumo(
     _queue_ert_parameters(ensemble, ensemble_name, workflow_config, sumo_uploader)
     _queue_ert_observations_rft(ensemble, ensemble_name, workflow_config, sumo_uploader)
     _queue_ert_observations_summary(
+        ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
+    _queue_ert_observations_breakthrough(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
     sumo_uploader.upload()

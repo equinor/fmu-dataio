@@ -138,3 +138,26 @@ def add_summary_observations(ert_config_path: Path) -> None:
     )
     with open(ert_config_path.parent / "observations", "a") as f:
         f.write(obs_config)
+
+
+def add_breakthrough_observations(ert_config_path: Path) -> None:
+    obs_config = dedent(
+        """
+        BREAKTHROUGH_OBSERVATION FOPR_1
+        {
+        KEY       = FOPR;
+        DATE      = 2020-01-01;
+        THRESHOLD = 0.5;
+        ERROR     = 0.05;
+        };
+        BREAKTHROUGH_OBSERVATION FGPT_1
+        {
+        KEY       = FGPT;
+        DATE      = 2025-01-01;
+        THRESHOLD = 50.0;
+        ERROR     = 10;
+        };
+        """
+    )
+    with open(ert_config_path.parent / "observations", "a") as f:
+        f.write(obs_config)
