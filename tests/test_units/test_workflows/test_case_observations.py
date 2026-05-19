@@ -21,6 +21,8 @@ import pytest
 from ert.config import ErtConfig
 from ert.config.ert_config import create_observation_dataframes
 from fmu.datamodels import (
+    ErtObservationsBreakthroughResult,
+    ErtObservationsBreakthroughSchema,
     ErtObservationsRftResult,
     ErtObservationsRftSchema,
     ErtObservationsSummaryResult,
@@ -34,13 +36,14 @@ from fmu.dataio._workflows.case._observations import (
     get_ert_observations_table,
 )
 from tests.test_ert_integration.ert_config_utils import (
+    add_breakthrough_observations,
     add_rft_observations,
     add_summary_observations,
 )
 
 
 @pytest.fixture
-def ert_config_path(tmp_path: Path, monkeypatch: MonkeyPatch) -> str:
+def ert_config_path(tmp_path: Path, monkeypatch: MonkeyPatch) -> Path:
     monkeypatch.chdir(tmp_path)
     ert_config_path = tmp_path / "snakeoil.ert"
 
@@ -57,19 +60,113 @@ def ert_config_path(tmp_path: Path, monkeypatch: MonkeyPatch) -> str:
     return ert_config_path
 
 
-def test_ert_observations_as_expected(ert_config_path: str) -> None:
+def test_ert_observations_as_expected(ert_config_path: Path) -> None:
     """Different observation types are returned together as expected from ert"""
 
     add_rft_observations(ert_config_path)
     add_summary_observations(ert_config_path)
+    add_breakthrough_observations(ert_config_path)
 
     ert_config = ErtConfig.from_file(ert_config_path)
     observations = create_observation_dataframes(
         ert_config.observation_declarations, MagicMock(), ert_config.shape_registry
     )
 
-    assert len(observations) == 2
-    assert observations.keys() == {"rft", "summary"}
+    assert len(observations) == 3
+    assert observations.keys() == {"rft", "summary", "breakthrough"}
+
+
+def test_ert_observations_breakthrough_dataframe_as_expected(
+    ert_config_path: Path,
+) -> None:
+    """The breakthrough dataframe is as expected from ert"""
+
+    add_breakthrough_observations(ert_config_path)
+
+    ert_config = ErtConfig.from_file(ert_config_path)
+    observations = create_observation_dataframes(
+        ert_config.observation_declarations, MagicMock()
+    )
+
+    assert len(observations) == 1
+    assert "breakthrough" in observations
+
+    df = observations["breakthrough"]
+
+    assert isinstance(df, pl.DataFrame)
+    assert df.shape == (2, 9)
+
+    assert set(df.columns) == {
+        "observation_key",
+        "response_key",
+        "time",
+        "observations",
+        "threshold",
+        "std",
+        "east",
+        "north",
+        "radius",
+    }
+
+    assert set(df.schema) == set(
+        {
+            "observation_key": pl.String,
+            "response_key": pl.String,
+            "time": pl.Datetime("ms"),
+            "observations": pl.Float32,
+            "threshold": pl.Float64,
+            "std": pl.Float32,
+            "east": pl.Float32,
+            "north": pl.Float32,
+            "radius": pl.Float32,
+        }
+    )
+
+    assert df["response_key"].to_list() == ["BREAKTHROUGH:FOPR", "BREAKTHROUGH:FGPT"]
+    assert df["observation_key"].to_list() == ["FOPR_1", "FGPT_1"]
+    assert df["observations"].to_list() == pytest.approx([0.0, 0.0])
+    assert df["threshold"].to_list() == pytest.approx([0.5, 50.0])
+    assert df["std"].to_list() == pytest.approx([0.05, 10])
+    assert df["time"].to_list() == [datetime(2020, 1, 1), datetime(2025, 1, 1)]
+    assert df["east"].is_null().all()
+    assert df["north"].is_null().all()
+    assert df["radius"].is_null().all()
+
+
+def test_ert_observations_breakthrough_dataframe_validates_against_schema(
+    ert_config_path: Path,
+) -> None:
+    """The breakthrough dataframe validates against the file schema"""
+
+    add_breakthrough_observations(ert_config_path)
+
+    ert_config = ErtConfig.from_file(ert_config_path)
+    observations = create_observation_dataframes(
+        ert_config.observation_declarations, MagicMock()
+    )
+
+    obs_df = observations["breakthrough"]
+
+    ensemble = MagicMock()
+    ensemble.experiment.observations.get.return_value = obs_df
+
+    table = get_ert_observations_table(ensemble, "breakthrough")
+
+    assert table is not None
+    assert isinstance(table, pa.Table)
+
+    # ensure 1-1 between table columns and model fields
+    root_field = ErtObservationsBreakthroughResult.model_fields["root"]
+    row_model = get_args(root_field.annotation)[0]
+    assert set(table.column_names) == set(row_model.model_fields)
+
+    rows = table.to_pylist()
+    for row in rows:
+        row["time"] = row["time"].isoformat()  # convert datetime objects for validation
+
+    jsonschema.validate(
+        instance=rows, schema=ErtObservationsBreakthroughSchema.dump()
+    )  # Throws if invalid
 
 
 def test_ert_observations_summary_dataframe_as_expected(ert_config_path: Path) -> None:
@@ -124,7 +221,7 @@ def test_ert_observations_summary_dataframe_as_expected(ert_config_path: Path) -
     assert df["radius"].is_null().all()
 
 
-def test_ert_observations_summary_dataframe_validates_against_achema(
+def test_ert_observations_summary_dataframe_validates_against_schema(
     ert_config_path: Path,
 ) -> None:
     """The summary dataframe validates against the file schema"""
@@ -339,6 +436,22 @@ def test_prepare_observations_dataframe_summary_does_not_add_property() -> None:
     )
 
     df = _prepare_observations_dataframe(obs_df, "summary")
+
+    assert set(df.columns) == {"response_key", "observation_value", "observation_error"}
+
+
+def test_prepare_observations_dataframe_breakthrough_does_not_add_property() -> None:
+    """Breakthrough observations do not derive a property column from response_key."""
+    obs_df = pl.DataFrame(
+        {
+            "response_key": ["FOPR"],
+            "observations": [3000.0],
+            "std": [100.0],
+            "radius": [2000.0],
+        }
+    )
+
+    df = _prepare_observations_dataframe(obs_df, "breakthrough")
 
     assert set(df.columns) == {"response_key", "observation_value", "observation_error"}
 
