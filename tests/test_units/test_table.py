@@ -331,6 +331,50 @@ def test_table_wellpicks(
     assert metadata["data"]["table_index"] == ["WELL", "HORIZON"]
 
 
+def test_lift_curves_index(mock_global_config: dict[str, Any]) -> None:
+    """Test that the table index is set correct for lift curves data"""
+
+    mock_table = pd.DataFrame(
+        {
+            "TABLE_NUMBER": [12, 12],
+            "VFP_TYPE": ["VFPPROD", "VFPPROD"],
+            "RATE_TYPE": ["LIQ", "LIQ"],
+            "WFR_TYPE": ["WCT", "WCT"],
+            "GFR_TYPE": ["GOR", "GOR"],
+            "ALQ_TYPE": ["GRAT", "GRAT"],
+            "PRESSURE_TYPE": ["THP", "THP"],
+            "TAB_TYPE": ["BHP", "BHP"],
+            "UNIT_TYPE": ["METRIC", "METRIC"],
+            "RATE": [20.0, 27.7],
+            "PRESSURE": [2.0, 2.0],
+            "TAB": [156.06, 155.46],
+        }
+    )
+
+    exp = ExportData(
+        config=mock_global_config,
+        name="lift_curves",
+        content="lift_curves",
+    )
+
+    metadata = exp.generate_metadata(mock_table)
+
+    assert metadata["data"]["content"] == "lift_curves"
+
+    # table index shall be inserted automatically
+    assert metadata["data"]["table_index"] == [
+        "TABLE_NUMBER",
+        "VFP_TYPE",
+        "RATE_TYPE",
+        "WFR_TYPE",
+        "GFR_TYPE",
+        "ALQ_TYPE",
+        "PRESSURE_TYPE",
+        "TAB_TYPE",
+        "UNIT_TYPE",
+    ]
+
+
 def test_production_network_index(mock_global_config: dict[str, Any]) -> None:
     """Test that the table index is set correct for production network data"""
 
