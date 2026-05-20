@@ -95,6 +95,10 @@ STANDARD_TABLE_INDEX_COLUMNS: Final[dict[Content, StandardTableIndex]] = {
         columns=SimulatorTables.TransmissibilitiesColumns.index_columns(),
         required=SimulatorTables.TransmissibilitiesColumns.index_columns(),
     ),
+    Content.lift_curves: StandardTableIndex(
+        columns=SimulatorTables.LiftCurvesColumns.index_columns(),
+        required=SimulatorTables.LiftCurvesColumns.index_columns(),
+    ),
 }
 
 
