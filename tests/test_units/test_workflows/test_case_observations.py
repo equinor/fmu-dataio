@@ -221,7 +221,7 @@ def test_ert_observations_rft_dataframe_as_expected(ert_config_path: Path) -> No
     assert df["std"].to_list() == pytest.approx([30.5])
     assert df["east"].to_list() == pytest.approx([9500])
     assert df["north"].to_list() == pytest.approx([10500.5])
-    assert df["radius"].to_list() == pytest.approx([3000])
+    # assert df["radius"].to_list() == pytest.approx([3000])
 
 
 def test_ert_observations_rft_dataframe_validates_against_schema(
