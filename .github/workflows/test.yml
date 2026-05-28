@@ -53,10 +53,6 @@ jobs:
         run: uv pip install \ "fmu-sumo-uploader @
           git+https://github.com/equinor/fmu-sumo-uploader.git"
 
-      - name: Install ert
-        run: |
-          uv pip install "ert @ git+https://github.com/equinor/ert.git"
-
       - name: Full test
         run: |
           uv run pytest -n auto -v --cov --cov-report term-missing
