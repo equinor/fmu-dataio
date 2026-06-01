@@ -29,6 +29,7 @@ from fmu.settings import (
 )
 
 from ._config import CaseWorkflowConfig
+from ._mappings import get_stratigraphy_mappings_table
 from ._observations import get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
@@ -197,6 +198,37 @@ def _queue_ert_observations_summary(
     sumo_uploader.queue_table(table, metadata)
 
 
+def _queue_stratigraphy_mappings(
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export stratigraphy mappings using fmu-dataio."""
+    assert workflow_config.fmu_dir is not None
+
+    table = get_stratigraphy_mappings_table(workflow_config.fmu_dir)
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.mapping)
+        .access(Classification.internal, rep_include=False)
+        .file_config(name=StandardResultName.stratigraphy_mapping.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .flags(is_observation=True)
+        .standard_result(StandardResultName.stratigraphy_mapping)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
 def _upload_files_to_sumo(
     ensemble: ert.Ensemble,
     run_paths: ert.Runpaths,
@@ -213,6 +245,10 @@ def _upload_files_to_sumo(
     _queue_ert_observations_breakthrough(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
+
+    if workflow_config.fmu_dir:
+        _queue_stratigraphy_mappings(ensemble_name, workflow_config, sumo_uploader)
+
     sumo_uploader.upload()
 
 

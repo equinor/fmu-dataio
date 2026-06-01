@@ -106,6 +106,20 @@ def fmu_snakeoil_project_with_dotfmu(fmu_snakeoil_project: Path) -> Path:
 
 
 @pytest.fixture
+def fmu_snakeoil_project_with_dotfmu_sumo(
+    fmu_snakeoil_project_with_dotfmu: Path,
+) -> Path:
+    """fmu_snakeoil_project with an additional .fmu/ directory and Sumo enabled."""
+    create_case_metadata_wf = (
+        fmu_snakeoil_project_with_dotfmu
+        / "ert/bin/workflows/xhook_create_case_metadata"
+    )
+    with open(create_case_metadata_wf, "a") as f:
+        f.write(' "--sumo"')
+    return fmu_snakeoil_project_with_dotfmu
+
+
+@pytest.fixture
 def fmu_snakeoil_project_sumo(fmu_snakeoil_project: Path) -> Path:
     """Enables Sumo in WF_CREATE_CASE_METADATA."""
     tmp_path = fmu_snakeoil_project
