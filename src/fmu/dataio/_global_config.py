@@ -198,6 +198,7 @@ def load_global_config(
     Raises:
         FileNotFoundError: If .fmu/ doesn't exist _and_ global_variables.yml doesn't
             exist
+        ValidationError: If a config is found but invalid.
 
     Returns:
         Validated GlobalConfiguration object
