@@ -21,6 +21,7 @@ from pytest import MonkeyPatch
 
 from fmu.dataio import DeprecationError, ExportData, read_metadata
 from fmu.dataio._export import export_with_metadata
+from fmu.dataio._global_config import RUNPATH_GLOBAL_VARIABLES_PATH
 from fmu.dataio._metadata import ERT_RELATIVE_CASE_METADATA_FILE
 from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio._utils import (
@@ -167,6 +168,85 @@ def test_wrong_config_exports_correctly_in_fmu(
             name=name,
         )
     assert objpath_cfg_invalid == objpath_cfg_valid
+
+
+def test_invalid_config_at_default_path(
+    runpath_no_dotfmu: Path, regsurf: xtgeo.RegularSurface
+) -> None:
+    """
+    When there is no .fmu and the config at default location is invalid,
+    objects should be exported without metadata with a warning.
+    """
+
+    config_path = runpath_no_dotfmu / RUNPATH_GLOBAL_VARIABLES_PATH
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text("config: invalid")
+
+    name = "mysurface"
+
+    with pytest.warns(UserWarning, match="no metadata will be created"):
+        export_path = ExportData(content="depth", name=name).export(regsurf)
+
+    assert Path(export_path) == runpath_no_dotfmu / f"share/results/maps/{name}.gri"
+    assert Path(export_path).exists()
+
+    # test that metadata is not exported
+    expected_metadata_path = Path(export_path).parent / f".{name}.gri.yml"
+    assert not expected_metadata_path.exists()
+
+
+def test_invalid_config_at_default_path_uses_input_config(
+    runpath_no_dotfmu: Path,
+    regsurf: xtgeo.RegularSurface,
+    mock_global_config: dict[str, Any],
+) -> None:
+    """
+    When there is no .fmu and the config at default location is invalid, the
+    user provided config should be used if it is valid and objects should be
+    exported as normal with metadata.
+    """
+
+    config_path = runpath_no_dotfmu / RUNPATH_GLOBAL_VARIABLES_PATH
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text("config: invalid")
+
+    name = "mysurface"
+
+    export_path = ExportData(
+        config=mock_global_config, content="depth", name=name
+    ).export(regsurf)
+
+    assert Path(export_path) == runpath_no_dotfmu / f"share/results/maps/{name}.gri"
+    assert Path(export_path).exists()
+
+    # test that metadata is exported
+    expected_metadata_path = Path(export_path).parent / f".{name}.gri.yml"
+    assert expected_metadata_path.exists()
+
+
+def test_invalid_config_at_default_path_and_invalid_input_config(
+    runpath_no_dotfmu: Path,
+    regsurf: xtgeo.RegularSurface,
+) -> None:
+    """
+    When there is no .fmu and the config at default location is invalid, and the
+    user provided config is also invalid, objects should be exported without metadata.
+    """
+
+    config_path = runpath_no_dotfmu / RUNPATH_GLOBAL_VARIABLES_PATH
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text("config: invalid")
+
+    name = "mysurface"
+
+    export_path = ExportData(config={}, content="depth", name=name).export(regsurf)
+
+    assert Path(export_path) == runpath_no_dotfmu / f"share/results/maps/{name}.gri"
+    assert Path(export_path).exists()
+
+    # test that metadata is not exported
+    expected_metadata_path = Path(export_path).parent / f".{name}.gri.yml"
+    assert not expected_metadata_path.exists()
 
 
 def test_config_miss_required_fields(

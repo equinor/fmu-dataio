@@ -195,3 +195,19 @@ strict_equality = true
 warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[tool.uv]
+exclude-newer = "1 week"
+# Exclude specific package(s) we maintain for quick iteration
+
+[tool.uv.exclude-newer-package]
+"fmu-config" = false
+"fmu-datamodels" = false
+"fmu-settings" = false
+"fmu-sumo" = false
+"fmu-sumo-uploader" = false
+"graphite-maps" = false
+"iterative-ensemble-smoother" = false 
+"sumo-wrapper-python" = false
+"xtgeo" = false
+"ert" = false

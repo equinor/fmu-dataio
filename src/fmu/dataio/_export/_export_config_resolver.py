@@ -598,9 +598,8 @@ def _resolve_global_config(
     Resolves in this order:
 
         1. .fmu/
-        2. Check environment variable if config == {} (non provided)
-        3. fmuconfig/output/global_variables.yml
-        4. ../../fmuconfig/output/global_variables.yml
+        2. fmuconfig/output/global_variables.yml
+        3. ../../fmuconfig/output/global_variables.yml
 
     This means the provided config dict _will be ignored_ if provided if global
     variables can be located by load_global_config().
@@ -613,7 +612,7 @@ def _resolve_global_config(
     """
     try:
         return load_global_config()
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ValidationError) as e:
         logger.info(
             "Could not resolve global configuration. Falling back to user input. "
             f"Error: {e}"
