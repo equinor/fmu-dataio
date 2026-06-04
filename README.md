@@ -1,6 +1,6 @@
 # fmu-dataio
 
-[![Test](https://github.com/equinor/fmu-dataio/actions/workflows/ci-fmudataio.yml/badge.svg)](https://github.com/equinor/fmu-dataio/actions/workflows/ci-fmudataio.yml)
+[![Test](https://github.com/equinor/fmu-dataio/actions/workflows/test.yml/badge.svg)](https://github.com/equinor/fmu-dataio/actions/workflows/test.yml)
 [![PyPI version](https://badge.fury.io/py/fmu-dataio.svg)](https://badge.fury.io/py/fmu-dataio)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fmu-dataio.svg)
 ![PyPI - License](https://img.shields.io/pypi/l/fmu-dataio.svg)
@@ -15,7 +15,7 @@
 ---
 
 **fmu-dataio** is a library for handling data flow in and out of Fast Model
-Update workflows.  For export, it automates the adherence to the FMU data
+Update workflows. For export, it automates the adherence to the FMU data
 standard ✅ including both file and folder conventions as well as richer
 metadata 🔖 for use by various data consumers both inside and outside the
 FMU context via Sumo.
