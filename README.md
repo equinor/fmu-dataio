@@ -44,3 +44,13 @@ page in the documentation for instructions.
 ## License
 
 This project is licensed under the terms of the [Apache 2.0](https://github.com/equinor/fmu-dataio/LICENSE) license.
+
+## Note on RMS Roxar API Integration
+
+![RMS License Required](https://img.shields.io/badge/RMS-License%20Required-important)
+
+The following statement applies to all functionalities in fmu-dataio that
+integrates with the RMS APIs:
+
+> RMS is neither open source nor a free software. Use of RMS requires a valid
+> software license agreement.
