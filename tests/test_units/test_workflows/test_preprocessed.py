@@ -181,7 +181,7 @@ def test_export_without_existing_meta(
     remove_ert_env()
     surfacepath, metafile = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
-    # run the re-export of the preprocessed data inside an mocked FMU run
+    # mock being inside of FMU
     set_ert_env_prehook()
 
     # delete the metafile
@@ -228,6 +228,36 @@ def test_preprocessed_surface_modified_post_export(
         dataio.ExportPreprocessedData(
             is_observation=True, casepath=runpath_prehook
         ).export(surfacepath)
+
+
+def test_preprocessed_surface_size_bytes_matches_file_post_export(
+    runpath_prehook: Path,
+    rmsglobalconfig: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    remove_ert_env: Callable[[], None],
+    set_ert_env_prehook: Callable[[], None],
+) -> None:
+    """
+    Test that the size_bytes in the exported metadata matches the actual
+    file size of the exported object file.
+    """
+    # mock being outside of FMU and export preprocessed surface
+    remove_ert_env()
+    surfacepath, _ = export_preprocessed_surface(rmsglobalconfig, regsurf)
+
+    # run the re-export of the preprocessed data inside a mocked FMU run
+    set_ert_env_prehook()
+    edata = dataio.ExportPreprocessedData(is_observation=True, casepath=runpath_prehook)
+
+    # generate the updated metadata and check size_bytes matches source file
+    metadata = edata.generate_metadata(surfacepath)
+    assert metadata["file"]["size_bytes"] == surfacepath.stat().st_size
+
+    # do the actual export and verify size_bytes matches the copied file
+    filepath = Path(edata.export(surfacepath))
+    metafile = filepath.parent / f".{filepath.name}.yml"
+    exported_meta = read_metadata(metafile)
+    assert exported_meta["file"]["size_bytes"] == filepath.stat().st_size
 
 
 def test_preprocessed_surface_fmucontext_not_case(
