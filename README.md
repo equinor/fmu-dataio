@@ -1,6 +1,6 @@
 # fmu-dataio
 
-[![Test](https://github.com/equinor/fmu-dataio/actions/workflows/ci-fmudataio.yml/badge.svg)](https://github.com/equinor/fmu-dataio/actions/workflows/ci-fmudataio.yml)
+[![Test](https://github.com/equinor/fmu-dataio/actions/workflows/test.yml/badge.svg)](https://github.com/equinor/fmu-dataio/actions/workflows/test.yml)
 [![PyPI version](https://badge.fury.io/py/fmu-dataio.svg)](https://badge.fury.io/py/fmu-dataio)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fmu-dataio.svg)
 ![PyPI - License](https://img.shields.io/pypi/l/fmu-dataio.svg)
@@ -15,7 +15,7 @@
 ---
 
 **fmu-dataio** is a library for handling data flow in and out of Fast Model
-Update workflows.  For export, it automates the adherence to the FMU data
+Update workflows. For export, it automates the adherence to the FMU data
 standard ✅ including both file and folder conventions as well as richer
 metadata 🔖 for use by various data consumers both inside and outside the
 FMU context via Sumo.
@@ -44,3 +44,13 @@ page in the documentation for instructions.
 ## License
 
 This project is licensed under the terms of the [Apache 2.0](https://github.com/equinor/fmu-dataio/LICENSE) license.
+
+## Note on RMS Roxar API Integration
+
+![RMS License Required](https://img.shields.io/badge/RMS-License%20Required-important)
+
+The following statement applies to all functionalities in fmu-dataio that
+integrates with the RMS APIs:
+
+> RMS is neither open source nor a free software. Use of RMS requires a valid
+> software license agreement.

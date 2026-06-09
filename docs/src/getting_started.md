@@ -266,8 +266,8 @@ Example script from the Drogon workflow:
 
 ```sql
 -- Create case metadata
---                       ert_caseroot                 ert_configpath    ert_casename   ert_username
-WF_CREATE_CASE_METADATA  <SCRATCH>/<USER>/<CASE_DIR>  <CONFIG_PATH>     <CASE_DIR>     <USER>
+--                       ert_caseroot                 ert_configpath    ert_casename   ert_username   sumo-flag
+WF_CREATE_CASE_METADATA  <SCRATCH>/<USER>/<CASE_DIR>  <CONFIG_PATH>     <CASE_DIR>     <USER>.        "--sumo"
 
 -- This workflow is intended to be ran as a HOOK workflow.
 
@@ -278,7 +278,7 @@ WF_CREATE_CASE_METADATA  <SCRATCH>/<USER>/<CASE_DIR>  <CONFIG_PATH>     <CASE_DI
 -- ert_user (str): The username used in ERT
 
 -- Optional arguments:
---  --sumo: If passed, case will be registered on Sumo. Use this is intention to upload data.
+--  --sumo: If passed, case will be registered on Sumo. Remove this flag if you do not intend to upload data to Sumo.
 --  --global_variables_path (str): Path to global variables relative to CONFIG path
 --
 -- NOTE! If using optional arguments, note that the "--" annotation will be interpreted
