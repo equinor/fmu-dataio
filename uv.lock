@@ -26,16 +26,15 @@ exclude-newer-span = "P1W"
 
 [options.exclude-newer-package]
 iterative-ensemble-smoother = false
-fmu-sumo-uploader = false
+fmu-sumo = false
 fmu-datamodels = false
 ert = false
 fmu-settings = false
 xtgeo = false
-aiohttp = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
 graphite-maps = false
 sumo-wrapper-python = false
 fmu-config = false
-fmu-sumo = false
+fmu-sumo-uploader = false
 
 [[package]]
 name = "accessible-pygments"
@@ -1155,7 +1154,7 @@ requires-dist = [
     { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
-    { name = "fmu-datamodels", specifier = "~=0.22.0" },
+    { name = "fmu-datamodels", specifier = "~=0.23.0" },
     { name = "fmu-settings" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
@@ -1196,14 +1195,14 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "fmu-datamodels"
-version = "0.22.3"
+version = "0.23.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/55/ff63207ad5657672e103b7267afd56fb5688d9a5754c812988cb5702c543/fmu_datamodels-0.22.3.tar.gz", hash = "sha256:eb9e8aa4fadbd0a435134b69c62a2f540aaa9c423cef9942458d9aa6589367dc", size = 425103, upload-time = "2026-06-02T10:07:44.543Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/91/fafe803ba92639a36635b958cd3fb15df886b7b40d06030cb4a4c4710974/fmu_datamodels-0.23.0.tar.gz", hash = "sha256:27645500e369528584d621f795274a655f478b38bbe47e7b0a395dc78cd49932", size = 439311, upload-time = "2026-06-08T10:24:05.339Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/be/48ca6d26f863ee4b56dd31a9f01dc33366742fb25c02e8bd4777aa096b3a/fmu_datamodels-0.22.3-py3-none-any.whl", hash = "sha256:fd548de6744f948cbc23502852a412b89d7680f434846e151b1447d1f55ed069", size = 56815, upload-time = "2026-06-02T10:07:42.945Z" },
+    { url = "https://files.pythonhosted.org/packages/00/f6/b98685f0fcc28e09d8a9cfb1e77cb27a4ad2d9544a3b94feb9bd613dbf05/fmu_datamodels-0.23.0-py3-none-any.whl", hash = "sha256:082361bafc57b17280aa9dd5178256069275ccdfb6f97c37c9b3af642a53525f", size = 58062, upload-time = "2026-06-08T10:24:04.109Z" },
 ]
 
 [[package]]
@@ -2966,14 +2965,14 @@ wheels = [
 
 [[package]]
 name = "pandas-stubs"
-version = "3.0.0.260204"
+version = "3.0.3.260530"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/27/1d/297ff2c7ea50a768a2247621d6451abb2a07c0e9be7ca6d36ebe371658e5/pandas_stubs-3.0.0.260204.tar.gz", hash = "sha256:bf9294b76352effcffa9cb85edf0bed1339a7ec0c30b8e1ac3d66b4228f1fbc3", size = 109383, upload-time = "2026-02-04T15:17:17.247Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3d/aa/c41a8a0ff86fd85dbb3ec0c1f3fa488ca64a8b5f82654ae1b07d84acefe5/pandas_stubs-3.0.3.260530.tar.gz", hash = "sha256:d1efe47b2e5a312c047d7feabec5cb7a55365747983420077e9fcbe9ab74f714", size = 113183, upload-time = "2026-05-30T17:47:40.34Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/2f/f91e4eee21585ff548e83358332d5632ee49f6b2dcd96cb5dca4e0468951/pandas_stubs-3.0.0.260204-py3-none-any.whl", hash = "sha256:5ab9e4d55a6e2752e9720828564af40d48c4f709e6a2c69b743014a6fcb6c241", size = 168540, upload-time = "2026-02-04T15:17:15.615Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/e0/99ec5b02203c4e9ce878bc63d8caa06ac1f891e4d63bded9a5ced70fcb4f/pandas_stubs-3.0.3.260530-py3-none-any.whl", hash = "sha256:a6277eb1c8cebf48d9b2413fcd2e9a6b4ff479c934a223c29eacbc3058c4cb55", size = 173780, upload-time = "2026-05-30T17:47:39.13Z" },
 ]
 
 [[package]]
