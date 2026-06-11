@@ -100,8 +100,9 @@ def _get_fault_surfaces_from_rms(
 
     fault_surfaces = []
     for fault_name in fault_model.fault_names:
-        fault_surface = fault_model.get_fault_triangle_surface(name=fault_name)
-
+        fault_surface = fault_model.get_fault_triangle_surface(
+            name=fault_name, realisation=0
+        )
         tsurf = TriangulatedSurface(
             name=fault_name,
             vertices=fault_surface.get_vertices(),
