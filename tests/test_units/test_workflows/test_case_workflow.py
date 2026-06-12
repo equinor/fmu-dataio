@@ -14,6 +14,7 @@ from fmu.dataio._workflows.case.main import (
     _copy_fmu_directory,
     _get_ensemble_name,
     _queue_ert_parameters,
+    _queue_stratigraphy_mappings,
 )
 
 
@@ -160,6 +161,49 @@ def test_queue_ert_parameters_queue_table_when_present(
         ),
     ):
         _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
+
+    sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
+
+
+def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """
+    When get_stratigraphy_mappings_table returns None queue_table
+    must not be called.
+    """
+    sumo_uploader = MagicMock()
+
+    with patch(
+        "fmu.dataio._workflows.case.main.get_stratigraphy_mappings_table",
+        return_value=None,
+    ):
+        _queue_stratigraphy_mappings("ensemble", workflow_config, sumo_uploader)
+
+    sumo_uploader.queue_table.assert_not_called()
+
+
+def test_queue_stratigraphy_mappings_queue_table_when_present(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """When a table is returned it should be queued with generated metadata."""
+
+    sumo_uploader = MagicMock()
+
+    fake_table = pa.table({"column": ["value"]})
+    fake_metadata = {"data": {"content": "mapping"}}
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.get_stratigraphy_mappings_table",
+            return_value=fake_table,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main.generate_metadata",
+            return_value=fake_metadata,
+        ),
+    ):
+        _queue_stratigraphy_mappings("ensemble", workflow_config, sumo_uploader)
 
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
 
