@@ -54,7 +54,7 @@ def test_get_stratigraphy_mappings_table_as_expected(tmp_path: Path) -> None:
     mappings_table = get_stratigraphy_mappings_table(fmu_dir)
 
     assert isinstance(mappings_table, pa.Table)
-    assert len(mappings_table) == 10
+    assert len(mappings_table) == 11
     assert set(mappings_table.column_names) == {
         "source_system",
         "source_id",
