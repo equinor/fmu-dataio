@@ -953,7 +953,7 @@ def test_create_case_metadata_uploads_stratigraphy_mappings(
     assert metadata["fmu"]["ensemble"]["name"] == "iter-0"
 
     assert isinstance(mappings_table, pa.Table)
-    assert len(mappings_table) == 10
+    assert len(mappings_table) == 11
 
     assert set(mappings_table.column_names) == {
         "source_system",
