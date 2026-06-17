@@ -266,21 +266,18 @@ Example script from the Drogon workflow:
 
 ```sql
 -- Create case metadata
---                       ert_caseroot                 ert_configpath    ert_casename   ert_username   sumo-flag
-WF_CREATE_CASE_METADATA  <SCRATCH>/<USER>/<CASE_DIR>  <CONFIG_PATH>     <CASE_DIR>     <USER>.        "--sumo"
+--                       ert-casepath    sumo-flag
+WF_CREATE_CASE_METADATA   casepath        "--sumo"
 
 -- This workflow is intended to be ran as a HOOK workflow.
 
 -- Arguments:
--- ert_caseroot (Path): The absolute path to the root of the case on /scratch
--- ert_configpath (Path): The absolute path to the ERT config
--- ert_casename (str): The name of the case
--- ert_user (str): The username used in ERT
+-- casepath (Path): Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
 
 -- Optional arguments:
---  --sumo: If passed, case will be registered on Sumo. Remove this flag if you do not intend to upload data to Sumo.
---  --global_variables_path (str): Path to global variables relative to CONFIG path
---
+-- --sumo (str):      If passed, case will be registered on Sumo.
+-- --verbosity (str): Set log level
+
 -- NOTE! If using optional arguments, note that the "--" annotation will be interpreted
 --       as comments by ERT if not wrapped in quotes. This is the syntax to use:
 --       (existing arguments) "--sumo"
