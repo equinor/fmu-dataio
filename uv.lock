@@ -1224,15 +1224,15 @@ wheels = [
 
 [[package]]
 name = "fmu-sumo"
-version = "2.14.1"
+version = "2.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "deprecation" },
     { name = "sumo-wrapper-python" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/e4/c0ed6774a337986ec91be7a815710482b035dc453151c8454d7606ed1f3d/fmu_sumo-2.14.1.tar.gz", hash = "sha256:8196fab9141fb0cbb12e0779c412ca56275e4a42a3db46676de29b90585f2d69", size = 109976, upload-time = "2026-06-03T08:10:52.714Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/32/ed/67ec6cc373adef697ed810cb06d60b05177118fae015d31bbffc3a655558/fmu_sumo-2.15.0.tar.gz", hash = "sha256:527b59f81c1fbed4d83e23669bc9c40b82c3c565eed901dc6bc1197c3213c44d", size = 111055, upload-time = "2026-06-17T11:03:42.953Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bb/3a/5ab4cc7db543ece0dc0ad615a8a24fdf0c21ee647369f8fd3d220df7a0e6/fmu_sumo-2.14.1-py3-none-any.whl", hash = "sha256:b0e93f169a93d53642a849286b69b125ec260ea432ac555d4c4c118fc14280c1", size = 39327, upload-time = "2026-06-03T08:10:51.359Z" },
+    { url = "https://files.pythonhosted.org/packages/49/43/2ad6fb8283b40242cf88e9bbc097a381ab79eb2c2a6185680c8f39e99b14/fmu_sumo-2.15.0-py3-none-any.whl", hash = "sha256:b8cdfc01b2b15310ebd12218db9d8ef57dadb72bb96bba0c639477d9172550f1", size = 39663, upload-time = "2026-06-17T11:03:41.701Z" },
 ]
 
 [[package]]
