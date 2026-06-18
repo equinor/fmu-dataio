@@ -45,12 +45,12 @@ page in the documentation for instructions.
 
 This project is licensed under the terms of the [Apache 2.0](https://github.com/equinor/fmu-dataio/LICENSE) license.
 
-## Note on RMS Roxar API Integration
-
-![RMS License Required](https://img.shields.io/badge/RMS-License%20Required-important)
-
-The following statement applies to all functionalities in fmu-dataio that
-integrates with the RMS APIs:
-
-> RMS is neither open source nor a free software. Use of RMS requires a valid
-> software license agreement.
+> [!NOTE]
+> #### Trademark Notice and Disclaimer
+> **Aspen RMS™** is a registered trademark of [Aspen Technology, Inc.](https://www.aspentech.com/en)
+> (AspenTech). Use of RMS™ is governed by AspenTech's licensing terms and
+> conditions. It is proprietary software and is neither open-source nor free. A
+> valid license agreement with AspenTech is required for its use.
+>
+> **fmu-dataio** is an independent project developed by Equinor and is neither
+> produced by nor affiliated with AspenTech.
