@@ -40,7 +40,10 @@ logger.setLevel(logging.CRITICAL)
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
 WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio for storing on disk
-and on Sumo.
+and on Sumo. When Sumo upload is enabled, the workflow also uploads Ert parameters
+and observations, including summary, RFT, and breakthrough observations. The workflow
+uses Ert storage directly, so the relevant case metadata, parameters, and observations
+are collected automatically from the active Ert run.
 """
 
 EXAMPLES = """
