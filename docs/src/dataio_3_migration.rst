@@ -67,6 +67,8 @@ They can safely be removed.
  - ``reuse_metadata_rule`` never had more than one option, and is now deprecated.
  - ``grid_model`` was intended to be used for linking a grid_property to a grid, this is now done through
    the ``geometry`` argument instead.
+ - ``config`` is deprecated. ``fmu-dataio`` loads the global configuration from the standard location,
+   and a provided ``config`` argument is ignored when a standard configuration can be found.
  - ``realization`` is deprecated, realization number is automatically picked up from environment variables.
  - ``verbosity`` is deprecated, logging level should be set from client script in a standard manner instead.
  - ``aggregation`` is deprecated and was never used.
@@ -118,7 +120,6 @@ safely be removed if present in the code.
     surface = xtgeo.surface_from_file('mysurf.gri')
 
     exd = ExportData(
-        config=CFG,
         content='depth',
         tagname='DS_final',
     )
@@ -162,7 +163,7 @@ Example with deprecated pattern:
 
     surface = xtgeo.surface_from_file('mysurf.gri')
 
-    exd = ExportData(config=CFG)
+    exd = ExportData(config=CFG)  # ⛔️ deprecated; ignored if standard config exists
     exd.export(
         surface,
         content='depth',    # ⛔️ no longer allowed!
@@ -178,7 +179,6 @@ Change to this instead 👇:
     surface = xtgeo.surface_from_file('mysurf.gri')
 
     exd = ExportData(
-        config=CFG,
         content='depth',     # ✅
         tagname='DS_final',  # ✅
     )
@@ -197,7 +197,7 @@ ExportData instance inside the loop. Example below:
     def export_surfaces():
 
       exd = ExportData(
-          config=CFG,
+          config=CFG,  # ⛔️ deprecated; ignored if standard config exists
           content='time',
           tagname=SURFACE_FOLDER,
       )
@@ -222,7 +222,6 @@ Change to this instead 👇:
           surface = xtgeo.surface_from_roxar(project, surf_name, SURFACE_FOLDER)
 
           exd = ExportData(
-              config=CFG,
               content='time',
               tagname=SURFACE_FOLDER,
               name=surfname,
@@ -270,7 +269,7 @@ Example using ``ExportData`` to re-export preprocessed data:
     preprocessed_seismic_cube = 'share/preprocessed/cubes/mycube.segy'
 
     exd = ExportData(
-        config=config,
+        config=config,  # ⛔️ deprecated; ignored if standard config exists
         is_observation=True,
         casepath='/scratch/fmu/user/mycase',
     )
