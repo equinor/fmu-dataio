@@ -25,6 +25,24 @@ if TYPE_CHECKING:
 
 logger: Final = null_logger(__name__)
 
+_RMS_METRIC_UNIT_SYSTEMS: Final = frozenset(
+    {
+        "metric",
+        "metric_cmg",
+        "metric_tempest",
+        "si",
+    }
+)
+_RMS_FIELD_UNIT_SYSTEMS: Final = frozenset(
+    {
+        "field",
+        "field_cmg",
+        "field_nexus",
+        "field_us",
+        "mmft",
+    }
+)
+
 
 RMS_API_PROJECT_MAPPING = {
     "1.10": "14.2",
@@ -54,12 +72,51 @@ def check_rmsapi_version(minimum_version: str) -> None:
     logger.debug("Check API version... DONE")
 
 
-def get_rms_project_units(project: Any) -> str:
-    """See if the RMS project is defined in metric or feet."""
+def _get_rms_project_unit_name(project_units: Any) -> str:
+    unit_name = getattr(project_units, "name", None) or str(project_units)
+    return unit_name.rsplit(".", maxsplit=1)[-1].lower()
+
+
+def get_rms_project_units(project: Any) -> str | None:
+    """Return whether the RMS project uses metric or field-family units."""
 
     units = project.project_units
+    unit_name = _get_rms_project_unit_name(units)
     logger.debug("Units are %s", units)
-    return str(units)
+
+    if unit_name in _RMS_METRIC_UNIT_SYSTEMS:
+        return "metric"
+    if unit_name in _RMS_FIELD_UNIT_SYSTEMS:
+        return "field"
+
+    logger.warning(
+        "RMS project unit system %r is not a known RMS unit system. "
+        "Exported metadata unit will be set to unknown.",
+        units,
+    )
+    return None
+
+
+def get_rms_project_length_unit(project: Any) -> str:
+    """Return the metadata length unit for the RMS project."""
+
+    units = get_rms_project_units(project)
+    if units == "metric":
+        return "m"
+    if units == "field":
+        return "ft"
+    return ""
+
+
+def get_rms_project_volume_unit(project: Any) -> str:
+    """Return the metadata volume unit for the RMS project."""
+
+    units = get_rms_project_units(project)
+    if units == "metric":
+        return "m3"
+    if units == "field":
+        return "ft3"
+    return ""
 
 
 def get_open_polygons_id(pol: xtgeo.Polygons) -> list[int]:

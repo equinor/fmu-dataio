@@ -11,7 +11,7 @@ from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._utils import (
     get_faultlines_in_folder,
     get_open_polygons_id,
-    get_rms_project_units,
+    get_rms_project_length_unit,
     validate_name_in_stratigraphy,
 )
 from fmu.datamodels.common.enums import Classification
@@ -36,7 +36,7 @@ class _ExportStructureDepthFaultLines(SimpleExportBase):
         _logger.debug("Process data, establish state prior to export.")
         self._horizon_folder = horizon_folder
         self._fault_lines = get_faultlines_in_folder(project, horizon_folder)
-        self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
+        self._unit = get_rms_project_length_unit(project)
         _logger.debug("Process data... DONE")
 
     def _get_export_config(self, name: str) -> ExportConfig:

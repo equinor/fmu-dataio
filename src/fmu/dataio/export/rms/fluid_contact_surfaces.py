@@ -9,7 +9,7 @@ from fmu.dataio.exceptions import ValidationError
 from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._utils import (
-    get_rms_project_units,
+    get_rms_project_length_unit,
     get_surfaces_in_general2d_folder,
     list_folder_names_in_general2d_folder,
     validate_name_in_stratigraphy,
@@ -39,7 +39,7 @@ class _ExportFluidContactSurfaces(SimpleExportBase):
         _logger.debug("Process data, establish state prior to export.")
         self.project = project
         self._contact_surfaces = self._get_contact_surfaces()
-        self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
+        self._unit = get_rms_project_length_unit(project)
         _logger.debug("Process data... DONE")
 
     def _get_contacts(self) -> list[FluidContactType]:
