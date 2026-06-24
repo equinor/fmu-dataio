@@ -320,5 +320,5 @@ the Drogon tutorial project.
 Odds are that you are implementing rich metadata export so that you can start
 utilizing Sumo. Producing metadata with exported data is a pre-requisite for
 using Sumo. When you have undertaken the steps above, you are good to go! Head
-to [Sumo](https://fmu-sumo.app.radix.equinor.com/) and click "documentation"
-to get going 👍
+to the [Sumo documentation](https://fmu-docs.equinor.com/docs/sumo/guides) to
+get started.
