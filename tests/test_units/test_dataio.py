@@ -549,11 +549,13 @@ def test_smda_entity_for_statigraphic_true(
     """Test that smda_entity is set for stratigraphic surface"""
     smda_name = "VOLANTIS GP. Top"
     rms_name = "TopVolantis"
+    smda_uuid = "56c92484-8798-4f1f-9f14-d237a3e1a4ff"
 
     stratigraphy = drogon_global_config["stratigraphy"]
     assert rms_name in stratigraphy
     assert stratigraphy[rms_name]["stratigraphic"] is True
     assert stratigraphy[rms_name]["name"] == smda_name
+    stratigraphy[rms_name]["uuid"] = smda_uuid
 
     # Make sure the surface's name is set to RMS name
     regsurf.name = rms_name
@@ -564,7 +566,7 @@ def test_smda_entity_for_statigraphic_true(
     assert meta["data"]["name"] == smda_name
     assert meta["data"]["stratigraphic"] is True
     assert meta["data"]["smda_entity"]["identifier"] == smda_name
-    assert "uuid" not in meta["data"]["smda_entity"]
+    assert meta["data"]["smda_entity"]["uuid"] == smda_uuid
 
 
 def test_smda_entity_for_statigraphic_false(
@@ -2053,4 +2055,26 @@ def test_dataio_global_config_loaded_from_dotfmu(
     """ExportData loads global config from .fmu/ when present, ignoring user config."""
     # mock_global_config has model.name="Test", .fmu has model.name="Drogon"
     export_data = ExportData(config=mock_global_config, content="depth")
-    assert export_data._export_config.config.model.name == "Drogon"
+    config = export_data._export_config.config
+    assert config is not None
+    assert config.model.name == "Drogon"
+
+
+def test_smda_entity_uuid_loaded_from_dotfmu(
+    mock_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    runpath: Path,
+) -> None:
+    """ExportData transfers stratigraphic uuid from .fmu/ to metadata."""
+    expected_uuid = "1629c229-0a2b-4f0a-94f7-dc01b171cb1c"
+    regsurf.name = "TopVolantis"
+
+    export_data = ExportData(config=mock_global_config, content="depth")
+    config = export_data._export_config.config
+    assert config is not None
+    assert config.stratigraphy is not None
+    stratigraphy = config.stratigraphy.root
+    meta = export_data.generate_metadata(regsurf)
+
+    assert str(stratigraphy[regsurf.name].uuid) == expected_uuid
+    assert meta["data"]["smda_entity"]["uuid"] == expected_uuid
