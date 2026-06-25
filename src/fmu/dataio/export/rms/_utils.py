@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Any, Final
 
 import xtgeo
@@ -72,16 +73,11 @@ def check_rmsapi_version(minimum_version: str) -> None:
     logger.debug("Check API version... DONE")
 
 
-def _get_rms_project_unit_name(project_units: Any) -> str:
-    unit_name = getattr(project_units, "name", None) or str(project_units)
-    return unit_name.rsplit(".", maxsplit=1)[-1].lower()
-
-
 def get_rms_project_units(project: Any) -> str | None:
     """Return whether the RMS project uses metric or field-family units."""
 
     units = project.project_units
-    unit_name = _get_rms_project_unit_name(units)
+    unit_name = str(units)
     logger.debug("Units are %s", units)
 
     if unit_name in _RMS_METRIC_UNIT_SYSTEMS:
@@ -89,10 +85,11 @@ def get_rms_project_units(project: Any) -> str | None:
     if unit_name in _RMS_FIELD_UNIT_SYSTEMS:
         return "field"
 
-    logger.warning(
-        "RMS project unit system %r is not a known RMS unit system. "
+    warnings.warn(
+        f"RMS project unit system {units!r} is not a known RMS unit system. "
         "Exported metadata unit will be set to unknown.",
-        units,
+        UserWarning,
+        stacklevel=2,
     )
     return None
 
@@ -116,6 +113,16 @@ def get_rms_project_volume_unit(project: Any) -> str:
         return "m3"
     if units == "field":
         return "ft3"
+    return ""
+
+
+def get_rms_project_time_unit(project: Any) -> str:
+    """Return the metadata time unit for the RMS project."""
+
+    if str(project.project_units) == "si":
+        return "s"
+    if get_rms_project_units(project) in {"metric", "field"}:
+        return "ms"
     return ""
 
 

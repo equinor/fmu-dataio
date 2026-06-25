@@ -16,21 +16,27 @@ class MockRmsUnitSystem:
         self.name = name
 
     def __str__(self) -> str:
-        return f"UnitSystem.{self.name}"
+        return self.name
 
 
 @pytest.mark.parametrize(
-    ("project_units", "expected_units", "expected_length_unit", "expected_volume_unit"),
+    (
+        "project_units",
+        "expected_units",
+        "expected_length_unit",
+        "expected_volume_unit",
+        "expected_time_unit",
+    ),
     [
-        (MockRmsUnitSystem("metric"), "metric", "m", "m3"),
-        (MockRmsUnitSystem("metric_cmg"), "metric", "m", "m3"),
-        ("UnitSystem.metric_tempest", "metric", "m", "m3"),
-        ("si", "metric", "m", "m3"),
-        (MockRmsUnitSystem("field"), "field", "ft", "ft3"),
-        ("field_cmg", "field", "ft", "ft3"),
-        ("UnitSystem.field_us", "field", "ft", "ft3"),
-        ("field_nexus", "field", "ft", "ft3"),
-        (MockRmsUnitSystem("mmft"), "field", "ft", "ft3"),
+        (MockRmsUnitSystem("metric"), "metric", "m", "m3", "ms"),
+        (MockRmsUnitSystem("metric_cmg"), "metric", "m", "m3", "ms"),
+        ("metric_tempest", "metric", "m", "m3", "ms"),
+        ("si", "metric", "m", "m3", "s"),
+        (MockRmsUnitSystem("field"), "field", "ft", "ft3", "ms"),
+        ("field_cmg", "field", "ft", "ft3", "ms"),
+        ("field_us", "field", "ft", "ft3", "ms"),
+        ("field_nexus", "field", "ft", "ft3", "ms"),
+        (MockRmsUnitSystem("mmft"), "field", "ft", "ft3", "ms"),
     ],
 )
 def test_get_rms_project_units_known_unit_systems(
@@ -39,9 +45,11 @@ def test_get_rms_project_units_known_unit_systems(
     expected_units: str,
     expected_length_unit: str,
     expected_volume_unit: str,
+    expected_time_unit: str,
 ) -> None:
     from fmu.dataio.export.rms._utils import (
         get_rms_project_length_unit,
+        get_rms_project_time_unit,
         get_rms_project_units,
         get_rms_project_volume_unit,
     )
@@ -51,25 +59,32 @@ def test_get_rms_project_units_known_unit_systems(
     assert get_rms_project_units(mock_project_variable) == expected_units
     assert get_rms_project_length_unit(mock_project_variable) == expected_length_unit
     assert get_rms_project_volume_unit(mock_project_variable) == expected_volume_unit
+    assert get_rms_project_time_unit(mock_project_variable) == expected_time_unit
 
 
 def test_get_rms_project_units_unknown_unit_system(
-    mock_project_variable: MagicMock, caplog: pytest.LogCaptureFixture
+    mock_project_variable: MagicMock,
 ) -> None:
     from fmu.dataio.export.rms._utils import (
         get_rms_project_length_unit,
+        get_rms_project_time_unit,
         get_rms_project_units,
         get_rms_project_volume_unit,
     )
 
     mock_project_variable.project_units = "custom_units"
 
-    with caplog.at_level("WARNING", logger="fmu.dataio.export.rms._utils"):
+    with pytest.warns(UserWarning, match="not a known RMS unit system"):
         assert get_rms_project_units(mock_project_variable) is None
+
+    with pytest.warns(UserWarning, match="not a known RMS unit system"):
         assert get_rms_project_length_unit(mock_project_variable) == ""
+
+    with pytest.warns(UserWarning, match="not a known RMS unit system"):
         assert get_rms_project_volume_unit(mock_project_variable) == ""
 
-    assert "not a known RMS unit system" in caplog.text
+    with pytest.warns(UserWarning, match="not a known RMS unit system"):
+        assert get_rms_project_time_unit(mock_project_variable) == ""
 
 
 def test_get_horizons_in_folder(mock_project_variable: MagicMock) -> None:
