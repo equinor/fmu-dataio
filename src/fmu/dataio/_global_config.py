@@ -1,5 +1,6 @@
 """Module to produce a GlobalConfiguration object or dictionary."""
 
+import contextlib
 import warnings
 from pathlib import Path
 from typing import Any, Final
@@ -13,7 +14,7 @@ from fmu.datamodels.fmu_results.global_configuration import (
     Access,
     GlobalConfiguration,
 )
-from fmu.settings import find_nearest_fmu_directory
+from fmu.settings import find_global_config, find_nearest_fmu_directory
 
 RUNPATH_GLOBAL_VARIABLES_PATH: Final[Path] = Path(
     "fmuconfig/output/global_variables.yml"
@@ -24,7 +25,7 @@ RELATIVE_GLOBAL_VARIABLES_PATH: Final[Path] = (
 
 logger: Final = null_logger(__name__)
 
-
+_FMU_SETTINGS_URL = "https://equinor.github.io/fmu-settings"
 _GETTING_STARTED_URL = (
     "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html"
 )
@@ -43,6 +44,30 @@ def warn_invalid_global_configuration(err: ValidationError) -> None:
         f"configuration. Invalid configuration may be disallowed in future "
         f"versions.\n\n{err}",
         UserWarning,
+        stacklevel=2,
+    )
+
+
+def warn_global_variables_unused() -> None:
+    """Warn when legacy global_variables.yml exists but .fmu/ is used."""
+    warnings.warn(
+        "This project is configured to use FMU Settings. "
+        "Please remove the masterdata, access, model, and stratigraphy "
+        "blocks from global_variables.yml as they are no longer used.\n"
+        f"Learn more about FMU Settings: {_FMU_SETTINGS_URL}",
+        UserWarning,
+        stacklevel=2,
+    )
+
+
+def warn_using_legacy_global_variables() -> None:
+    """Warn when loading global configuration from global_variables.yml."""
+    warnings.warn(
+        "This project is not yet configured to use FMU Settings.\n"
+        "Follow the 'Getting started' steps to do the necessary setup: "
+        f"{_FMU_SETTINGS_URL}/getting_started.html\n"
+        "Reading data from global_variables.yml will be deprecated in the future.",
+        FutureWarning,
         stacklevel=2,
     )
 
@@ -139,8 +164,12 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
     Returns:
         Valid GlobalConfiguration object, or None if:
             - .fmu/ cannot be found
-            - data in .fmu/ is invalid or cannot be loaded
             - data in .fmu/ does not validate against current GlobalConfiguration model
+
+    Raises:
+        ValueError: If data in .fmu/ is invalid or cannot be loaded
+        ValidationError: If the required fields masterdata, access, or model are
+            missing in .fmu/.
     """
     try:
         fmu_dir = find_nearest_fmu_directory()
@@ -150,7 +179,12 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
 
     config = fmu_dir.config.load()
     if config.masterdata is None or config.access is None or config.model is None:
-        return None
+        raise ValidationError(
+            "The configuration in FMU Settings is incomplete. From a terminal, "
+            "navigate to your project directory, type `fmu settings` to open "
+            "FMU Settings and complete the setup checklist. "
+            f"Learn more about FMU Settings: {_FMU_SETTINGS_URL}",
+        )
 
     try:
         cfg_access = Access.model_validate(config.access.model_dump(mode="json"))
@@ -204,9 +238,18 @@ def load_global_config(
         Validated GlobalConfiguration object
     """
     if fmu_settings_global_config := load_global_config_from_fmu_settings():
+        fmu_dir = find_nearest_fmu_directory()
+
+        with contextlib.suppress(pydantic.ValidationError):
+            if find_global_config(fmu_dir.base_path, strict=False):
+                warn_global_variables_unused()
+
         return fmu_settings_global_config
 
     resolved_config_path = _resolve_global_config_path(config_path)
-    return load_global_config_from_global_variables(
+    if global_config := load_global_config_from_global_variables(
         resolved_config_path, standard_result
-    )
+    ):
+        warn_using_legacy_global_variables()
+
+    return global_config
