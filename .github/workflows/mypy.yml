@@ -47,4 +47,4 @@ jobs:
 
       - name: Mypy
         run: |
-          uv run mypy .
+          uv run mypy --python-version ${{ matrix.python-version }} .
