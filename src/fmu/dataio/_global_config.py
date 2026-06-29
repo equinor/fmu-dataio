@@ -12,7 +12,6 @@ from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import (
     Access,
     GlobalConfiguration,
-    Stratigraphy,
 )
 from fmu.settings import find_nearest_fmu_directory
 
@@ -164,7 +163,6 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
 
     try:
         stratigraphy = fmu_dir._mappings.build_global_config_stratigraphy()
-        _add_stratigraphy_uuids_from_fmu_mappings(stratigraphy, fmu_dir)
     except pydantic.ValidationError as err:
         logger.warning(
             "Could not build valid global configuration stratigraphy from .fmu/. "
@@ -186,21 +184,6 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
             f".fmu directory: {fmu_dir.path}, error: {err}"
         )
     return None
-
-
-def _add_stratigraphy_uuids_from_fmu_mappings(
-    stratigraphy: Stratigraphy, fmu_dir: Any
-) -> None:
-    if not fmu_dir.mappings.exists:
-        return
-
-    for mapping in fmu_dir.mappings.stratigraphy_mappings:
-        relation_type = getattr(mapping.relation_type, "value", mapping.relation_type)
-        if relation_type != "primary" or mapping.target_uuid is None:
-            continue
-
-        if mapping.source_id in stratigraphy.root:
-            stratigraphy.root[mapping.source_id].uuid = mapping.target_uuid
 
 
 def load_global_config(
