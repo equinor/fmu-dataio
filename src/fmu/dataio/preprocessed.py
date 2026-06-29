@@ -92,9 +92,9 @@ class ExportPreprocessedData:
         if not objfile.exists():
             raise FileNotFoundError(f"The file {obj} does not exist.")
 
-        if ShareFolder.PREPROCESSED not in str(objfile):
+        if ShareFolder.preprocessed not in str(objfile):
             raise RuntimeError(
-                f"Exporting files located outside the '{ShareFolder.PREPROCESSED}' "
+                f"Exporting files located outside the '{ShareFolder.preprocessed}' "
                 "folder is not supported. Please re-export your objects to disk "
                 "using ExportData(preprocessed=True)"
             )
@@ -122,16 +122,16 @@ class ExportPreprocessedData:
         The existing subfolders and filename will be kept.
         """
         share_folder = (
-            Path(ShareFolder.OBSERVATIONS.value)
+            Path(ShareFolder.observations.value)
             if self._is_observation
-            else Path(ShareFolder.RESULTS.value)
+            else Path(ShareFolder.results.value)
         )
         for parent in existing_path.parents:
             if parent.name == "preprocessed" and parent.parent.name == "share":
                 return share_folder / existing_path.relative_to(parent)
 
         raise RuntimeError(
-            f"Path {existing_path} is not inside a '{ShareFolder.PREPROCESSED}' folder."
+            f"Path {existing_path} is not inside a '{ShareFolder.preprocessed}' folder."
         )
 
     def _check_md5sum_consistency(

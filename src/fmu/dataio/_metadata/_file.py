@@ -43,10 +43,10 @@ class SharePathConstructor:
     def _get_share_root(self) -> Path:
         """Get the main share root location as a path e.g. share/results."""
         if self.export_config.preprocessed:
-            return Path(ShareFolder.PREPROCESSED.value)
+            return Path(ShareFolder.preprocessed.value)
         if self.export_config.is_observation:
-            return Path(ShareFolder.OBSERVATIONS.value)
-        return Path(ShareFolder.RESULTS.value)
+            return Path(ShareFolder.observations.value)
+        return Path(ShareFolder.results.value)
 
     def _get_share_folders(self) -> Path:
         """Get the full share folders as a path."""
