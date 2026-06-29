@@ -269,7 +269,7 @@ Example script from the Drogon workflow:
 --                       ert-casepath    sumo-flag
 WF_CREATE_CASE_METADATA   casepath        "--sumo"
 
--- This workflow is intended to be ran as a HOOK workflow.
+-- This workflow is intended to run as a HOOK workflow.
 
 -- Arguments:
 -- casepath (Path): Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
@@ -281,11 +281,6 @@ WF_CREATE_CASE_METADATA   casepath        "--sumo"
 -- NOTE! If using optional arguments, note that the "--" annotation will be interpreted
 --       as comments by ERT if not wrapped in quotes. This is the syntax to use:
 --       (existing arguments) "--sumo"
-```
-
-```{note}
-Note that there are references to Sumo in the script above. You don't have to
-worry about that for now.
 ```
 
 Now, load this workflow in your ERT config file and make it a HOOK workflow:
@@ -315,10 +310,7 @@ something simple, such as depth surfaces from the structural model or similar.
 Use one of the examples on the next page to get going, and/or have a look at
 the Drogon tutorial project.
 
-### What about Sumo?
+## Continue the setup with Sumo
 
-Odds are that you are implementing rich metadata export so that you can start
-utilizing Sumo. Producing metadata with exported data is a pre-requisite for
-using Sumo. When you have undertaken the steps above, you are good to go! Head
-to the [Sumo documentation](https://fmu-docs.equinor.com/docs/sumo/guides) to
-get started.
+Your FMU workflow now has basic functionality in place for producing FMU results
+with metadata. Return to the [Sumo documentation](https://fmu-docs.equinor.com/docs/sumo/guides) to continue.
