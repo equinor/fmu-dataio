@@ -12,11 +12,11 @@ resolution-markers = [
     "python_full_version == '3.14.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and platform_machine == 'ARM64' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.12' and platform_machine == 'ARM64' and sys_platform == 'win32'",
     "python_full_version < '3.12' and platform_machine != 'ARM64' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
     "python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
@@ -1203,7 +1203,7 @@ wheels = [
 
 [[package]]
 name = "fmu-settings"
-version = "0.34.0"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-types" },
@@ -1213,9 +1213,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/39/ec/4af9a865f30a608e79c99e80dfd729296f055a7981cfa9c3e63978aca8b3/fmu_settings-0.34.0.tar.gz", hash = "sha256:b732c1c81fb3bf6850eda3dad71ec310ef267a23d89a6b986a82de68b63ddbd4", size = 782609, upload-time = "2026-06-25T12:07:58.439Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/48/467e87b3d43ed01ed2171986bed0447aad615e4ffc3ab23e9002a14d7d76/fmu_settings-1.0.0.tar.gz", hash = "sha256:36c28b799dae639cc64ce2b896168ca7cb870384d32865a44c2248ae25dfb723", size = 783965, upload-time = "2026-06-29T09:59:40.064Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/be/5d1280d17e44e9ebb05f898c18892101d9b1bbdc40048455418569a02104/fmu_settings-0.34.0-py3-none-any.whl", hash = "sha256:0440012d7a65fa3c33d2d92eeacd920ddbc5db6ed91149e94e93868986924ba4", size = 63299, upload-time = "2026-06-25T12:07:56.824Z" },
+    { url = "https://files.pythonhosted.org/packages/96/00/80c5bbb439b258295914b36c58385c62c9acda9ca97e057c343be5af387e/fmu_settings-1.0.0-py3-none-any.whl", hash = "sha256:829657aeb63bbfd10a45227b827233096f8eeb89cfdede3cf982eb9b42717a31", size = 64017, upload-time = "2026-06-29T09:59:38.326Z" },
 ]
 
 [[package]]

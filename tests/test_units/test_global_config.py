@@ -1,4 +1,5 @@
 import shutil
+import warnings
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -210,17 +211,17 @@ def test_load_from_fmu_settings_returns_none_when_no_dotfmu(
     assert result is None
 
 
-def test_load_from_fmu_settings_returns_none_when_config_incomplete(
+def test_load_from_fmu_settings_raises_when_config_incomplete(
     tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """If the .fmu config is missing required fields, returns None."""
+    """If the .fmu config is missing required fields, raises ValidationError."""
     fmu_dir = create_drogon_fmu_dir(tmp_path)
     monkeypatch.chdir(tmp_path)
 
     fmu_dir.config.set("masterdata", None)
 
-    result = load_global_config_from_fmu_settings()
-    assert result is None
+    with pytest.raises(ValidationError, match="FMU Settings is incomplete"):
+        load_global_config_from_fmu_settings()
 
 
 def test_load_from_fmu_settings_returns_none_on_invalid_access(
@@ -325,12 +326,12 @@ def test_load_global_config_raises_when_neither_source_exists(
         load_global_config()
 
 
-def test_load_global_config_falls_back_when_fmu_settings_incomplete(
+def test_load_global_config_raises_when_fmu_settings_incomplete(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
     drogon_global_config_path: Path,
 ) -> None:
-    """When .fmu/ config is incomplete, falls back to global_variables.yml."""
+    """When .fmu/ config is incomplete, raises ValidationError."""
     fmu_dir = create_drogon_fmu_dir(tmp_path)
 
     fmu_dir.config.set("masterdata", None)
@@ -341,9 +342,8 @@ def test_load_global_config_falls_back_when_fmu_settings_incomplete(
 
     monkeypatch.chdir(tmp_path)
 
-    result = load_global_config()
-    assert isinstance(result, GlobalConfiguration)
-    assert result.model.name == "global_variables"
+    with pytest.raises(ValidationError, match="FMU Settings is incomplete"):
+        load_global_config()
 
 
 def test_load_global_config_with_explicit_path_still_prefers_fmu_settings(
@@ -384,3 +384,67 @@ def test_load_global_config_from_runpath_without_dotfmu(
     result = load_global_config()
     assert isinstance(result, GlobalConfiguration)
     assert result.model.name == "global_variables"
+
+
+def test_load_global_config_warns_when_both_sources_exist(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """Warns users to remove unused global_variables fields when .fmu/ is used."""
+    create_drogon_fmu_dir(tmp_path)
+
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.warns(UserWarning, match=r"Please remove.*no longer used"):
+        result = load_global_config()
+
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "Drogon"
+
+
+def test_load_global_config_does_not_warn_on_invalid_global_variables(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Does not warn users when global_variables.yml is invalid."""
+    create_drogon_fmu_dir(tmp_path)
+
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    fmuconfig = fmuconfig_output / "global_variables.yml"
+
+    fmuconfig.write_text("invalid: data")
+
+    monkeypatch.chdir(tmp_path)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        result = load_global_config()
+
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "Drogon"
+
+
+def test_load_global_config_warns_when_using_global_variables(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """Warns users to initialize FMU settings when loading global_variables.yml."""
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.warns(FutureWarning, match="not yet configured to use FMU Settings"):
+        result = load_global_config()
+
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "global_variables"
+
+    monkeypatch.chdir(tmp_path)
