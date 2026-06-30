@@ -1151,7 +1151,7 @@ requires-dist = [
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=15" },
     { name = "fmu-datamodels", specifier = "~=0.23.0" },
-    { name = "fmu-settings" },
+    { name = "fmu-settings", specifier = ">=0.34.0" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
     { name = "hypothesis", marker = "extra == 'dev'" },

@@ -167,7 +167,7 @@ class ObjectData:
     def smda_entity(self) -> SmdaEntity | None:
         """The smda_entity (name) for this object"""
         if self._strat_element.stratigraphic:
-            return SmdaEntity(identifier=self.name)
+            return SmdaEntity(identifier=self.name, uuid=self._strat_element.uuid)
         return None
 
     @property
