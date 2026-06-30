@@ -266,8 +266,8 @@ Example script from the Drogon workflow:
 
 ```sql
 -- Create case metadata
---                       ert-casepath    sumo-flag
-WF_CREATE_CASE_METADATA   casepath        "--sumo"
+--                       ert-casepath     sumo-flag
+WF_CREATE_CASE_METADATA  <SUMO_CASEPATH>  "--sumo"
 
 -- This workflow is intended to run as a HOOK workflow.
 
