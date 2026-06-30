@@ -182,6 +182,16 @@ def test_stratigraphy_missing_raises(
     ):
         export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
 
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        mock.patch(
+            "fmu.dataio.export._base.load_global_config",
+            return_value=mock_global_config_validated,
+        ),
+        pytest.raises(ValueError, match="No stratigraphy mappings exist"),
+    ):
+        export_structure_depth_fault_lines(mock_project_variable, "DS_extracted")
+
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_config_missing(
