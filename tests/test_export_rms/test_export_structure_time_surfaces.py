@@ -100,6 +100,7 @@ def test_public_export_function(
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     assert "time" in metadata["data"]["content"]
+    assert metadata["data"]["unit"] == "ms"
     assert metadata["access"]["classification"] == "internal"
     assert metadata["data"]["is_prediction"]
     assert (

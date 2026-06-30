@@ -9,7 +9,7 @@ from fmu.dataio._export import ExportConfig, export_with_metadata
 from fmu.dataio._logging import null_logger
 from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
-from fmu.dataio.export.rms._utils import get_rms_project_units
+from fmu.dataio.export.rms._utils import get_rms_project_length_unit
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import (
     Content,
@@ -31,7 +31,7 @@ class _ExportStructureDepthFaultSurfaces(SimpleExportBase):
 
         _logger.debug("Process data, establish state prior to export.")
 
-        self._unit = "m" if get_rms_project_units(project) == "metric" else "ft"
+        self._unit = get_rms_project_length_unit(project)
 
         self._surfaces = _get_fault_surfaces_from_rms(project, structural_model_name)
 
@@ -111,7 +111,7 @@ def _get_fault_surfaces_from_rms(
 
         # To get coordinate system info in the GOCAD TSurf file
         # it must be set using metadata in the xtgeo object
-        unit = "m" if get_rms_project_units(project) == "metric" else "ft"
+        unit = get_rms_project_length_unit(project)
 
         tsurf.metadata.freeform = {
             "tsurf_coord_sys": {
