@@ -87,7 +87,7 @@ def get_rms_project_units(project: Any) -> str | None:
 
     warnings.warn(
         f"RMS project unit system {units!r} is not a known RMS unit system. "
-        "Exported metadata unit will be set to unknown.",
+        "Exported metadata unit will be set to an empty string.",
         UserWarning,
         stacklevel=2,
     )
