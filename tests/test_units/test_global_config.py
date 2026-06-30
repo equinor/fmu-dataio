@@ -13,6 +13,7 @@ from pytest import MonkeyPatch
 from fmu.dataio._global_config import (
     _resolve_global_config_path,
     build_global_configuration,
+    has_fmu_directory,
     load_global_config,
     load_global_config_from_fmu_settings,
     load_global_config_from_global_variables,
@@ -209,6 +210,23 @@ def test_load_from_fmu_settings_returns_none_when_no_dotfmu(
 
     result = load_global_config_from_fmu_settings()
     assert result is None
+
+
+def test_has_fmu_directory_returns_true_when_found(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Returns True when find_nearest_fmu_directory succeeds."""
+    create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    assert has_fmu_directory() is True
+
+
+def test_has_fmu_directory_returns_false_when_not_found(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Returns False when no .fmu/ directory exists."""
+    monkeypatch.chdir(tmp_path)
+    assert has_fmu_directory() is False
 
 
 def test_load_from_fmu_settings_raises_when_config_incomplete(

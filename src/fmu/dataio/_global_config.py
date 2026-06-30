@@ -72,6 +72,15 @@ def warn_using_legacy_global_variables() -> None:
     )
 
 
+def has_fmu_directory() -> bool:
+    """Return True if a .fmu/ directory is found, False otherwise."""
+    try:
+        find_nearest_fmu_directory()
+        return True
+    except FileNotFoundError:
+        return False
+
+
 def build_global_configuration(
     config_dict: dict[str, Any], standard_result: bool = False
 ) -> GlobalConfiguration:
