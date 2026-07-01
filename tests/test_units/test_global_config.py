@@ -242,6 +242,38 @@ def test_load_from_fmu_settings_raises_when_config_incomplete(
         load_global_config_from_fmu_settings()
 
 
+def test_load_from_fmu_settings_raises_on_bad_config(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Raise ValidationError when .fmu config loading fails."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+
+    fmu_dir.config.path.write_text('{"invalid": "data"}')
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(
+        ValidationError, match=r"Unable to load configuration from FMU Settings"
+    ):
+        load_global_config_from_fmu_settings()
+
+
+def test_load_from_fmu_settings_raises_on_bad_json(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Raise ValidationError when .fmu config contains invalid JSON."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+
+    fmu_dir.config.path.write_text("invalid json")
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(
+        ValidationError, match=r"Unable to load configuration from FMU Settings"
+    ):
+        load_global_config_from_fmu_settings()
+
+
 def test_load_from_fmu_settings_returns_none_on_invalid_access(
     tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> None:

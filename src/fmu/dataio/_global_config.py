@@ -176,9 +176,9 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
             - data in .fmu/ does not validate against current GlobalConfiguration model
 
     Raises:
-        ValueError: If data in .fmu/ is invalid or cannot be loaded
-        ValidationError: If the required fields masterdata, access, or model are
-            missing in .fmu/.
+        ValidationError:
+            - If data in .fmu/ is invalid or cannot be loaded
+            - If the required fields masterdata, access, or model are missing in .fmu/
     """
     try:
         fmu_dir = find_nearest_fmu_directory()
@@ -186,12 +186,21 @@ def load_global_config_from_fmu_settings() -> GlobalConfiguration | None:
         logger.info("No .fmu/ directory found to load global configuration from.")
         return None
 
-    config = fmu_dir.config.load()
+    try:
+        config = fmu_dir.config.load()
+    except ValueError as err:
+        raise ValidationError(
+            "Unable to load configuration from FMU Settings. It may be invalid "
+            "or corrupted. Try to restore from the latest working snapshot "
+            "via FMU Settings. From a terminal, navigate to your project directory "
+            "and run `fmu settings` to open FMU Settings."
+        ) from err
+
     if config.masterdata is None or config.access is None or config.model is None:
         raise ValidationError(
             "The configuration in FMU Settings is incomplete. From a terminal, "
-            "navigate to your project directory, type `fmu settings` to open "
-            "FMU Settings and complete the setup checklist. "
+            "navigate to your project directory, run `fmu settings` to open "
+            "FMU Settings and complete the setup checklist.\n"
             f"Learn more about FMU Settings: {_FMU_SETTINGS_URL}",
         )
 
