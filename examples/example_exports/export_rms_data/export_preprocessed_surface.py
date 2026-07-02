@@ -7,19 +7,22 @@ from fmu.config import utilities as ut
 
 from fmu.dataio.dataio import ExportData
 
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
+SCRIPT_DIR = Path(__file__).resolve().parent
+EXAMPLES_ROOT = SCRIPT_DIR.parents[1]
 
-DEPTH_FILE = Path("../output/maps/structure/") / "topvolantis--ds_extract_geogrid.gri"
+CFG = ut.yaml_load(EXAMPLES_ROOT / "fmuconfig/output/global_variables.yml")
+
+DEPTH_FILE = (
+    SCRIPT_DIR.parent / "output/maps/structure/topvolantis--ds_extract_geogrid.gri"
+)
 
 
 def export_preprocessed_surface():
     """Export a preprocessed surface with metadata."""
-
     export_data = ExportData(
         config=CFG,
         preprocessed=True,
         name="preprocessedmap",
-        fmu_context="case",
         content="depth",
         is_observation=True,
         subfolder="mysub",
