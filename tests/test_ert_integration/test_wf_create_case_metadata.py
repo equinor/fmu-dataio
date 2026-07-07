@@ -17,8 +17,10 @@ import pyarrow as pa
 import pytest
 import yaml
 from ert.config import GenKwConfig, ShapeRegistry
+from ert.config._create_observation_dataframes import (
+    create_observation_dataframes,  # TODO: consider removing this private import
+)
 from ert.config.distribution import DistributionSettings
-from ert.config.ert_config import create_observation_dataframes
 from fmu.datamodels import (
     ErtObservationsRftSchema,
 )

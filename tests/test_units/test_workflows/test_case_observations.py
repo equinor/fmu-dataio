@@ -19,7 +19,9 @@ import polars as pl
 import pyarrow as pa
 import pytest
 from ert.config import ErtConfig
-from ert.config.ert_config import create_observation_dataframes
+from ert.config._create_observation_dataframes import (
+    create_observation_dataframes,  # TODO: consider removing this private import
+)
 from fmu.datamodels import (
     ErtObservationsBreakthroughResult,
     ErtObservationsBreakthroughSchema,
