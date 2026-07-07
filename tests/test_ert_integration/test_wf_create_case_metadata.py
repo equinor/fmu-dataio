@@ -815,19 +815,14 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
 
     def mock_create_observation_dataframes(
         observations: ert.Ensemble,
-        rft_config: None,
         shape_registry: ShapeRegistry,
-    ) -> None:
+    ) -> dict[str, pl.DataFrame]:
         """mock"""
-        return create_observation_dataframes(observations, MagicMock(), shape_registry)
+        return create_observation_dataframes(observations, shape_registry)
 
     with (
         patch(
             "ert.storage.local_experiment.create_observation_dataframes",
-            side_effect=mock_create_observation_dataframes,
-        ),
-        patch(
-            "ert.config.ert_config.create_observation_dataframes",
             side_effect=mock_create_observation_dataframes,
         ),
         patch(
