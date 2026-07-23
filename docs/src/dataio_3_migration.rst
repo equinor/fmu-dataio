@@ -298,34 +298,7 @@ Example using ``ExportPreprocessedData`` to re-export preprocessed data:
 Changes affecting the global_variables.yml
 ------------------------------------------
 The ``access.ssdl`` block is deprecated, it is recommended to remove it entirely. Setting a global
-classification for all your export jobs should now be done through the ``access.classification`` field
-instead. Furthermore, setting a global ``rep_include`` value for all exports is no longer supported.
+classification for all your export jobs should now be done in [FMU Settings](getting_started.md)
+
+Setting a global ``rep_include`` value for all exports is no longer supported.
 Instead, you must set it on a per-object basis using the ``rep_include`` argument in the ``ExportData`` instance.
-
-
-Example of an old set-up:
-
-.. code-block:: yaml
-
-    global:
-      access:
-        asset:
-          name: Drogon
-        ssdl:
-          access_level: internal # ⛔️ no longer allowed
-          rep_include: true  # ⛔️ no longer in use, simply remove the line!
-
-
-Example of a new set-up:
-
-.. code-block:: yaml
-
-    global:
-      access:
-        asset:
-          name: Drogon
-        classification: internal # ✅ Correct way of entering security classification
-
-.. note::
-  If the config contains both ``access.ssdl.access_level`` (deprecated) and ``access.classification``.
-  The value from ``access.classification`` will be used.
