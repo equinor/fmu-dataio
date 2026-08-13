@@ -32,7 +32,7 @@ from fmu.datamodels.standard_results.ert_parameters import (
     UniformParameter,
 )
 from fmu.settings import get_fmu_directory
-from pytest import CaptureFixture, MonkeyPatch
+from pytest import MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._workflows.case._observations import get_ert_observations_table
@@ -228,12 +228,10 @@ def test_create_case_metadata_warns_without_overwriting(
 
 
 def test_create_case_metadata_caseroot_not_defined(
-    fmu_snakeoil_project: Path,
-    monkeypatch: MonkeyPatch,
-    capsys: CaptureFixture[str],
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """Test that a proper error message is given if the case path is
-    input as an undefined ERT variable"""
+    """Test that a ERT is stopped and that a proper error message is given
+    if the case path is input as an undefined ERT variable"""
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
@@ -247,21 +245,21 @@ def test_create_case_metadata_caseroot_not_defined(
 
     add_create_case_workflow(ert_config_path)
 
-    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="Ert variable for case path is not defined"),
+    ):
         ert.__main__.main()
-
-    _stdout, stderr = capsys.readouterr()
-    assert "ValueError: Ert variable for case path is not defined" in stderr
 
 
 def test_create_case_metadata_deprecated_arguments_warn(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """Now deprecated arguments issue warnings."""
+    """Test that deprecated arguments issue warnings."""
     pathlib.Path(
         fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
     ).write_text(
-        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH> <CASE_DIR>",
+        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> <CASE_DIR>",
         encoding="utf-8",
     )
 
@@ -322,7 +320,6 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
-    capsys: CaptureFixture[str],
 ) -> None:
     """Test that if the sumo_env argument is input as dev it raises an error"""
     with open(
@@ -341,12 +338,9 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
         pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
+        pytest.raises(SystemExit, match=" Setting sumo environment through argument"),
     ):
         ert.__main__.main()
-
-    _stdout, stderr = capsys.readouterr()
-    assert "ValueError: Setting sumo environment through argument" in stderr
-    assert "SUMO_ENV" in stderr
 
 
 @pytest.mark.skipif(
