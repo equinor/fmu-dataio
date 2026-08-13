@@ -356,6 +356,9 @@ class WfExportCaseMetadata(ert.ErtScript):
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
     potential naming collisions in fmu-dataio."""
 
+    # Ensure ERT execution stops if the workflow fails
+    stop_on_fail = True
+
     def run(
         self,
         workflow_args: list[str],
