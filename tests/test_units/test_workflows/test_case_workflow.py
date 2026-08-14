@@ -22,7 +22,7 @@ from fmu.dataio._workflows.case.main import (
 
 @pytest.fixture
 def mock_ensemble() -> Callable[[int], MagicMock]:
-    """Mocks an ert.Ensemble object."""
+    """Mocks an ert.storage.Ensemble object."""
 
     def _mock_ensemble(iteration: int = 0) -> MagicMock:
         """Creates the mocked object."""
@@ -35,7 +35,7 @@ def mock_ensemble() -> Callable[[int], MagicMock]:
 
 @pytest.fixture
 def mock_run_paths() -> Callable[[str], MagicMock]:
-    """Mocks and ert.Runpaths object."""
+    """Mocks and ert.runpaths.Runpaths object."""
 
     def _mock_run_paths(runpath: str = "/tmp/realization-0/iter-0") -> MagicMock:
         """Creates the mocked object."""

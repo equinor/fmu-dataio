@@ -9,7 +9,7 @@ import argparse
 import logging
 import shutil
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import ert
 
@@ -33,6 +33,11 @@ from ._mappings import get_stratigraphy_mappings_table
 from ._observations import get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
+
+if TYPE_CHECKING:
+    from ert.runpaths import Runpaths as ErtRunpaths
+    from ert.storage import Ensemble as ErtEnsemble
+
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -58,8 +63,8 @@ Arguments:
 
 
 def _get_ensemble_name(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble: ErtEnsemble,
+    run_paths: ErtRunpaths,
     casepath: Path,
 ) -> str:
     """Determine ensemble name from run path.
@@ -77,7 +82,7 @@ def _get_ensemble_name(
 
 
 def _queue_ert_parameters(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -107,7 +112,7 @@ def _queue_ert_parameters(
 
 
 def _queue_ert_observations_breakthrough(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -139,7 +144,7 @@ def _queue_ert_observations_breakthrough(
 
 
 def _queue_ert_observations_rft(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -170,7 +175,7 @@ def _queue_ert_observations_rft(
 
 
 def _queue_ert_observations_summary(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -233,8 +238,8 @@ def _queue_stratigraphy_mappings(
 
 
 def _upload_files_to_sumo(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble: ErtEnsemble,
+    run_paths: ErtRunpaths,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
@@ -256,8 +261,8 @@ def _upload_files_to_sumo(
 
 
 def _run_workflow(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble: ErtEnsemble,
+    run_paths: ErtRunpaths,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Main workflow entry point."""
@@ -362,8 +367,8 @@ class WfExportCaseMetadata(ert.ErtScript):
     def run(
         self,
         workflow_args: list[str],
-        ensemble: ert.Ensemble,
-        run_paths: ert.Runpaths,
+        ensemble: ErtEnsemble,
+        run_paths: ErtRunpaths,
     ) -> None:
         """Parse arguments and run the workflow."""
         parser = get_parser()
@@ -376,7 +381,7 @@ class WfExportCaseMetadata(ert.ErtScript):
 
 
 @ert.plugin(name="fmu_dataio")
-def ertscript_workflow(config: ert.CaseWorkflowConfigs) -> None:
+def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
     """Hook the WfExportCaseMetadata class with documentation into ERT."""
     config.add_workflow(
         WfExportCaseMetadata,
