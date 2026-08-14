@@ -53,6 +53,7 @@ from .ert_config_utils import (
 )
 
 if TYPE_CHECKING:
+    from ert.storage import Ensemble as ErtEnsemble
     from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 
@@ -462,7 +463,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
     scalars_and_config = []
 
     def capture_params(
-        ensemble: ert.Ensemble,
+        ensemble: ErtEnsemble,
         ensemble_name: str,
         workflow_config: CaseWorkflowConfig,
         sumo_uploader: SumoUploaderInterface,
@@ -797,7 +798,7 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
     captured_tables = {}
 
     def capture_observation_tables(
-        ensemble: ert.Ensemble,
+        ensemble: ErtEnsemble,
         obs_type: str,
     ) -> None:
         """Captures observation tables from Ert run.
@@ -808,7 +809,7 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
         return df
 
     def mock_create_observation_dataframes(
-        observations: ert.Ensemble,
+        observations: ErtEnsemble,
         shape_registry: ShapeRegistry,
     ) -> dict[str, pl.DataFrame]:
         """mock"""
@@ -868,7 +869,7 @@ def test_create_case_metadata_with_no_observations(
     captured_tables = {}
 
     def capture_observation_tables(
-        ensemble: ert.Ensemble,
+        ensemble: ErtEnsemble,
         obs_type: str,
     ) -> None:
         """Captures rft observations from Ert run"""

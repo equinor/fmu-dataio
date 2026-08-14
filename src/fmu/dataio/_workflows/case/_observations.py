@@ -9,7 +9,7 @@ import polars as pl
 import pyarrow as pa
 
 if TYPE_CHECKING:
-    import ert
+    from ert.storage import Ensemble as ErtEnsemble
 
 
 logger: Final = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def _prepare_observations_dataframe(
 
 
 def get_ert_observations_table(
-    ensemble: ert.Ensemble, obs_type: Literal["rft", "summary", "breakthrough"]
+    ensemble: ErtEnsemble, obs_type: Literal["rft", "summary", "breakthrough"]
 ) -> pa.Table | None:
     """Extract observations from ert storage and process it into an arrow table."""
     logger.info(f"Observation type: {obs_type}")

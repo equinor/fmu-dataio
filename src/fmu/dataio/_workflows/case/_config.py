@@ -13,7 +13,7 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import ProjectFMUDirectory
 
 if TYPE_CHECKING:
-    import ert
+    from ert.runpaths import Runpaths as ErtRunpaths
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -53,7 +53,7 @@ class CaseWorkflowConfig:
     @classmethod
     def from_presim_workflow(
         cls,
-        run_paths: ert.Runpaths,
+        run_paths: ErtRunpaths,
         args: argparse.Namespace,
         fmu_dir: ProjectFMUDirectory | None = None,
     ) -> Self:
