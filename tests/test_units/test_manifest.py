@@ -49,6 +49,16 @@ def test_export_manifest_from_file_not_exist(tmp_path: Path) -> None:
         ExportManifest.from_file(tmp_path / MANIFEST_FILENAME)
 
 
+def test_export_manifest_from_empty_file(tmp_path: Path) -> None:
+    """Test that an empty manifest file is loaded as a new manifest."""
+    manifest_path = tmp_path / MANIFEST_FILENAME
+    manifest_path.touch()
+
+    manifest = ExportManifest.from_file(manifest_path)
+
+    assert len(manifest) == 0
+
+
 def test_get_manifest_path_realization_context(runpath_no_dotfmu: Path) -> None:
     """Test that the manifest path is correctly derived in a realization context."""
     # check test assumption that the fixture points to the runpath

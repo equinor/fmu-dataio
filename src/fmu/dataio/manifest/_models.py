@@ -37,7 +37,12 @@ class ExportManifest(RootModel):
     def from_file(cls, manifest_path: Path) -> Self:
         """Load the export manifest from the JSON file."""
         with manifest_path.open("r", encoding="utf-8") as file:
-            return cls.model_validate(json.load(file))
+            content = file.read()
+
+        if not content.strip():
+            return cls()
+
+        return cls.model_validate(json.loads(content))
 
     def add_entry(self, absolute_path: Path) -> None:
         """Append a new file to the manifest."""
