@@ -33,7 +33,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "PyYAML",
-    "fmu-datamodels~=0.24.0",
+    "fmu-datamodels~=0.25.0",
     "fmu-settings>=0.34.0",
     "fmu-sumo",
     "jsonschema",

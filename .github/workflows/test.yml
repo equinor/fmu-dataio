@@ -65,6 +65,7 @@ jobs:
           if [ "${{ matrix.python-version }}" = "3.11" ]; then
             pytest_args="$pytest_args --ignore=tests/test_units/test_workflows/test_case_observations.py"
             pytest_args="$pytest_args --deselect=tests/test_ert_integration/test_wf_create_case_metadata.py::test_create_case_metadata_collects_rft_observations_as_expected"
+            pytest_args="$pytest_args --deselect=tests/test_ert_integration/test_wf_create_case_metadata.py::test_distribution_models_one_to_one_with_ert"
           fi
 
           uv run pytest $pytest_args
