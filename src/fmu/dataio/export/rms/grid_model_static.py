@@ -97,7 +97,7 @@ class _ExportStaticGrid(SimpleExportBase):
         """Data validations before export."""
 
 
-class _ExportStaticGridProperties(SimpleExportBase):
+class _ExportStaticGridProperty(SimpleExportBase):
     def __init__(
         self,
         prop: xtgeo.GridProperty,
@@ -139,13 +139,18 @@ class _ExportStaticGridProperties(SimpleExportBase):
         return ExportResult(items=[ExportResultItem(absolute_path=export_path)])
 
     def _validate_data_pre_export(self) -> None:
-        """Validate a single property against its specification."""
+        """Validate a single property against its specification. An exception is made
+        for 'net_to_gross' where both discrete and continuous types are allowed."""
 
-        if self.prop.isdiscrete != self.prop_spec.is_discrete:
+        attribute = self.prop_spec.attribute
+
+        if (
+            attribute != PropertyAttribute.net_to_gross
+            and self.prop.isdiscrete != self.prop_spec.is_discrete
+        ):
             expected_type = "discrete" if self.prop_spec.is_discrete else "continuous"
             raise ValueError(
-                f"Property input as '{self.prop_spec.attribute}' needs to be "
-                f"of type {expected_type}."
+                f"Property input as '{attribute}' needs to be of type {expected_type}."
             )
 
         min_value = self.prop.values.min()
@@ -236,7 +241,7 @@ class _ExportGridModelStatic:
         for name, prop_spec in self.properties.items():
             prop = self.load_property(name)
 
-            export_result_prop = _ExportStaticGridProperties(
+            export_result_prop = _ExportStaticGridProperty(
                 prop=prop,
                 prop_spec=prop_spec,
                 geometry=geometry_path,
