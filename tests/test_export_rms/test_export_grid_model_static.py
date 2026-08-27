@@ -150,6 +150,8 @@ def test_public_export_function(
     assert metadata["class"] == "cpgrid_property"
     assert metadata["data"]["content"] == "property"
     assert "property" in metadata["data"]
+    assert metadata["data"]["property"]["attribute"] == "zonation"
+    assert metadata["data"]["property"]["is_discrete"] is True
     assert metadata["access"]["classification"] == "internal"
     assert metadata["data"]["format"] == "roff"
     assert (
@@ -289,7 +291,7 @@ def test_property_value_outside_specification_raises(
 ) -> None:
     """Test that an error is raised if a property value is outside specification."""
 
-    from fmu.dataio.export.rms.grid_model_static import _ExportStaticGridProperties
+    from fmu.dataio.export.rms.grid_model_static import _ExportStaticGridProperty
 
     prop = MagicMock()
     prop.isdiscrete = False
@@ -300,7 +302,7 @@ def test_property_value_outside_specification_raises(
     ).root
 
     with pytest.raises(ValueError, match="has maximum value .* greater than"):
-        _ExportStaticGridProperties(
+        _ExportStaticGridProperty(
             prop=prop,
             prop_spec=prop_spec,
             geometry=Path("geogrid.roff"),
@@ -316,7 +318,7 @@ def test_property_type_mismatch_raises(
     than specification.
     """
 
-    from fmu.dataio.export.rms.grid_model_static import _ExportStaticGridProperties
+    from fmu.dataio.export.rms.grid_model_static import _ExportStaticGridProperty
 
     prop = MagicMock()
     prop.isdiscrete = True  # this should be False for porosity
@@ -327,11 +329,37 @@ def test_property_type_mismatch_raises(
     ).root
 
     with pytest.raises(ValueError, match="needs to be of type continuous"):
-        _ExportStaticGridProperties(
+        _ExportStaticGridProperty(
             prop=prop,
             prop_spec=prop_spec,
             geometry=Path("geogrid.roff"),
         ).export()
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+@pytest.mark.parametrize("is_discrete", [True, False])
+def test_net_to_gross_accepts_discrete_and_continuous(
+    is_discrete: bool,
+    mock_export_class: _ExportGridModelStatic,
+) -> None:
+    """Test that net_to_gross accepts both discrete and continuous properties."""
+
+    from fmu.dataio.export.rms.grid_model_static import _ExportStaticGridProperty
+
+    prop = MagicMock()
+    prop.isdiscrete = is_discrete
+    prop.values = np.array([0.2, 0.8])
+
+    prop_spec = AnyAttributeSpecification.model_validate(
+        {"attribute": PropertyAttribute.net_to_gross}
+    ).root
+    assert prop_spec.is_discrete is False
+
+    _ExportStaticGridProperty(
+        prop=prop,
+        prop_spec=prop_spec,
+        geometry=Path("geogrid.roff"),
+    )._validate_data_pre_export()
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
