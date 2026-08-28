@@ -60,7 +60,7 @@ jobs:
 
       - name: Full test
         run: |
-          pytest_args="-n 4 --dist=loadgroup -v --doctest-modules --disable-warnings --durations=25 --cov=src/fmu/dataio --cov-report=xml:coverage.xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy"
+          pytest_args="-n auto -v --cov=src/fmu/dataio --cov-report=xml:fmudataiocoverage.xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy"
 
           if [ "${{ matrix.python-version }}" = "3.11" ]; then
             pytest_args="$pytest_args --ignore=tests/test_units/test_workflows/test_case_observations.py"
@@ -78,7 +78,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: fmudataiocoverage.xml
-          flags: unittests
           disable_search: true
           fail_ci_if_error: true
 
@@ -92,7 +91,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: fmudataiocoverage.xml
-          flags: unittests
           disable_search: true
           fail_ci_if_error: ${{ github.ref == 'refs/heads/main' }}
 

@@ -3,10 +3,6 @@ codecov:
   notify:
     wait_for_ci: true
   require_ci_to_pass: true
-comment:
-  behavior: default
-  layout: reach,diff,flags,tree,reach
-  show_carryforward_flags: false
 coverage:
   precision: 2
   range:
@@ -15,9 +11,5 @@ coverage:
   round: down
   status:
     changes: false
-    default_rules:
-      flag_coverage_not_uploaded_behavior: include
     patch: true
     project: true
-fixes:
-  - "*/site-packages/fmu/dataio::src/fmu/dataio"
