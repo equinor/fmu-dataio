@@ -60,7 +60,7 @@ jobs:
 
       - name: Full test
         run: |
-          pytest_args="-n auto -v --cov --cov-report term-missing"
+          pytest_args="-n auto -v --cov=src/fmu/dataio --cov-report=xml:fmudataiocoverage.xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy"
 
           if [ "${{ matrix.python-version }}" = "3.11" ]; then
             pytest_args="$pytest_args --ignore=tests/test_units/test_workflows/test_case_observations.py"
@@ -69,3 +69,57 @@ jobs:
           fi
 
           uv run pytest $pytest_args
+      
+      - name: Upload test coverage to Codecov
+        id: codecov-coverage
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: fmudataiocoverage.xml
+          disable_search: true
+          fail_ci_if_error: true
+
+      - name: Codecov retry sleep
+        if: ${{ steps.codecov-coverage.outcome == 'failure' }}
+        run: sleep 30
+
+      - name: Upload test coverage to Codecov (retry)
+        if: ${{ steps.codecov-coverage.outcome == 'failure' }}
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: fmudataiocoverage.xml
+          disable_search: true
+          fail_ci_if_error: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Publish test summary
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
+        with:
+          paths: junit.xml
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
+          files: junit.xml
+          disable_search: true
+
+      - name: Test for a clean repository
+        if: ${{ !cancelled() }}
+        run: |
+          # Remove expected test and coverage artifacts.
+          ls -la
+          rm -rf .coverage
+          rm -f fmudataiocoverage.xml junit*.xml
+          rm -f codecov.SHA*
+          rm -f codecov
+          rm -f .coverage.*
+          git status --porcelain
+          test -z "$(git status --porcelain)"
