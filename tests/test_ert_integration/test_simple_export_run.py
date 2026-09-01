@@ -78,17 +78,14 @@ def test_snakeoil_wf_case_metadata_includes_config_user_and_casename(
     """
     monkeypatch.chdir(fmu_snakeoil_project / "ert/model")
 
-    Path(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
-    ).write_text(
-        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> "
-        "foo.yml "  # ert_config_path (now deprecated)
+    ert_config_path = Path("snakeoil.ert")
+
+    add_create_case_workflow(
+        ert_config_path=ert_config_path,
+        extra_args="foo.yml "  # ert_config_path (now deprecated)
         "foo "  # ert_casename (now deprecated)
         "<USER>",  # ert_user (now deprecated)
-        encoding="utf-8",
     )
-
-    add_create_case_workflow(Path("snakeoil.ert"))
 
     mocker.patch(
         "sys.argv",

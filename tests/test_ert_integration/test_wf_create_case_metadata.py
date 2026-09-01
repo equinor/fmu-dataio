@@ -4,7 +4,6 @@ import getpass
 import importlib
 import json
 import os
-import pathlib
 from pathlib import Path
 from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -233,18 +232,12 @@ def test_create_case_metadata_caseroot_not_defined(
 ) -> None:
     """Test that a ERT is stopped and that a proper error message is given
     if the case path is input as an undefined ERT variable"""
-    pathlib.Path(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
-    ).write_text(
-        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED>",
-        encoding="utf-8",
-    )
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, casepath="<CASEPATH_NOT_DEFINED>")
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -257,18 +250,15 @@ def test_create_case_metadata_deprecated_arguments_warn(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Test that deprecated arguments issue warnings."""
-    pathlib.Path(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
-    ).write_text(
-        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> <CASE_DIR>",
-        encoding="utf-8",
-    )
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(
+        ert_config_path,
+        extra_args="<CONFIG_PATH> <CASE_DIR> '--sumo_env' prod ",
+    )
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -276,6 +266,7 @@ def test_create_case_metadata_deprecated_arguments_warn(
             FutureWarning, match="The argument 'ert_config_path' is deprecated"
         ),
         pytest.warns(FutureWarning, match="The argument 'ert_casename' is deprecated"),
+        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
     ):
         ert.__main__.main()
 
@@ -289,22 +280,15 @@ def test_create_case_metadata_enable_mocked_sumo(
     monkeypatch: MonkeyPatch,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo" "--sumo_env" prod')
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
-        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
     ):
         ert.__main__.main()
 
@@ -323,18 +307,12 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that if the sumo_env argument is input as dev it raises an error"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo" "--sumo_env" dev')
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True, extra_args="'--sumo_env' dev")
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -354,12 +332,6 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that sumo_env is set through the 'SUMO_ENV' environment variable"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo"')
 
     sumo_env = "dev"
     monkeypatch.setenv("SUMO_ENV", sumo_env)
@@ -368,7 +340,7 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
         ert.__main__.main()
@@ -388,18 +360,12 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that sumo_env is defaulted to 'prod' when not set through the environment"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo"')
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
         ert.__main__.main()
@@ -420,12 +386,6 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that the environment variable is used over the sumo_env argument"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo" "--sumo_env" prod')
 
     sumo_env_expected = "dev"
     monkeypatch.setenv("SUMO_ENV", sumo_env_expected)
@@ -434,7 +394,7 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True, extra_args="'--sumo_env' prod")
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -448,9 +408,9 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
 
 
 def test_create_case_metadata_collects_ert_parameters_as_expected(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
@@ -458,7 +418,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
     add_globvar_parameters(ert_config_path)
     add_multregt_parameters(ert_config_path)
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     scalars_and_config = []
 
@@ -694,17 +654,17 @@ def test_get_ert_parameters_table_non_genkw_config_skipped() -> None:
 
 
 def test_create_case_metadata_expects_parameters_standard_result_integration(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Full integration test with the snakeoil Ert model."""
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
     add_design_matrix(ert_config_path)
     add_globvar_parameters(ert_config_path)
     add_multregt_parameters(ert_config_path)
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -780,20 +740,20 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
 
 
 def test_create_case_metadata_collects_rft_observations_as_expected(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """
     Test rft observations are fetched and returned as expected from ert
     and tried uploaded to Sumo.
     """
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
     add_observation_config(ert_config_path)
     add_rft_observations(ert_config_path)
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     captured_tables = {}
 
@@ -857,14 +817,14 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
 
 
 def test_create_case_metadata_with_no_observations(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Test no tables are uploaded when observations are not present in ert config"""
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     captured_tables = {}
 
@@ -906,17 +866,17 @@ def test_create_case_metadata_with_no_observations(
 
 
 def test_create_case_metadata_uploads_stratigraphy_mappings(
-    fmu_snakeoil_project_with_dotfmu_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """
     When .fmu/ exists and stratigraphy mappings are present, they are uploaded
     on expected format.
     """
-    ert_model_path = fmu_snakeoil_project_with_dotfmu_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch(
@@ -958,7 +918,7 @@ def test_create_case_metadata_uploads_stratigraphy_mappings(
         "relation_type",
     }
 
-    casedir = fmu_snakeoil_project_with_dotfmu_sumo / "scratch/user/snakeoil"
+    casedir = fmu_snakeoil_project_with_dotfmu / "scratch/user/snakeoil"
 
     fmu_dir = get_fmu_directory(casedir)
     assert fmu_dir is not None
@@ -980,14 +940,14 @@ def test_create_case_metadata_uploads_stratigraphy_mappings(
 
 
 def test_create_case_metadata_without_stratigraphy_mappings(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """When .fmu/ doesn't exist, stratigraphy mappings are not uploaded."""
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch(
@@ -1007,18 +967,18 @@ def test_create_case_metadata_without_stratigraphy_mappings(
 
 
 def test_create_case_metadata_dotfmu_without_stratigraphy_mappings(
-    fmu_snakeoil_project_with_dotfmu_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """When no mappings are present in .fmu/, stratigraphy mappings are not uploaded."""
 
-    mappings_file = fmu_snakeoil_project_with_dotfmu_sumo / ".fmu/mappings.json"
+    mappings_file = fmu_snakeoil_project_with_dotfmu / ".fmu/mappings.json"
     mappings_file.unlink()
 
-    ert_model_path = fmu_snakeoil_project_with_dotfmu_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch(

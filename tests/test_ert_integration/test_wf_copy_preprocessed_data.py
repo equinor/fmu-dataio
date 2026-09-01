@@ -157,21 +157,11 @@ def test_inpath_absolute_path_raises(
 ) -> None:
     """Test that an error is written to stderr if the inpath argument is absolute"""
 
-    # create a workflow file with an absoulte inpath
-    workflow_file = (
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_copy_preprocessed_data"
-    )
-    with open(workflow_file, encoding="utf-8", mode="w") as f:
-        f.write(
-            "WF_COPY_PREPROCESSED_DATAIO <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> "
-            "/../../share/preprocessed"  # absolute path
-        )
-
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_copy_preprocessed_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(ert_config_path, inpath="/absolute/path")
 
     mocker.patch(
         "sys.argv",
@@ -234,19 +224,14 @@ def test_deprecation_warning_global_variables(
 ) -> None:
     """Test that deprecation warning is issued if global variables path is input"""
 
-    # add the deprecated argument to the workflow file
-    workflow_file = (
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_copy_preprocessed_data"
-    )
-    with open(workflow_file, encoding="utf-8", mode="a") as f:
-        f.write(" '--global_variables_path' dummypath")
-
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
     add_create_case_workflow(ert_config_path)
-    add_copy_preprocessed_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(
+        ert_config_path, extra_args="'--global_variables_path' dummypath"
+    )
 
     mocker.patch(
         "sys.argv",
