@@ -56,21 +56,6 @@ def fmu_snakeoil_project(
     os.makedirs(tmp_path / "fmuconfig/output")
     shutil.copy(drogon_global_config_path, tmp_path / "fmuconfig/output/")
 
-    os.makedirs(tmp_path / "ert/bin/workflows")
-    pathlib.Path(tmp_path / "ert/bin/workflows/xhook_create_case_metadata").write_text(
-        "WF_CREATE_CASE_METADATA <SCRATCH>/<USER>/<CASE_DIR>",
-        encoding="utf-8",
-    )
-    pathlib.Path(
-        tmp_path / "ert/bin/workflows/xhook_copy_preprocessed_data"
-    ).write_text(
-        "WF_COPY_PREPROCESSED_DATAIO "
-        "<SCRATCH>/<USER>/<CASE_DIR> "  # ert case root
-        "<CONFIG_PATH> "  # ert config path
-        "../../share/preprocessed ",  # inpath
-        encoding="utf-8",
-    )
-
     # Add EXPORT_A_SURFACE forward model
     os.makedirs(tmp_path / "ert/bin/scripts")
     shutil.copy(
@@ -103,29 +88,6 @@ def fmu_snakeoil_project_with_dotfmu(fmu_snakeoil_project: Path) -> Path:
     """fmu_snakeoil_project with an additional .fmu/ directory."""
     create_drogon_fmu_dir(fmu_snakeoil_project)
     return fmu_snakeoil_project
-
-
-@pytest.fixture
-def fmu_snakeoil_project_with_dotfmu_sumo(
-    fmu_snakeoil_project_with_dotfmu: Path,
-) -> Path:
-    """fmu_snakeoil_project with an additional .fmu/ directory and Sumo enabled."""
-    create_case_metadata_wf = (
-        fmu_snakeoil_project_with_dotfmu
-        / "ert/bin/workflows/xhook_create_case_metadata"
-    )
-    with open(create_case_metadata_wf, "a") as f:
-        f.write(' "--sumo"')
-    return fmu_snakeoil_project_with_dotfmu
-
-
-@pytest.fixture
-def fmu_snakeoil_project_sumo(fmu_snakeoil_project: Path) -> Path:
-    """Enables Sumo in WF_CREATE_CASE_METADATA."""
-    tmp_path = fmu_snakeoil_project
-    with open(tmp_path / "ert/bin/workflows/xhook_create_case_metadata", "a") as f:
-        f.write(' "--sumo"')
-    return tmp_path
 
 
 @pytest.fixture
