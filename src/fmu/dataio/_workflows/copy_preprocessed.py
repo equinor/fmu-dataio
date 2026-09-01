@@ -33,11 +33,14 @@ context, and is typically located in a share/preprocessed/ folder on the project
 EXAMPLES = """
 Create an ERT workflow e.g. named ``ert/bin/workflows/xhook_copy_preprocessed_data``
 with the contents::
+
   WF_COPY_PREPROCESSED_DATAIO <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> '../../share/preprocessed/'
 
 Add following lines to your ERT config to have the job automatically executed::
+
   LOAD_WORKFLOW ../bin/workflows/xhook_copy_preprocessed_data
   HOOK_WORKFLOW xhook_copy_preprocessed_data PRE_SIMULATION
+
 """  # noqa
 
 
