@@ -39,9 +39,6 @@ will be `share/results/maps/structure_depth_fault_surface/f1.ts`.
 The `.ts` file extension indicates that the file represents the fault surface
 in the TSurf file format.
 
-The file content has been validated using a Pydantic model representing
-TSurf data.
-
 ## Standard result schema
 
 This standard result is not presented in a tabular format; therefore, no
