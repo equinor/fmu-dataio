@@ -78,7 +78,11 @@ def copy_preprocessed_data_main(args: argparse.Namespace) -> None:
 
     searchpath = Path(args.ert_config_path) / args.inpath
     match_pattern = "[!.]*"  # ignore metafiles (starts with '.')
-    files = [f for f in searchpath.rglob(match_pattern) if f.is_file()]
+    files = [
+        filepath
+        for filepath in searchpath.rglob(match_pattern)
+        if filepath.is_file() and not filepath.is_symlink()
+    ]
     logger.debug("files found %s", files)
 
     if not files:
