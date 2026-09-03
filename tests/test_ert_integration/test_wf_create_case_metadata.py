@@ -49,6 +49,7 @@ from .ert_config_utils import (
     add_multregt_parameters,
     add_observation_config,
     add_rft_observations,
+    remove_sumo_casepath_definition,
 )
 
 if TYPE_CHECKING:
@@ -227,23 +228,183 @@ def test_create_case_metadata_warns_without_overwriting(
     assert first_run == second_run
 
 
-def test_create_case_metadata_caseroot_not_defined(
+def test_create_case_metadata_no_casepath_argument(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """Test that a ERT is stopped and that a proper error message is given
-    if the case path is input as an undefined ERT variable"""
+    """
+    Test that the workflow runs without a casepath argument
+    and uses <SUMO_CASEPATH> when defined.
+    """
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, casepath="")  # empty casepath argument
+
+    expected_fmu_case_yml = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
+    )
+    assert not expected_fmu_case_yml.exists()
+
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
+
+    assert expected_fmu_case_yml.exists()
+
+
+def test_create_case_metadata_fails_when_casepath_argument_is_undefined(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that the workflow fails if <SUMO_CASEPATH> is not defined and the
+    fallback casepath argument is an unresolved ERT variable.
+    """
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
+    remove_sumo_casepath_definition(ert_config_path)
+
     add_create_case_workflow(ert_config_path, casepath="<CASEPATH_NOT_DEFINED>")
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
-        pytest.raises(SystemExit, match="Ert variable for case path is not defined"),
+        pytest.raises(SystemExit, match="Ert variable for casepath is not defined"),
     ):
         ert.__main__.main()
+
+
+def test_create_case_metadata_fails_when_sumo_casepath_is_undefined(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that the workflow fails when <SUMO_CASEPATH> is defined but
+    expands to an unresolved ERT variable.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>",
+            "DEFINE <SUMO_CASEPATH>  <CASEPATH_NOT_DEFINED>",
+        )
+    )
+
+    add_create_case_workflow(ert_config_path, casepath="")
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="Ert variable for casepath is not defined"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_sumo_casepath_not_absolute(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Test that an error is raised when <SUMO_CASEPATH> is not an absolute path"""
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>",
+            "DEFINE <SUMO_CASEPATH>  relative/path",
+        )
+    )
+
+    add_create_case_workflow(ert_config_path, casepath="")
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(
+            SystemExit, match="'casepath' must be an absolute path. Got: relative/path"
+        ),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_fails_if_sumo_enabled_without_sumo_casepath(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that an error is raised when sumo is enabled and
+    <SUMO_CASEPATH> is missing.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    remove_sumo_casepath_definition(ert_config_path)
+    add_create_case_workflow(
+        ert_config_path, casepath="<SCRATCH>/<USER>/<CASE_DIR>", sumo=True
+    )
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="Missing required <SUMO_CASEPATH> definition"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_fails_if_no_casepath_sources(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that an error is raised when both <SUMO_CASEPATH> and casepath
+    argument are missing.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    remove_sumo_casepath_definition(ert_config_path)
+    add_create_case_workflow(ert_config_path)
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="The case path could not be resolved"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_uses_casepath_argument_when_sumo_casepath_missing(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that when <SUMO_CASEPATH> is missing and sumo is disabled, the
+    casepath argument is used.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    remove_sumo_casepath_definition(ert_config_path)
+
+    casepath_argument = fmu_snakeoil_project / "scratch/user/fallback_case"
+    casepath_argument.mkdir(parents=True, exist_ok=True)
+
+    case_metadata = casepath_argument / "share/metadata/fmu_case.yml"
+
+    assert not case_metadata.exists()
+
+    add_create_case_workflow(
+        ert_config_path, casepath=str(casepath_argument), sumo=False
+    )
+
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
+
+    assert case_metadata.exists()
 
 
 def test_create_case_metadata_deprecated_arguments_warn(
@@ -257,11 +418,13 @@ def test_create_case_metadata_deprecated_arguments_warn(
 
     add_create_case_workflow(
         ert_config_path,
+        casepath="<SUMO_CASEPATH>",
         extra_args="<CONFIG_PATH> <CASE_DIR> '--sumo_env' prod ",
     )
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="The argument 'casepath' is deprecated"),
         pytest.warns(
             FutureWarning, match="The argument 'ert_config_path' is deprecated"
         ),
@@ -269,6 +432,35 @@ def test_create_case_metadata_deprecated_arguments_warn(
         pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
     ):
         ert.__main__.main()
+
+
+def test_create_case_metadata_prefers_sumo_casepath_over_casepath_argument(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When both are provided, <SUMO_CASEPATH> takes precedence over casepath."""
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    another_casepath = fmu_snakeoil_project / "scratch/user/another_casepath"
+    another_casepath.mkdir(parents=True, exist_ok=True)
+
+    expected_fmu_case_yml = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
+    )
+    conflicting_fmu_case_yml = another_casepath / "share/metadata/fmu_case.yml"
+
+    add_create_case_workflow(ert_config_path, casepath=str(another_casepath))
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="read from the <SUMO_CASEPATH> variable"),
+    ):
+        ert.__main__.main()
+
+    assert expected_fmu_case_yml.exists()
+    assert not conflicting_fmu_case_yml.exists()
 
 
 @pytest.mark.skipif(

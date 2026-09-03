@@ -6,6 +6,14 @@ from textwrap import dedent
 import pandas as pd
 
 
+def remove_sumo_casepath_definition(ert_config_path: Path) -> None:
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>", ""
+        )
+    )
+
+
 def add_design_matrix(ert_config_path: Path) -> None:
     design_df = pd.DataFrame(
         {
@@ -60,7 +68,7 @@ def add_multregt_parameters(ert_config_path: Path) -> None:
 
 def add_create_case_workflow(
     ert_config_path: Path,
-    casepath: str = "<SUMO_CASEPATH>",
+    casepath: str = "",
     sumo: bool = False,
     extra_args: str = "",
 ) -> None:
