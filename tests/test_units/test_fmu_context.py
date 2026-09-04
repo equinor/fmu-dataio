@@ -110,13 +110,29 @@ def test_fmu_context_preprocessed_emits_deprecation_warning() -> None:
     assert fmu_context is None
 
 
+@pytest.mark.parametrize("explicit_context", ["realization", "case", "ensemble"])
+def test_fmu_context_argument_emits_deprecation_warning(
+    explicit_context: str,
+) -> None:
+    """Using fmu_context explicitly triggers deprecation warning."""
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        fmu_context, preprocessed = _handle_fmu_context_deprecations(
+            fmu_context_input=explicit_context,
+            preprocessed_input=False,
+        )
+
+    assert fmu_context == explicit_context
+    assert preprocessed is False
+
+
 @pytest.mark.parametrize("iteration_variant", ["iteration", "ITERATION", "Iteration"])
 def test_iteration_converted_to_ensemble(iteration_variant: str) -> None:
     """Using "iteration" context is converted to "ensemble"."""
-    fmu_context, preprocessed = _handle_fmu_context_deprecations(
-        fmu_context_input=iteration_variant,
-        preprocessed_input=False,
-    )
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        fmu_context, preprocessed = _handle_fmu_context_deprecations(
+            fmu_context_input=iteration_variant,
+            preprocessed_input=False,
+        )
 
     assert fmu_context == "ensemble"
 
@@ -213,4 +229,17 @@ def test_resolve_fmu_context_integration_with_preprocessed(
         fmu_context_input=None,
         preprocessed_input=True,
     )
+    assert preprocessed is True
+
+
+def test_resolve_preprocessed_uses_case_context_from_realization_env(
+    runpath_no_dotfmu: Path,
+) -> None:
+    """Preprocessed exports in realization env are written at case level."""
+    context, preprocessed = _resolve_fmu_context(
+        fmu_context_input=None,
+        preprocessed_input=True,
+    )
+
+    assert context == FMUContext.case
     assert preprocessed is True

@@ -37,6 +37,14 @@ def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
     return datetime.strptime(value, format).isoformat()
 
 
+def test_exportdata_fmu_context_argument_is_deprecated(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Setting fmu_context on ExportData emits a deprecation warning."""
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        ExportData(config=mock_global_config, content="depth", fmu_context="case")
+
+
 def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:
     """Test generating metadata"""
 
