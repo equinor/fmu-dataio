@@ -53,6 +53,8 @@ def test_copy_preprocessed_runs_successfully(
     """Test that exporting preprocessed data works and that the metadata is updated"""
     monkeypatch.chdir(fmu_snakeoil_project)
     _export_preprocessed_data(drogon_global_config, regsurf)
+    preprocessed_maps = fmu_snakeoil_project / "share/preprocessed/maps"
+    (preprocessed_maps / "linked.gri").symlink_to(preprocessed_maps / "topvolon.gri")
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
@@ -78,6 +80,7 @@ def test_copy_preprocessed_runs_successfully(
     assert (observations_folder / "maps/.topvolon.gri.yml").exists()
     assert (observations_folder / "maps/mysubfolder/topvolantis.gri").exists()
     assert (observations_folder / "maps/mysubfolder/.topvolantis.gri.yml").exists()
+    assert not (observations_folder / "maps/linked.gri").exists()
 
     # check one of the metafiles to see that the fmu block has been added
     metafile = observations_folder / "maps/.topvolon.gri.yml"
