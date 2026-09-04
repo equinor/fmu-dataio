@@ -41,6 +41,7 @@ from fmu.dataio._workflows.case._parameters import (
     get_ert_parameters_table,
 )
 from fmu.dataio._workflows.case.main import CaseWorkflowConfig
+from tests.utils import add_wellbore_mappings
 
 from .ert_config_utils import (
     add_create_case_workflow,
@@ -1055,6 +1056,150 @@ def test_create_case_metadata_with_no_observations(
     assert captured_tables["summary"] is None
     assert captured_tables["breakthrough"] is None
     assert captured_tables["rft"] is None
+
+
+def test_create_case_metadata_uploads_wellbore_mappings(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    When .fmu/ exists and wellbore mappings are present, they are uploaded
+    on expected format.
+    """
+    fmu_dir = get_fmu_directory(fmu_snakeoil_project_with_dotfmu)
+    add_wellbore_mappings(fmu_dir)
+
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+
+        queue_table = from_new_case.return_value.queue_table
+        queued_mappings = {
+            call.args[1]["data"]["standard_result"]["name"]: call.args
+            for call in queue_table.call_args_list
+        }
+        assert set(queued_mappings) == {
+            "stratigraphy_mapping",
+            "wellbore_mapping",
+        }
+        mappings_table, metadata = queued_mappings["wellbore_mapping"]
+
+    assert metadata["data"]["content"] == "mapping"
+    assert metadata["data"]["standard_result"]["name"] == "wellbore_mapping"
+
+    assert metadata["fmu"]["context"]["stage"] == "ensemble"
+    assert metadata["fmu"]["ensemble"]["name"] == "iter-0"
+
+    assert isinstance(mappings_table, pa.Table)
+    assert len(mappings_table) == 2
+
+    assert set(mappings_table.column_names) == {
+        "source_system",
+        "source_id",
+        "source_uuid",
+        "target_system",
+        "target_id",
+        "target_uuid",
+        "mapping_type",
+        "relation_type",
+    }
+
+    casedir = fmu_snakeoil_project_with_dotfmu / "scratch/user/snakeoil"
+
+    fmu_dir = get_fmu_directory(casedir)
+    assert fmu_dir is not None
+
+    mappings_list = mappings_table.to_pylist()
+    expected_mappings = fmu_dir.mappings.wellbore_mappings
+
+    # check that the mappings uploaded is identical to the ones in .fmu
+    assert mappings_list == expected_mappings.model_dump(mode="json")
+
+    mappings = {mapping["target_system"]: mapping for mapping in mappings_list}
+    assert set(mappings) == {"smda", "simulator"}
+    assert mappings["smda"]["target_id"] == "NO 30/9-B-21 C"
+    assert mappings["simulator"]["target_id"] == "B21C"
+    for mapping in mappings.values():
+        assert mapping["source_system"] == "rms"
+        assert mapping["source_id"] == "RFT_30_9-B-21_C"
+        assert mapping["mapping_type"] == "wellbore"
+        assert mapping["relation_type"] == "primary"
+        assert mapping["source_uuid"] is None
+        assert mapping["target_uuid"] is None
+
+
+def test_create_case_metadata_without_wellbore_mappings(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When .fmu/ doesn't exist, wellbore mappings are not uploaded."""
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_not_called()
+
+
+def test_create_case_metadata_dotfmu_without_wellbore_mappings(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When no mappings are present in .fmu/, wellbore mappings are not uploaded."""
+
+    mappings_file = fmu_snakeoil_project_with_dotfmu / ".fmu/mappings.json"
+    mappings_file.unlink()
+
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_not_called()
 
 
 def test_create_case_metadata_uploads_stratigraphy_mappings(

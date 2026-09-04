@@ -2,10 +2,19 @@ from __future__ import annotations
 
 import datetime
 from pathlib import Path
-from typing import Any, get_args
+from typing import TYPE_CHECKING, Any, get_args
 
 import yaml
+from fmu.datamodels.context.mappings import DataSystem
+from fmu.settings.models.mappings import (
+    InternalRelationType,
+    InternalWellboreIdentifierMapping,
+    InternalWellboreMappings,
+)
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from fmu.settings import ProjectFMUDirectory
 
 YamlLike = (
     dict[str, Any]
@@ -18,6 +27,38 @@ YamlLike = (
     | bool
     | None
 )
+
+
+def add_wellbore_mappings(fmu_dir: ProjectFMUDirectory) -> None:
+    """Add representative RMS wellbore mappings to an FMU directory."""
+    source_id = "RFT_30_9-B-21_C"
+    fmu_dir.mappings.update_internal_wellbore_mappings(
+        InternalWellboreMappings(
+            root=[
+                InternalWellboreIdentifierMapping(
+                    source_system=DataSystem.rms,
+                    target_system=DataSystem.rms,
+                    relation_type=InternalRelationType.primary,
+                    source_id=source_id,
+                    target_id=source_id,
+                ),
+                InternalWellboreIdentifierMapping(
+                    source_system=DataSystem.rms,
+                    target_system=DataSystem.smda,
+                    relation_type=InternalRelationType.primary,
+                    source_id=source_id,
+                    target_id="NO 30/9-B-21 C",
+                ),
+                InternalWellboreIdentifierMapping(
+                    source_system=DataSystem.rms,
+                    target_system=DataSystem.simulator,
+                    relation_type=InternalRelationType.primary,
+                    source_id=source_id,
+                    target_id="B21C",
+                ),
+            ]
+        )
+    )
 
 
 def _parse_yaml(yaml_path: str | Path) -> YamlLike:
