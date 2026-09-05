@@ -11,6 +11,7 @@ from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 from fmu.dataio._global_config import (
+    _missing_required_fields_in_config,
     _resolve_global_config_path,
     build_global_configuration,
     has_fmu_directory,
@@ -18,6 +19,7 @@ from fmu.dataio._global_config import (
     load_global_config_from_fmu_settings,
     load_global_config_from_global_variables,
 )
+from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio.exceptions import ValidationError
 
 
@@ -43,6 +45,73 @@ def test_build_global_configuration_missing_masterdata(
 
     with pytest.raises(ValidationError, match="https://fmu-dataio.readthedocs.io"):
         build_global_configuration(mock_global_config)
+
+
+def test_build_global_configuration_shows_details_for_invalid_fields(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Pydantic error is shown for invalid fields."""
+    invalid_type_config = dict(mock_global_config)
+    invalid_type_config["model"] = "not-a-model"  # should be a dict
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration(invalid_type_config)
+
+    assert "Detailed information:" in str(err_info.value)
+    assert "The following required entries are missing:" not in str(err_info.value)
+
+
+def test_build_global_configuration_omits_details_when_missing_fields() -> None:
+    """Pydantic error is not shown for missing fields."""
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "Detailed information:" not in str(err_info.value)
+    assert "The following required entries are missing:" in str(err_info.value)
+
+
+@pytest.mark.parametrize(
+    "missing_fields",
+    [["access", "model"], [], ["masterdata", "access", "model"], ["masterdata"]],
+)
+def test_missing_required_fields_in_config(
+    mock_global_config: dict[str, Any], missing_fields: list[str]
+) -> None:
+    """Utility identifies missing required top-level fields in stable order."""
+
+    for field in missing_fields:
+        del mock_global_config[field]
+
+    result = _missing_required_fields_in_config(mock_global_config)
+    assert result == missing_fields
+
+
+def test_build_global_configuration_includes_workflow_note_inside_ert(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """WF_CREATE_CASE_METADATA note is shown only when running inside ERT."""
+
+    # make sure the test is running inside ERT context
+    monkeypatch.setenv("_ERT_RUNPATH", "/fmu-case/realization-0/iter-0")
+    assert FMUEnvironment.from_env().fmu_context is not None
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "WF_CREATE_CASE_METADATA" in str(err_info.value)
+
+
+def test_build_global_configuration_omits_workflow_note_outside_ert() -> None:
+    """WF_CREATE_CASE_METADATA note is not shown when outside ERT."""
+
+    # make sure the test is running outside ERT context
+    assert FMUEnvironment.from_env().fmu_context is None
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "WF_CREATE_CASE_METADATA" not in str(err_info.value)
 
 
 def test_build_global_configuration_standard_result(

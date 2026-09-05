@@ -9,6 +9,7 @@ import pydantic
 import yaml
 
 from fmu.dataio._logging import null_logger
+from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import (
     Access,
@@ -29,6 +30,7 @@ _FMU_SETTINGS_URL = "https://equinor.github.io/fmu-settings"
 _GETTING_STARTED_URL = (
     "https://fmu-dataio.readthedocs.io/en/latest/getting_started.html"
 )
+_REQUIRED_GLOBAL_CONFIG_FIELDS: Final = ("masterdata", "access", "model")
 
 
 def warn_invalid_global_configuration(err: ValidationError) -> None:
@@ -81,6 +83,13 @@ def has_fmu_directory() -> bool:
         return False
 
 
+def _missing_required_fields_in_config(config_dict: dict[str, Any]) -> list[str]:
+    """Return missing top-level required fields for GlobalConfiguration."""
+    return [
+        field for field in _REQUIRED_GLOBAL_CONFIG_FIELDS if field not in config_dict
+    ]
+
+
 def build_global_configuration(
     config_dict: dict[str, Any], standard_result: bool = False
 ) -> GlobalConfiguration:
@@ -88,31 +97,53 @@ def build_global_configuration(
 
     Raises:
         ValidationError: If `config_dict` does not validate. The message summarizes
-            the problem in a user-facing way and includes the underlying pydantic
-            errors.
+            the problem in a user-facing way.
     """
+    config_dict = config_dict or {}
+
     try:
         return GlobalConfiguration.model_validate(config_dict)
     except pydantic.ValidationError as err:
-        summary = (
-            "The global configuration was not provided."
-            if not config_dict
-            else "The global configuration is invalid."
-        )
+        logger.debug("Global configuration validation failed.", exc_info=True)
 
-        parts = [summary]
+        parts = ["The global configuration is invalid."]
+
         if standard_result:
             parts.append(
                 "Exporting standard results requires a valid global configuration."
             )
-        if "masterdata" not in (config_dict or {}):
-            parts.append(
-                "Follow the 'Getting started' steps to do the necessary setup:\n"
-                f"{_GETTING_STARTED_URL}"
-            )
-        parts.append(f"Detailed information:\n{err}")
 
-        raise ValidationError("\n\n".join(parts)) from err
+        missing_fields = _missing_required_fields_in_config(config_dict)
+
+        if not missing_fields:
+            # if error is not due to missing fields include the error
+            parts.append(f"Detailed information:\n{err}")
+            raise ValidationError("\n\n".join(parts)) from None
+
+        parts.append(
+            "The following required entries are missing:\n"
+            + "\n".join(f"  - {field}" for field in missing_fields)
+        )
+
+        parts.append(
+            "Follow the 'Getting started' steps to do the necessary setup:\n"
+            f"{_GETTING_STARTED_URL}"
+        )
+
+        # If all fields are missing when running inside ERT
+        # it may be due to .fmu not being copied to scratch.
+        running_inside_ert = FMUEnvironment.from_env().fmu_context is not None
+        if (
+            set(missing_fields) == set(_REQUIRED_GLOBAL_CONFIG_FIELDS)
+            and running_inside_ert
+        ):
+            parts.append(
+                "Note: If you are already onboarded to FMU Settings, make sure "
+                "the 'WF_CREATE_CASE_METADATA' workflow is included in your "
+                "ERT config so `.fmu/` is copied to scratch.\n"
+            )
+
+        raise ValidationError("\n\n".join(parts)) from None
 
 
 def load_global_config_from_global_variables(
