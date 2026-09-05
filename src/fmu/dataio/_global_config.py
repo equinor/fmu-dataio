@@ -13,6 +13,7 @@ from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import (
     Access,
     GlobalConfiguration,
+    StratigraphyElement,
 )
 from fmu.settings import find_global_config, find_nearest_fmu_directory
 
@@ -79,6 +80,23 @@ def has_fmu_directory() -> bool:
         return True
     except FileNotFoundError:
         return False
+
+
+def get_stratigraphy_element_from_config(
+    config: GlobalConfiguration, name: str
+) -> StratigraphyElement | None:
+    """Return matching stratigraphy element from config by key or alias."""
+    if not (stratigraphy := config.stratigraphy):
+        return None
+
+    if name in stratigraphy:
+        return stratigraphy[name]
+
+    for element in stratigraphy.root.values():
+        if element.alias and name in element.alias:
+            return element
+
+    return None
 
 
 def build_global_configuration(

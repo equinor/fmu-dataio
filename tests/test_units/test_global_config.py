@@ -13,6 +13,7 @@ from pytest import MonkeyPatch
 from fmu.dataio._global_config import (
     _resolve_global_config_path,
     build_global_configuration,
+    get_stratigraphy_element_from_config,
     has_fmu_directory,
     load_global_config,
     load_global_config_from_fmu_settings,
@@ -227,6 +228,68 @@ def test_has_fmu_directory_returns_false_when_not_found(
     """Returns False when no .fmu/ directory exists."""
     monkeypatch.chdir(tmp_path)
     assert has_fmu_directory() is False
+
+
+def test_get_stratigraphy_element_from_config(
+    drogon_global_config_path: Path,
+) -> None:
+    """Test resolving stratigraphy keys to their expected element."""
+    config = load_global_config_from_global_variables(drogon_global_config_path)
+
+    # test resolving an rms name
+    element = get_stratigraphy_element_from_config(config, "TopVolantis")
+    assert element is not None
+    assert element.name == "VOLANTIS GP. Top"
+    assert element.stratigraphic is True
+    assert element.alias == ["TopVOLANTIS", "TOP_VOLANTIS"]
+
+    # test resolving an alias name
+    element = get_stratigraphy_element_from_config(config, "TOP_VOLANTIS")
+    assert element is not None
+    assert element.name == "VOLANTIS GP. Top"
+    assert element.stratigraphic is True
+    assert element.alias == ["TopVOLANTIS", "TOP_VOLANTIS"]
+
+    # test unknown name returns None
+    element = get_stratigraphy_element_from_config(config, "NotInStratigraphy")
+    assert element is None
+
+
+def test_get_stratigraphy_element_from_config_when_no_stratigraphy(
+    drogon_global_config_path: Path,
+) -> None:
+    """Returns None when config has no stratigraphy block."""
+    config = load_global_config_from_global_variables(drogon_global_config_path)
+    config = config.model_copy(update={"stratigraphy": None})
+
+    element = get_stratigraphy_element_from_config(config, "TopVolantis")
+
+    assert element is None
+
+
+def test_get_stratigraphy_element_from_config_key_takes_precedence_over_alias(
+    drogon_global_config_path: Path,
+) -> None:
+    """Test that exact stratigraphy key wins over alias lookup.
+    Note that with .fmu this is not a problem due to validation rules, but with
+    global_variables.yml it is possible to have a key and an alias with the same name.
+    """
+
+    config = load_global_config_from_global_variables(drogon_global_config_path)
+
+    assert config.stratigraphy is not None
+
+    # check that TopVolantis is a stratigraphy key
+    assert "TopVolantis" in config.stratigraphy
+
+    # now add TopVolantis also as an alias to TopTherys
+    config.stratigraphy["TopTherys"].alias = ["TopVolantis"]
+
+    element = get_stratigraphy_element_from_config(config, "TopVolantis")
+
+    # should return official name of TopVolantis, not TopTherys
+    assert element is not None
+    assert element.name == "VOLANTIS GP. Top"
 
 
 def test_load_from_fmu_settings_raises_when_config_incomplete(
