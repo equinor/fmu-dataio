@@ -338,7 +338,7 @@ def mock_global_config_validated() -> global_configuration.GlobalConfiguration:
                 "TopWhatever": global_configuration.StratigraphyElement(
                     name="Whatever Top",
                     stratigraphic=True,
-                    alias=["TopDindong", "TopWhatever"],
+                    alias=["TopDindong", "TOP_WHATEVER"],
                 )
             }
         ),
