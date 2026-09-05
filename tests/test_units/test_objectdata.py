@@ -55,6 +55,28 @@ def test_resolve_stratigraphy_name_differs_from_input(
     assert res.stratigraphic is True
 
 
+def test_resolve_stratigraphy_by_alias(
+    regsurf: xtgeo.RegularSurface,
+    mock_global_config: dict[str, Any],
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """Alias input resolves to the corresponding stratigraphic element."""
+    monkeypatch.chdir(tmp_path)
+
+    exportdata = ExportData(
+        config=mock_global_config,
+        content="depth",
+        name="TOP_WHATEVER",  # alias of "Whatever Top"
+    )
+    objdata = create_object_data(regsurf, exportdata._export_config)
+    res = objdata._resolve_stratigraphy()
+
+    assert res.name == "Whatever Top"
+    assert "TOP_WHATEVER" in res.alias
+    assert res.stratigraphic is True
+
+
 def test_resolve_stratigraphy_fallback_to_object_name(
     regsurf: xtgeo.RegularSurface,
     mock_global_config: dict[str, Any],
