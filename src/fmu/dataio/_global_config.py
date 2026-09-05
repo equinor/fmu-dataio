@@ -113,29 +113,35 @@ def build_global_configuration(
                 "Exporting standard results requires a valid global configuration."
             )
 
-        if missing_fields := _missing_required_fields_in_config(config_dict):
-            parts.append(
-                "The following required entries are missing:\n"
-                + "\n".join(f"  - {field}" for field in missing_fields)
-            )
+        missing_fields = _missing_required_fields_in_config(config_dict)
 
-            parts.append(
-                "Follow the 'Getting started' steps to do the necessary setup:\n"
-                f"{_GETTING_STARTED_URL}"
-            )
-
-            # Add hint about 'WF_CREATE_CASE_METADATA' when running inside ert
-            env = FMUEnvironment.from_env()
-            if env.fmu_context is not None:
-                parts.append(
-                    "Note: If you are already onboarded to FMU Settings, make sure "
-                    "the 'WF_CREATE_CASE_METADATA' workflow is included in your "
-                    "ERT config so `.fmu/` is copied to scratch.\n"
-                )
-
-        else:
-            # if error is not due to missing fields, include the pydantic error
+        if not missing_fields:
+            # if error is not due to missing fields include the error
             parts.append(f"Detailed information:\n{err}")
+            raise ValidationError("\n\n".join(parts)) from None
+
+        parts.append(
+            "The following required entries are missing:\n"
+            + "\n".join(f"  - {field}" for field in missing_fields)
+        )
+
+        parts.append(
+            "Follow the 'Getting started' steps to do the necessary setup:\n"
+            f"{_GETTING_STARTED_URL}"
+        )
+
+        # If all fields are missing when running inside ERT
+        # it may be due to .fmu not being copied to scratch.
+        running_inside_ert = FMUEnvironment.from_env().fmu_context is not None
+        if (
+            set(missing_fields) == set(_REQUIRED_GLOBAL_CONFIG_FIELDS)
+            and running_inside_ert
+        ):
+            parts.append(
+                "Note: If you are already onboarded to FMU Settings, make sure "
+                "the 'WF_CREATE_CASE_METADATA' workflow is included in your "
+                "ERT config so `.fmu/` is copied to scratch.\n"
+            )
 
         raise ValidationError("\n\n".join(parts)) from None
 

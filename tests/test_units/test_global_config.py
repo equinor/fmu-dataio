@@ -47,6 +47,30 @@ def test_build_global_configuration_missing_masterdata(
         build_global_configuration(mock_global_config)
 
 
+def test_build_global_configuration_shows_details_for_invalid_fields(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Pydantic error is shown for invalid fields."""
+    invalid_type_config = dict(mock_global_config)
+    invalid_type_config["model"] = "not-a-model"  # should be a dict
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration(invalid_type_config)
+
+    assert "Detailed information:" in str(err_info.value)
+    assert "The following required entries are missing:" not in str(err_info.value)
+
+
+def test_build_global_configuration_omits_details_when_missing_fields() -> None:
+    """Pydantic error is not shown for missing fields."""
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "Detailed information:" not in str(err_info.value)
+    assert "The following required entries are missing:" in str(err_info.value)
+
+
 @pytest.mark.parametrize(
     "missing_fields",
     [["access", "model"], [], ["masterdata", "access", "model"], ["masterdata"]],
