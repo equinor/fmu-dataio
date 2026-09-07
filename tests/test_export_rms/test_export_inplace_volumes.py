@@ -105,6 +105,62 @@ def test_rms_volumetrics_export_class(exportvolumetrics: _ExportVolumetricsRMS) 
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
+def test_rms_volumetrics_export_has_units_on_each_column(
+    exportvolumetrics: _ExportVolumetricsRMS,
+) -> None:
+    exportvolumetrics._column_units = {
+        "Zone": "",
+        "Segment": "",
+        "Facies": "",
+        "BulkOil": "m3",
+        "PoreOil": "m3",
+        "HCPVOil": "m3",
+        "STOIIP": "Sm3",
+    }
+
+    out = exportvolumetrics._export_data_as_standard_result()
+    schema = pq.read_schema(out.items[0].absolute_path)
+
+    assert all(field.metadata is not None for field in schema)
+    assert schema.field("ZONE").metadata == {b"unit": b""}
+    assert schema.field("BULK").metadata == {b"unit": b"m3"}
+    assert schema.field("NET").metadata == {b"unit": b"m3"}
+    assert schema.field("STOIIP").metadata == {b"unit": b"Sm3"}
+
+    metadata = dataio.read_metadata(out.items[0].absolute_path)
+    assert metadata["data"]["unit"] == ""
+
+
+def test_rms_volumetrics_reads_column_units(
+    exportvolumetrics: _ExportVolumetricsRMS,
+) -> None:
+    data_table = MagicMock()
+    data_table.column_names.return_value = ["Zone", "BulkOil"]
+    data_table.column_unit.side_effect = {"Zone": "", "BulkOil": "m3"}.get
+    data_table.to_dict.return_value = {
+        "Zone": ["Valysar"],
+        "BulkOil": [1.0],
+    }
+    volume_table = MagicMock()
+    volume_table.get_data_table.return_value = data_table
+    exportvolumetrics.project.volumetric_tables = {
+        exportvolumetrics._volume_table_name: volume_table
+    }
+
+    result = exportvolumetrics._get_table_from_rms()
+
+    pd.testing.assert_frame_equal(
+        result,
+        pd.DataFrame({"Zone": ["Valysar"], "BulkOil": [1.0]}),
+    )
+    assert exportvolumetrics._column_units == {"Zone": "", "BulkOil": "m3"}
+    assert data_table.column_unit.call_args_list == [
+        mock.call("Zone"),
+        mock.call("BulkOil"),
+    ]
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_rms_volumetrics_export_class_table_index(
     voltable_standard: pd.DataFrame, exportvolumetrics: _ExportVolumetricsRMS
 ) -> None:
