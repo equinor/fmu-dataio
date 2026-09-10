@@ -46,7 +46,15 @@ python export_faultpolygons.py
 python export_polygons.py
 python export_propmaps.py
 python export_faultroom_surfaces.py
-python export_preprocessed_surface.py
+env \
+	-u _ERT_EXPERIMENT_ID \
+	-u _ERT_ENSEMBLE_ID \
+	-u _ERT_SIMULATION_MODE \
+	-u _ERT_RUNPATH \
+	-u _ERT_REALIZATION_NUMBER \
+	-u _ERT_ITERATION_NUMBER \
+	RUNRMS_EXEC_MODE=interactive \
+	python export_preprocessed_surface.py
 python export_surface_maps.py
 
 # Run examples for exporting non-RMS data

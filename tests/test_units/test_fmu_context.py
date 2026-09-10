@@ -110,13 +110,29 @@ def test_fmu_context_preprocessed_emits_deprecation_warning() -> None:
     assert fmu_context is None
 
 
+@pytest.mark.parametrize("explicit_context", ["realization", "case", "ensemble"])
+def test_fmu_context_argument_emits_deprecation_warning(
+    explicit_context: str,
+) -> None:
+    """Using fmu_context explicitly triggers deprecation warning."""
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        fmu_context, preprocessed = _handle_fmu_context_deprecations(
+            fmu_context_input=explicit_context,
+            preprocessed_input=False,
+        )
+
+    assert fmu_context == explicit_context
+    assert preprocessed is False
+
+
 @pytest.mark.parametrize("iteration_variant", ["iteration", "ITERATION", "Iteration"])
 def test_iteration_converted_to_ensemble(iteration_variant: str) -> None:
     """Using "iteration" context is converted to "ensemble"."""
-    fmu_context, preprocessed = _handle_fmu_context_deprecations(
-        fmu_context_input=iteration_variant,
-        preprocessed_input=False,
-    )
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        fmu_context, preprocessed = _handle_fmu_context_deprecations(
+            fmu_context_input=iteration_variant,
+            preprocessed_input=False,
+        )
 
     assert fmu_context == "ensemble"
 
@@ -129,22 +145,11 @@ def test_case_symlink_realization_raises_error() -> None:
         )
 
 
-def test_preprocessed_with_realization_raises_error() -> None:
-    """Cannot export preprocessed data in realization context."""
-    with pytest.raises(ValueError, match="[Pp]reprocessed.*realization"):
-        _validate_fmu_context_combination(
-            context=FMUContext.realization,
-            preprocessed=True,
-        )
-
-
-def test_preprocessed_with_case_is_allowed() -> None:
-    """Preprocessed data can be exported in case context."""
-    # Doesn't raise
-    _validate_fmu_context_combination(
-        context=FMUContext.case,
-        preprocessed=True,
-    )
+@pytest.mark.parametrize("context", list(FMUContext))
+def test_preprocessed_inside_fmu_raises_error(context: FMUContext) -> None:
+    """Cannot export preprocessed data inside FMU."""
+    with pytest.raises(ValueError, match="exported outside of FMU"):
+        _validate_fmu_context_combination(context=context, preprocessed=True)
 
 
 def test_preprocessed_outside_fmu_is_allowed() -> None:
@@ -214,3 +219,14 @@ def test_resolve_fmu_context_integration_with_preprocessed(
         preprocessed_input=True,
     )
     assert preprocessed is True
+
+
+def test_resolve_preprocessed_in_realization_env_raises_error(
+    runpath_no_dotfmu: Path,
+) -> None:
+    """Preprocessed exports are rejected in a realization environment."""
+    with pytest.raises(ValueError, match="exported outside of FMU"):
+        _resolve_fmu_context(
+            fmu_context_input=None,
+            preprocessed_input=True,
+        )

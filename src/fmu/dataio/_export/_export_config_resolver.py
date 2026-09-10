@@ -389,6 +389,13 @@ def _handle_fmu_context_deprecations(
     Returns:
         Tuple of (transformed_fmu_context, transformed_preprocessed).
     """
+    if fmu_context_input is not None:
+        warnings.warn(
+            "The 'fmu_context' argument is deprecated and will be removed in the "
+            "future. fmu-dataio now infers the FMU context from the environment.",
+            FutureWarning,
+        )
+
     if fmu_context_input == "preprocessed":
         warnings.warn(
             "Using the 'fmu_context' argument with value 'preprocessed' is "
@@ -465,11 +472,10 @@ def _validate_fmu_context_combination(
     Raises:
         ValueError: If the combination is invalid.
     """
-    if preprocessed and context == FMUContext.realization:
+    if preprocessed and context is not None:
         raise ValueError(
-            "Can't export preprocessed data in a fmu_context='realization'. "
-            "Preprocessed data should be exported with fmu_context='case' or "
-            "outside of FMU entirely, and then re-exported using "
+            "Can't export preprocessed data inside FMU. Preprocessed data should "
+            "be exported outside of FMU entirely, and then re-exported using "
             "ExportPreprocessedData."
         )
 
