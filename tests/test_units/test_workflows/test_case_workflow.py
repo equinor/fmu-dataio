@@ -204,10 +204,12 @@ def test_queue_stratigraphy_mappings_queue_table_when_present(
         patch(
             "fmu.dataio._workflows.case.main.generate_metadata",
             return_value=fake_metadata,
-        ),
+        ) as generate_metadata,
     ):
         _queue_stratigraphy_mappings("ensemble", workflow_config, sumo_uploader)
 
+    export_config = generate_metadata.call_args.args[0]
+    assert export_config.is_observation is False
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
 
 
@@ -316,10 +318,12 @@ def test_queue_wellbore_mappings_queue_table_when_present(
         patch(
             "fmu.dataio._workflows.case.main.generate_metadata",
             return_value=fake_metadata,
-        ),
+        ) as generate_metadata,
     ):
         _queue_wellbore_mappings("ensemble", workflow_config, sumo_uploader)
 
+    export_config = generate_metadata.call_args.args[0]
+    assert export_config.is_observation is False
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
 
 

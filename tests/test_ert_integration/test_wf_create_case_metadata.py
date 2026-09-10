@@ -1134,7 +1134,7 @@ def test_create_case_metadata_uploads_wellbore_mappings(
     mappings = {mapping["target_system"]: mapping for mapping in mappings_list}
     assert set(mappings) == {"smda", "simulator"}
     assert mappings["smda"]["target_id"] == "NO 30/9-B-21 C"
-    assert mappings["simulator"]["target_id"] == "B21C"
+    assert mappings["simulator"]["target_id"] == "R_B21C"
     for mapping in mappings.values():
         assert mapping["source_system"] == "rms"
         assert mapping["source_id"] == "RFT_30_9-B-21_C"

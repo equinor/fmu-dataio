@@ -54,7 +54,7 @@ def add_wellbore_mappings(fmu_dir: ProjectFMUDirectory) -> None:
                     target_system=DataSystem.simulator,
                     relation_type=InternalRelationType.primary,
                     source_id=source_id,
-                    target_id="B21C",
+                    target_id="R_B21C",
                 ),
             ]
         )

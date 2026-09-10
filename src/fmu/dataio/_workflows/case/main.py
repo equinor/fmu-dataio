@@ -280,7 +280,6 @@ def _queue_stratigraphy_mappings(
             ensemble_name=ensemble_name,
             casepath=workflow_config.casepath,
         )
-        .flags(is_observation=True)
         .standard_result(StandardResultName.stratigraphy_mapping)
         .build()
     )
@@ -311,7 +310,6 @@ def _queue_wellbore_mappings(
             ensemble_name=ensemble_name,
             casepath=workflow_config.casepath,
         )
-        .flags(is_observation=True)
         .standard_result(StandardResultName.wellbore_mapping)
         .build()
     )

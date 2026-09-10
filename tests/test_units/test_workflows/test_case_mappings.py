@@ -151,20 +151,27 @@ def test_get_wellbore_mappings_table_as_expected(tmp_path: Path) -> None:
         "relation_type",
     }
 
-    mappings = {
-        mapping["target_system"]: mapping for mapping in mappings_table.to_pylist()
-    }
+    mappings_list = mappings_table.to_pylist()
 
-    assert set(mappings) == {"smda", "simulator"}
-    assert mappings["smda"]["target_id"] == "NO 30/9-B-21 C"
-    assert mappings["simulator"]["target_id"] == "B21C"
-    for mapping in mappings.values():
-        assert mapping["source_system"] == "rms"
-        assert mapping["source_id"] == "RFT_30_9-B-21_C"
-        assert mapping["mapping_type"] == "wellbore"
-        assert mapping["relation_type"] == "primary"
-        assert mapping["source_uuid"] is None
-        assert mapping["target_uuid"] is None
+    assert len(mappings_list) == 2
+
+    assert mappings_list[0]["target_system"] == "smda"
+    assert mappings_list[0]["target_id"] == "NO 30/9-B-21 C"
+    assert mappings_list[0]["source_system"] == "rms"
+    assert mappings_list[0]["source_id"] == "RFT_30_9-B-21_C"
+    assert mappings_list[0]["mapping_type"] == "wellbore"
+    assert mappings_list[0]["relation_type"] == "primary"
+    assert mappings_list[0]["source_uuid"] is None
+    assert mappings_list[0]["target_uuid"] is None
+
+    assert mappings_list[1]["target_system"] == "simulator"
+    assert mappings_list[1]["target_id"] == "R_B21C"
+    assert mappings_list[1]["source_system"] == "rms"
+    assert mappings_list[1]["source_id"] == "RFT_30_9-B-21_C"
+    assert mappings_list[1]["mapping_type"] == "wellbore"
+    assert mappings_list[1]["relation_type"] == "primary"
+    assert mappings_list[1]["source_uuid"] is None
+    assert mappings_list[1]["target_uuid"] is None
 
 
 def test_get_wellbore_mappings_table_returns_none_when_no_wellbore_mappings(
