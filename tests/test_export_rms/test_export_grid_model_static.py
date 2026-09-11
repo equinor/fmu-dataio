@@ -363,6 +363,89 @@ def test_net_to_gross_accepts_discrete_and_continuous(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
+@pytest.mark.parametrize("is_discrete", [True, False])
+def test_net_to_gross_export_sets_metadata_from_property_type(
+    is_discrete: bool,
+    mock_project_variable: MagicMock,
+    monkeypatch: MonkeyPatch,
+    rmssetup_with_fmuconfig: Path,
+    xtgeo_grid: xtgeo.Grid,
+    xtgeo_discrete_property: xtgeo.GridProperty,
+    xtgeo_continuous_property: xtgeo.GridProperty,
+) -> None:
+    """Test that exported net_to_gross metadata reflects the input property type."""
+
+    from fmu.dataio.export.rms import export_grid_model_static
+    from fmu.dataio.export.rms.grid_model_static import _PropertySpecifications
+
+    # needed to find the global config at correct place
+    monkeypatch.chdir(rmssetup_with_fmuconfig)
+
+    mock_project_variable.grid_models["Geogrid"].properties["NTG"] = MagicMock()
+
+    property_specs = _PropertySpecifications(
+        zonation="Zone",
+        regions="Regions",
+        porosity="PHIT",
+        permeability="KLOGH",
+        saturation_water="SW",
+        fluid_indicator="Discrete_fluid",
+        bulk_volume_oil="Oil_bulk",
+        bulk_volume_gas="Gas_bulk",
+        net_to_gross="NTG",
+    ).to_dict()
+
+    with (
+        mock.patch(
+            "fmu.dataio.export.rms.grid_model_static.xtgeo.grid_from_roxar",
+            return_value=xtgeo_grid,
+        ),
+        mock.patch(
+            "fmu.dataio.export.rms.grid_model_static.xtgeo.gridproperty_from_roxar"
+        ) as mock_prop,
+    ):
+
+        def side_effect_property(_project, _gridname, propname):
+            if propname == "NTG":
+                prop = (
+                    xtgeo_discrete_property
+                    if is_discrete
+                    else xtgeo_continuous_property
+                )
+            elif property_specs[propname].is_discrete:
+                prop = xtgeo_discrete_property
+            else:
+                prop = xtgeo_continuous_property
+
+            prop.name = propname
+            return prop
+
+        mock_prop.side_effect = side_effect_property
+
+        out = export_grid_model_static(
+            mock_project_variable,
+            gridname="Geogrid",
+            zonation="Zone",
+            regions="Regions",
+            porosity="PHIT",
+            permeability="KLOGH",
+            saturation_water="SW",
+            net_to_gross="NTG",
+        )
+
+    assert len(out.items) == 10
+
+    export_folder = (
+        rmssetup_with_fmuconfig / "../../share/results/grids/grid_model_static"
+    )
+    ntg_export_path = export_folder / "geogrid--ntg.roff"
+    ntg_metadata = dataio.read_metadata(ntg_export_path)
+
+    assert ntg_metadata["data"]["property"]["attribute"] == "net_to_gross"
+    assert ntg_metadata["data"]["property"]["is_discrete"] is is_discrete
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_property_specification_fields_in_attribute_specification() -> None:
     """
     Ensure all property specification fields are present as property attributes and
