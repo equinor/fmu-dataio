@@ -13,10 +13,7 @@ from fmu.dataio._logging import null_logger
 from fmu.dataio.export._base import SimpleExportBase
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
-from fmu.dataio.export.rms._utils import (
-    check_rmsapi_version,
-    get_rms_project_volume_unit,
-)
+from fmu.dataio.export.rms._utils import check_rmsapi_version
 from fmu.datamodels import InplaceVolumesResult
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import (
@@ -33,6 +30,7 @@ _logger: Final = null_logger(__name__)
 
 _VolumetricColumns = enums.InplaceVolumes.VolumetricColumns
 _TableIndexColumns = enums.InplaceVolumes.TableIndexColumns
+_VOLUMETRIC_COLUMN_SUFFIXES: Final = ("_OIL", "_GAS", "_WATER", "_TOTAL")
 
 # rename columns to FMU standard
 _RENAME_COLUMNS_FROM_RMS: Final = {
@@ -77,6 +75,7 @@ class _ExportVolumetricsRMS(SimpleExportBase):
         _logger.debug("Process data, establish state prior to export.")
         self._volume_job = self._get_rms_volume_job_settings()
         self._volume_table_name = self._read_volume_table_name_from_job()
+        self._column_units: dict[str, str] = {}
         self._dataframe = self._get_table_with_volumes()
         _logger.debug("Process data... DONE")
 
@@ -135,11 +134,14 @@ class _ExportVolumetricsRMS(SimpleExportBase):
     def _get_table_from_rms(self) -> pd.DataFrame:
         """Fetch volumetric table from RMS and convert to pandas dataframe"""
         _logger.debug("Read values and convert to pandas dataframe...")
-        return pd.DataFrame.from_dict(
-            self.project.volumetric_tables[self._volume_table_name]
-            .get_data_table()
-            .to_dict()
-        )
+        data_table = self.project.volumetric_tables[
+            self._volume_table_name
+        ].get_data_table()
+        self._column_units = {
+            name: data_table.column_unit(name) or ""
+            for name in data_table.column_names()
+        }
+        return pd.DataFrame.from_dict(data_table.to_dict())
 
     @staticmethod
     def _convert_table_from_rms_to_legacy_format(table: pd.DataFrame) -> pd.DataFrame:
@@ -338,7 +340,6 @@ class _ExportVolumetricsRMS(SimpleExportBase):
             ExportConfig.builder()
             .content(Content.volumes)
             .domain(VerticalDomain.depth, DomainReference.msl)
-            .unit(get_rms_project_volume_unit(self.project))
             .file_config(
                 name=self.grid_name,
                 subfolder=enums.StandardResultName.inplace_volumes.value,
@@ -350,11 +351,53 @@ class _ExportVolumetricsRMS(SimpleExportBase):
             .build()
         )
 
+    def _get_standard_column_units(self) -> dict[str, str]:
+        """Map RMS column units to the standardized volumetric table columns."""
+        standard_units: dict[str, str] = {}
+
+        for rms_name, unit in self._column_units.items():
+            standard_name = _RENAME_COLUMNS_FROM_RMS.get(rms_name, rms_name)
+            for suffix in _VOLUMETRIC_COLUMN_SUFFIXES:
+                if standard_name.endswith(suffix):
+                    standard_name = standard_name.removesuffix(suffix)
+                    break
+
+            if standard_name not in self._dataframe:
+                continue
+
+            existing_unit = standard_units.get(standard_name)
+            if existing_unit and unit and existing_unit != unit:
+                raise RuntimeError(
+                    f"RMS columns mapped to {standard_name!r} have conflicting units: "
+                    f"{existing_unit!r} and {unit!r}."
+                )
+            if unit or existing_unit is None:
+                standard_units[standard_name] = unit
+
+        if _VolumetricColumns.NET.value not in standard_units:
+            standard_units[_VolumetricColumns.NET.value] = standard_units.get(
+                _VolumetricColumns.BULK.value, ""
+            )
+
+        return {name: standard_units.get(name, "") for name in self._dataframe.columns}
+
+    def _create_arrow_table(self) -> pa.Table:
+        """Create an Arrow table with the RMS unit stored on every field."""
+        table = pa.Table.from_pandas(self._dataframe)
+        column_units = self._get_standard_column_units()
+        for index, field in enumerate(table.schema):
+            table = table.set_column(
+                index,
+                field.with_metadata({"unit": column_units[field.name]}),
+                table.column(index),
+            )
+        return table
+
     def _export_data_as_standard_result(self) -> ExportResult:
         """Do the actual volume table export using dataio setup."""
         export_config = self._get_export_config()
 
-        volume_table = pa.Table.from_pandas(self._dataframe)
+        volume_table = self._create_arrow_table()
         absolute_export_path = export_with_metadata(export_config, volume_table)
 
         _logger.debug("Volume result to: %s", absolute_export_path)
