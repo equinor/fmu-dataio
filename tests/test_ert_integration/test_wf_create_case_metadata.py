@@ -4,12 +4,14 @@ import getpass
 import importlib
 import json
 import os
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import ert.__main__
+import ert.shared
 import jsonschema
 import polars as pl
 import pyarrow as pa
@@ -31,6 +33,7 @@ from fmu.datamodels.standard_results.ert_parameters import (
     UniformParameter,
 )
 from fmu.settings import get_fmu_directory
+from packaging.version import Version
 from pytest import MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
@@ -745,6 +748,12 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     ert_models = {get_name(t): get_params(t) for t in ert_types}
     datamodels_models = {get_name(t): get_params(t) for t in datamodels_types}
 
+    # TODO: Remove this after ERT 26 is released.
+    # PERT was added accidentally in ERT 25 and will be supported from ERT 26.
+    if Version(ert.shared.__version__).major < 26:
+        ert_models.pop("pert", None)
+        datamodels_models.pop("pert", None)
+
     assert ert_models == datamodels_models
 
 
@@ -931,6 +940,10 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
 # it was possible to run it fully for rft, but summary observations was not.
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] == (3, 11),
+    reason="ERT 23 requires an RFT response configuration for this test",
+)
 def test_create_case_metadata_collects_rft_observations_as_expected(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:

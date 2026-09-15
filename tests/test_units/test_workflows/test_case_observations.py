@@ -8,6 +8,7 @@ returned from create_observation_dataframes which is used internally in ERT inst
 
 from __future__ import annotations
 
+import sys
 from datetime import datetime
 from pathlib import Path
 from textwrap import dedent
@@ -18,6 +19,13 @@ import jsonschema
 import polars as pl
 import pyarrow as pa
 import pytest
+
+if sys.version_info[:2] == (3, 11):
+    pytest.skip(
+        "create_observation_dataframes requires ERT 25",
+        allow_module_level=True,
+    )
+
 from ert.config import ErtConfig
 from ert.config._create_observation_dataframes import (
     create_observation_dataframes,  # TODO: consider removing this private import
