@@ -116,7 +116,10 @@ class _ExportStaticGridProperty(SimpleExportBase):
             ExportConfig.builder()
             .content(
                 Content.property,
-                Property(attribute=self.prop_spec.attribute),
+                Property(
+                    attribute=self.prop_spec.attribute,
+                    is_discrete=self.prop.isdiscrete,
+                ),
             )
             .domain(VerticalDomain.depth, DomainReference.msl)
             .file_config(

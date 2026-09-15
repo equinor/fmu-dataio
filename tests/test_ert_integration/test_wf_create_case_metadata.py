@@ -1131,11 +1131,11 @@ def test_create_case_metadata_uploads_wellbore_mappings(
     # check that the mappings uploaded is identical to the ones in .fmu
     assert mappings_list == expected_mappings.model_dump(mode="json")
 
-    mappings = {mapping["target_system"]: mapping for mapping in mappings_list}
-    assert set(mappings) == {"smda", "simulator"}
-    assert mappings["smda"]["target_id"] == "NO 30/9-B-21 C"
-    assert mappings["simulator"]["target_id"] == "R_B21C"
-    for mapping in mappings.values():
+    assert mappings_list[0]["target_system"] == "smda"
+    assert mappings_list[0]["target_id"] == "NO 30/9-B-21 C"
+    assert mappings_list[1]["target_system"] == "simulator"
+    assert mappings_list[1]["target_id"] == "R_B21C"
+    for mapping in mappings_list:
         assert mapping["source_system"] == "rms"
         assert mapping["source_id"] == "RFT_30_9-B-21_C"
         assert mapping["mapping_type"] == "wellbore"
