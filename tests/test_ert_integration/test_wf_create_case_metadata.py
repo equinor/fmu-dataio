@@ -17,10 +17,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 import yaml
-from ert.config import GenKwConfig, ShapeRegistry
-from ert.config._create_observation_dataframes import (
-    create_observation_dataframes,  # TODO: consider removing this private import
-)
+from ert.config import GenKwConfig
 from ert.config.distribution import DistributionSettings
 from fmu.datamodels import (
     ErtObservationsRftSchema,
@@ -973,18 +970,7 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
         captured_tables[obs_type] = df
         return df
 
-    def mock_create_observation_dataframes(
-        observations: ErtEnsemble,
-        shape_registry: ShapeRegistry,
-    ) -> dict[str, pl.DataFrame]:
-        """mock"""
-        return create_observation_dataframes(observations, shape_registry)
-
     with (
-        patch(
-            "ert.storage.local_experiment.create_observation_dataframes",
-            side_effect=mock_create_observation_dataframes,
-        ),
         patch(
             "fmu.dataio._workflows.case.main.SumoUploaderInterface",
             spec=SumoUploaderInterface,
