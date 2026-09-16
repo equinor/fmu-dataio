@@ -41,7 +41,6 @@ from fmu.dataio._workflows.case._parameters import (
     get_ert_parameters_table,
 )
 from fmu.dataio._workflows.case.main import CaseWorkflowConfig
-from tests.utils import add_wellbore_mappings
 
 from .ert_config_utils import (
     add_create_case_workflow,
@@ -1065,9 +1064,6 @@ def test_create_case_metadata_uploads_wellbore_mappings(
     When .fmu/ exists and wellbore mappings are present, they are uploaded
     on expected format.
     """
-    fmu_dir = get_fmu_directory(fmu_snakeoil_project_with_dotfmu)
-    add_wellbore_mappings(fmu_dir)
-
     ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
@@ -1107,7 +1103,6 @@ def test_create_case_metadata_uploads_wellbore_mappings(
     assert metadata["fmu"]["ensemble"]["name"] == "iter-0"
 
     assert isinstance(mappings_table, pa.Table)
-    assert len(mappings_table) == 2
 
     assert set(mappings_table.column_names) == {
         "source_system",
@@ -1131,17 +1126,13 @@ def test_create_case_metadata_uploads_wellbore_mappings(
     # check that the mappings uploaded is identical to the ones in .fmu
     assert mappings_list == expected_mappings.model_dump(mode="json")
 
-    assert mappings_list[0]["target_system"] == "smda"
-    assert mappings_list[0]["target_id"] == "NO 30/9-B-21 C"
-    assert mappings_list[1]["target_system"] == "simulator"
-    assert mappings_list[1]["target_id"] == "R_B21C"
     for mapping in mappings_list:
         assert mapping["source_system"] == "rms"
-        assert mapping["source_id"] == "RFT_30_9-B-21_C"
+        assert mapping["target_system"] == "smda"
         assert mapping["mapping_type"] == "wellbore"
         assert mapping["relation_type"] == "primary"
         assert mapping["source_uuid"] is None
-        assert mapping["target_uuid"] is None
+        assert mapping["target_uuid"] is not None
 
 
 def test_create_case_metadata_without_wellbore_mappings(
@@ -1230,10 +1221,16 @@ def test_create_case_metadata_uploads_stratigraphy_mappings(
         from_new_case = mock_uploader_interface.from_new_case
         from_new_case.assert_called_once()
 
-        # queue_table should have been called only once for the mappings
         queue_table = from_new_case.return_value.queue_table
-        queue_table.assert_called_once()
-        mappings_table, metadata = queue_table.call_args.args
+        queued_mappings = {
+            call.args[1]["data"]["standard_result"]["name"]: call.args
+            for call in queue_table.call_args_list
+        }
+        assert set(queued_mappings) == {
+            "stratigraphy_mapping",
+            "wellbore_mapping",
+        }
+        mappings_table, metadata = queued_mappings["stratigraphy_mapping"]
 
     assert metadata["data"]["content"] == "mapping"
     assert metadata["data"]["standard_result"]["name"] == "stratigraphy_mapping"
