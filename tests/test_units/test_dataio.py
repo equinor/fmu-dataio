@@ -1167,21 +1167,21 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_fmu_context_preprocessed_deprecation_inside_fmu(
+def test_fmu_context_preprocessed_deprecation_inside_case(
     runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
 ) -> None:
-    """The deprecated fmu_context="preprocessed" is rejected inside FMU."""
-    with (
-        pytest.warns(FutureWarning, match="is deprecated"),
-        pytest.raises(ValueError, match="exported outside of FMU"),
-    ):
-        ExportData(
+    """The deprecated preprocessed context remains supported in a case context."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
+        edata = ExportData(
             config=rmsglobalconfig,
             content="depth",
             fmu_context="preprocessed",
             casepath=runpath_prehook,
         )
+
+    assert edata._export_config.fmu_context == FMUContext.case
+    assert edata._export_config.preprocessed is True
 
 
 def test_preprocessed_outside_fmu(
@@ -1198,13 +1198,11 @@ def test_preprocessed_outside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-@pytest.mark.parametrize("fmu_context", ["realization", "case"])
-def test_preprocessed_inside_fmu_raises_error(
+def test_preprocessed_inside_realization_raises_error(
     runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
-    fmu_context: str,
 ) -> None:
-    """Test that the preprocessed argument is rejected inside FMU."""
+    """Test that the preprocessed argument is rejected in a realization."""
     with (
         pytest.warns(FutureWarning, match="is deprecated"),
         pytest.raises(ValueError, match="Can't export preprocessed"),
@@ -1212,7 +1210,21 @@ def test_preprocessed_inside_fmu_raises_error(
         ExportData(
             config=rmsglobalconfig,
             content="depth",
-            fmu_context=fmu_context,
+            fmu_context="realization",
+            preprocessed=True,
+        )
+
+
+def test_preprocessed_inside_case_warns(
+    runpath_no_dotfmu: Path,
+    rmsglobalconfig: dict[str, Any],
+) -> None:
+    """Test that preprocessed case exports remain temporarily supported."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
+        ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+            fmu_context="case",
             preprocessed=True,
         )
 

@@ -472,12 +472,20 @@ def _validate_fmu_context_combination(
     Raises:
         ValueError: If the combination is invalid.
     """
-    if preprocessed and context is not None:
-        raise ValueError(
-            "Can't export preprocessed data inside FMU. Preprocessed data should "
-            "be exported outside of FMU entirely, and then re-exported using "
-            "ExportPreprocessedData."
-        )
+    if preprocessed:
+        if context == FMUContext.realization:
+            raise ValueError(
+                "Can't export preprocessed data inside an FMU realization. "
+                "Preprocessed data should be exported outside of FMU entirely, "
+                "and then re-exported using ExportPreprocessedData."
+            )
+        if context == FMUContext.case:
+            warnings.warn(
+                "Preprocessed data should only be exported outside of FMU entirely. "
+                "Support for exporting preprocessed data in a case context will be "
+                "removed in a future release.",
+                FutureWarning,
+            )
 
 
 def _resolve_classification(

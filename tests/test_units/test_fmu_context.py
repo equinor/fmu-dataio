@@ -145,11 +145,22 @@ def test_case_symlink_realization_raises_error() -> None:
         )
 
 
-@pytest.mark.parametrize("context", list(FMUContext))
-def test_preprocessed_inside_fmu_raises_error(context: FMUContext) -> None:
-    """Cannot export preprocessed data inside FMU."""
+def test_preprocessed_inside_realization_raises_error() -> None:
+    """Cannot export preprocessed data inside an FMU realization."""
     with pytest.raises(ValueError, match="exported outside of FMU"):
-        _validate_fmu_context_combination(context=context, preprocessed=True)
+        _validate_fmu_context_combination(
+            context=FMUContext.realization,
+            preprocessed=True,
+        )
+
+
+def test_preprocessed_inside_case_emits_deprecation_warning() -> None:
+    """Preprocessed data in a case context remains temporarily supported."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
+        _validate_fmu_context_combination(
+            context=FMUContext.case,
+            preprocessed=True,
+        )
 
 
 def test_preprocessed_outside_fmu_is_allowed() -> None:

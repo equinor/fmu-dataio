@@ -6,11 +6,7 @@ import xtgeo
 
 from fmu.dataio.dataio import ExportData
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-
-DEPTH_FILE = (
-    SCRIPT_DIR.parent / "output/maps/structure/topvolantis--ds_extract_geogrid.gri"
-)
+DEPTH_FILE = Path("../output/maps/structure/topvolantis--ds_extract_geogrid.gri")
 
 
 def export_preprocessed_surface() -> None:
