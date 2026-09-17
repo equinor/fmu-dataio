@@ -154,6 +154,32 @@ def test_unknown_name_in_stratigraphy_raises(
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
+def test_alias_name_in_stratigraphy_is_accepted(
+    mock_export_class: _ExportStructureDepthSurfaces, runpath_no_dotfmu: Path
+) -> None:
+    """Alias names are valid and resolve to corresponding stratigraphic names."""
+
+    mock_export_class._surfaces[0].name = "TopVOLANTIS"  # alias for TopVolantis
+
+    out = mock_export_class.export()
+
+    export_path = out.items[0].absolute_path
+    # should still be exported with the alias name
+    assert (
+        export_path
+        == runpath_no_dotfmu
+        / "share/results/maps/structure_depth_surface/topvolantis.gri"
+    )
+
+    metadata = dataio.read_metadata(export_path)
+
+    # official name should be used in the metadata, not the alias or the rms name
+    assert metadata["data"]["name"] == "VOLANTIS GP. Top"
+    assert metadata["data"]["stratigraphic"] is True
+    assert metadata["data"]["smda_entity"]["identifier"] == "VOLANTIS GP. Top"
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
 def test_stratigraphy_missing_raises(
     mock_project_variable: MagicMock,
     mock_export_class: _ExportStructureDepthSurfaces,

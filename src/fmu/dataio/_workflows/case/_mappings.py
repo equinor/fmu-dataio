@@ -1,4 +1,4 @@
-"""Extract and process stratigraphy mappings."""
+"""Extract and process stratigraphy and wellbore mappings."""
 
 from __future__ import annotations
 
@@ -25,4 +25,19 @@ def get_stratigraphy_mappings_table(fmu_dir: ProjectFMUDirectory) -> pa.Table | 
 
     return pa.Table.from_pylist(
         fmu_dir.mappings.stratigraphy_mappings.model_dump(mode="json"),
+    )
+
+
+def has_wellbore_mappings(fmu_dir: ProjectFMUDirectory) -> bool:
+    """Check if any wellbore mappings exist in .fmu."""
+    return fmu_dir.mappings.exists and len(fmu_dir.mappings.wellbore_mappings) > 0
+
+
+def get_wellbore_mappings_table(fmu_dir: ProjectFMUDirectory) -> pa.Table | None:
+    """Extract wellbore mappings from .fmu and process it into an arrow table."""
+    if not has_wellbore_mappings(fmu_dir):
+        return None
+
+    return pa.Table.from_pylist(
+        fmu_dir.mappings.wellbore_mappings.model_dump(mode="json"),
     )

@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Final
 
 from fmu.dataio._export import ExportConfig, UnsetData
+from fmu.dataio._global_config import get_stratigraphy_element_from_config
 from fmu.dataio._logging import null_logger
 from fmu.datamodels.fmu_results.data import AnyData, SmdaEntity, Time, Timestamp
 from fmu.datamodels.fmu_results.global_configuration import (
@@ -70,8 +71,7 @@ class ObjectData:
         name = self.export_config.name or getattr(self.obj, "name", "") or ""
 
         config = self.export_config.config
-        if config and (stratigraphy := config.stratigraphy) and name in stratigraphy:
-            element = stratigraphy[name]
+        if config and (element := get_stratigraphy_element_from_config(config, name)):
             # Ensure input name is in aliases
             if element.alias is None:
                 element.alias = [name]

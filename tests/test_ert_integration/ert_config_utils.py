@@ -89,11 +89,17 @@ def add_copy_preprocessed_workflow(
     ert_config_path: Path,
     inpath: str = "../../share/preprocessed",
     extra_args: str = "",
+    legacy_arguments: tuple[str, str] | None = None,
 ) -> None:
+    workflow_args = inpath
+    if legacy_arguments:
+        casepath, config_path = legacy_arguments
+        workflow_args = f"{casepath} {config_path} {inpath}"
+
     with open(ert_config_path, "a") as f:
         f.write(
             f"HOOK_WORKFLOW_JOB xhook_copy_preprocessed WF_COPY_PREPROCESSED_DATAIO "
-            f"<SUMO_CASEPATH> <CONFIG_PATH> {inpath} {extra_args} PRE_SIMULATION\n"
+            f"{workflow_args} {extra_args} PRE_SIMULATION\n"
         )
 
 

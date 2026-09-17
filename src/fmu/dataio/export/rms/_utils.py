@@ -6,7 +6,11 @@ from typing import TYPE_CHECKING, Any, Final
 import xtgeo
 from packaging.version import parse as versionparse
 
-from fmu.dataio._global_config import _FMU_SETTINGS_URL, has_fmu_directory
+from fmu.dataio._global_config import (
+    _FMU_SETTINGS_URL,
+    get_stratigraphy_element_from_config,
+    has_fmu_directory,
+)
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
@@ -364,7 +368,10 @@ def validate_name_in_stratigraphy(name: str, config: GlobalConfiguration) -> Non
             "Tip: FMU Settings is the recommended way to manage "
             "stratigraphy mappings."
         )
-    if name not in config.stratigraphy:
+    name_in_stratigraphy = (
+        get_stratigraphy_element_from_config(config, name) is not None
+    )
+    if not name_in_stratigraphy:
         if has_fmu_directory():
             raise ValidationError(
                 f"The stratigraphic {name=} has not been mapped in FMU settings. "

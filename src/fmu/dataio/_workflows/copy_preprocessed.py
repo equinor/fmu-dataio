@@ -12,18 +12,21 @@ import argparse
 import logging
 import warnings
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import ert
 
 from fmu.dataio import ExportPreprocessedData
+
+if TYPE_CHECKING:
+    from ert.runpaths import Runpaths as ErtRunpaths
 
 logger: Final = logging.getLogger(__name__)
 
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
 WF_COPY_PREPROCESSED_DATAIO will copy preprocessed data to a FMU run at
-<caseroot>/share/observations/. If the data contains metadata this will be
+<SUMO_CASEPATH>/share/observations/. If the data contains metadata this will be
 updated with information about the FMU run and ready for upload to Sumo.
 
 Preprocessed data refers to data that has been exported with dataio outside of a FMU
@@ -34,7 +37,10 @@ EXAMPLES = """
 Create an ERT workflow e.g. named ``ert/bin/workflows/xhook_copy_preprocessed_data``
 with the contents::
 
-  WF_COPY_PREPROCESSED_DATAIO <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> '../../share/preprocessed/'
+    WF_COPY_PREPROCESSED_DATAIO '../../share/preprocessed/'
+
+The case path is read from ``<SUMO_CASEPATH>`` and the input path is resolved
+relative to ``<CONFIG_PATH>``.
 
 Add following lines to your ERT config to have the job automatically executed::
 
@@ -54,7 +60,7 @@ def main() -> None:
     """
     parser = get_parser()
     commandline_args = parser.parse_args()
-    copy_preprocessed_data_main(commandline_args)
+    copy_preprocessed_data_main(commandline_args, run_paths=None)
 
 
 class WfCopyPreprocessedData(ert.ErtScript):
@@ -63,20 +69,29 @@ class WfCopyPreprocessedData(ert.ErtScript):
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
     potential naming collisions in fmu-dataio."""
 
-    def run(self, *args: str) -> None:
-        """Parse arguments and call copy_preprocessed_data_main()"""
+    def run(
+        self,
+        workflow_args: list[str],
+        run_paths: ErtRunpaths,
+    ) -> None:
+        """Parse arguments and call copy_preprocessed_data_main()."""
         parser = get_parser()
-        workflow_args = parser.parse_args(args)
-        copy_preprocessed_data_main(workflow_args)
+        args = parser.parse_args(workflow_args)
+        copy_preprocessed_data_main(args, run_paths)
 
 
-def copy_preprocessed_data_main(args: argparse.Namespace) -> None:
+def copy_preprocessed_data_main(
+    args: argparse.Namespace, run_paths: ErtRunpaths | None = None
+) -> None:
     """Copy the preprocessed data to scratch and upload it to sumo."""
 
+    _normalize_workflow_arguments(args)
     check_arguments(args)
     logger.setLevel(args.verbosity)
 
-    searchpath = Path(args.ert_config_path) / args.inpath
+    casepath = _resolve_casepath(run_paths, args.ert_caseroot)
+    ert_config_path = _resolve_ert_config_path(run_paths, args.ert_config_path)
+    searchpath = ert_config_path / args.inpath
     match_pattern = "[!.]*"  # ignore metafiles (starts with '.')
     files = [
         filepath
@@ -91,7 +106,7 @@ def copy_preprocessed_data_main(args: argparse.Namespace) -> None:
     logger.info("Starting to copy preprocessed files to <caseroot>/share/observations/")
     for filepath in files:
         ExportPreprocessedData(
-            casepath=args.ert_caseroot,
+            casepath=casepath,
             is_observation=True,
         ).export(filepath)
         logger.info("Copied preprocessed file %s", filepath)
@@ -111,10 +126,6 @@ def check_arguments(args: argparse.Namespace) -> None:
             FutureWarning,
         )
 
-    if not Path(args.ert_caseroot).is_absolute():
-        logger.debug("Argument 'ert_caseroot' was not absolute: %s", args.ert_caseroot)
-        raise ValueError("'ert_caseroot' must be an absolute path")
-
     if Path(args.inpath).is_absolute():
         logger.debug("Argument 'inpath' is absolute: %s", args.inpath)
         raise ValueError(
@@ -122,18 +133,104 @@ def check_arguments(args: argparse.Namespace) -> None:
         )
 
 
+def _normalize_workflow_arguments(args: argparse.Namespace) -> None:
+    """Normalize the current and deprecated positional argument layouts."""
+    if len(args.paths) == 1:
+        args.ert_caseroot = None
+        args.ert_config_path = None
+        args.inpath = args.paths[0]
+        return
+
+    if len(args.paths) == 3:
+        args.ert_caseroot, args.ert_config_path, args.inpath = args.paths
+        return
+
+    raise ValueError(
+        "WF_COPY_PREPROCESSED_DATAIO expects either <inpath> or the deprecated "
+        "<ert_caseroot> <ert_config_path> <inpath> arguments."
+    )
+
+
+def _validate_casepath(casepath: Path) -> Path:
+    """Validate that the case path is absolute and resolved."""
+    if not casepath.is_absolute():
+        casepath_str = str(casepath)
+        if casepath_str.startswith("<") and casepath_str.endswith(">"):
+            raise ValueError(f"Ert variable for casepath is not defined: {casepath}")
+        raise ValueError(f"'casepath' must be an absolute path. Got: {casepath}")
+    return casepath
+
+
+def _resolve_casepath(
+    run_paths: ErtRunpaths | None, legacy_casepath: str | None
+) -> Path:
+    """Resolve the case path from ERT, with legacy argument fallback."""
+    sumo_casepath = (
+        run_paths.substitutions.get("<SUMO_CASEPATH>") if run_paths else None
+    )
+
+    if sumo_casepath:
+        if legacy_casepath:
+            warnings.warn(
+                "The argument 'ert_caseroot' is deprecated. It is no longer used "
+                "and can safely be removed from WF_COPY_PREPROCESSED_DATAIO.",
+                FutureWarning,
+            )
+        return _validate_casepath(Path(sumo_casepath))
+    if legacy_casepath:
+        warnings.warn(
+            "The argument 'ert_caseroot' is deprecated. Define <SUMO_CASEPATH> "
+            "in the ERT config before removing it from "
+            "WF_COPY_PREPROCESSED_DATAIO.",
+            FutureWarning,
+        )
+        return _validate_casepath(Path(legacy_casepath))
+
+    raise ValueError(
+        "The case path could not be resolved. Please define the <SUMO_CASEPATH> "
+        "variable in the ERT config."
+    )
+
+
+def _resolve_ert_config_path(
+    run_paths: ErtRunpaths | None, legacy_config_path: str | None
+) -> Path:
+    """Resolve the ERT config path from ERT, with legacy argument fallback."""
+    ert_config_path = (
+        run_paths.substitutions.get("<CONFIG_PATH>") if run_paths else None
+    )
+
+    if ert_config_path:
+        if legacy_config_path:
+            warnings.warn(
+                "The argument 'ert_config_path' is deprecated. It is no longer used "
+                "and can safely be removed from WF_COPY_PREPROCESSED_DATAIO.",
+                FutureWarning,
+            )
+        return Path(ert_config_path)
+    if legacy_config_path:
+        warnings.warn(
+            "The argument 'ert_config_path' is deprecated. Run this workflow "
+            "through ERT before removing it from WF_COPY_PREPROCESSED_DATAIO.",
+            FutureWarning,
+        )
+        return Path(legacy_config_path)
+
+    raise ValueError("The ERT config path could not be resolved from <CONFIG_PATH>.")
+
+
 def get_parser() -> argparse.ArgumentParser:
     """Construct parser object."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("ert_caseroot", type=str, help="Absolute path to the case root")
     parser.add_argument(
-        "ert_config_path", type=str, help="ERT config path (<CONFIG_PATH>)"
-    )
-    parser.add_argument(
-        "inpath",
+        "paths",
+        nargs="+",
         type=str,
-        help="Folder with preprocessed data relative to ert_configpath.",
-        default="../../share/preprocessed",
+        metavar="PATH",
+        help=(
+            "Input folder relative to <CONFIG_PATH>. The deprecated three-value "
+            "form is also accepted."
+        ),
     )
     parser.add_argument(
         "--global_variables_path",
