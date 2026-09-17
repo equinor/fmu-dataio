@@ -53,22 +53,9 @@ jobs:
         run: uv pip install \ "fmu-sumo-uploader @
           git+https://github.com/equinor/fmu-sumo-uploader.git"
 
-      - name: Install ert
-        if: matrix.python-version != '3.11'
-        run: |
-          uv pip install "ert @ git+https://github.com/equinor/ert.git"
-
       - name: Full test
         run: |
-          pytest_args="-n auto -v --cov=src/fmu/dataio --cov-report=xml:fmudataiocoverage.xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy"
-
-          if [ "${{ matrix.python-version }}" = "3.11" ]; then
-            pytest_args="$pytest_args --ignore=tests/test_units/test_workflows/test_case_observations.py"
-            pytest_args="$pytest_args --deselect=tests/test_ert_integration/test_wf_create_case_metadata.py::test_create_case_metadata_collects_rft_observations_as_expected"
-            pytest_args="$pytest_args --deselect=tests/test_ert_integration/test_wf_create_case_metadata.py::test_distribution_models_one_to_one_with_ert"
-          fi
-
-          uv run pytest $pytest_args
+          uv run pytest -n auto -v --cov=src/fmu/dataio --cov-report=xml:fmudataiocoverage.xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy
       
       - name: Upload test coverage to Codecov
         id: codecov-coverage
@@ -121,4 +108,3 @@ jobs:
           rm -f codecov.SHA*
           rm -f codecov
           rm -f .coverage.*
-
