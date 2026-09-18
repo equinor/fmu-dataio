@@ -37,6 +37,14 @@ def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
     return datetime.strptime(value, format).isoformat()
 
 
+def test_exportdata_fmu_context_argument_is_deprecated(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Setting fmu_context on ExportData emits a deprecation warning."""
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        ExportData(config=mock_global_config, content="depth", fmu_context="case")
+
+
 def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:
     """Test generating metadata"""
 
@@ -1159,31 +1167,21 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_fmu_context_preprocessed_deprecation_inside_fmu(
+def test_fmu_context_preprocessed_deprecation_inside_case(
     runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
 ) -> None:
-    """
-    Test the deprecated fmu_context="preprocessed" inside fmu.
-
-    This should not change the explicit FMU context, or the default preprocessed=False
-    and set the resolved preprocessed=True and fmu_context to 'case'.
-    """
-    with pytest.warns(FutureWarning, match="is deprecated"):
+    """The deprecated preprocessed context remains supported in a case context."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
         edata = ExportData(
             config=rmsglobalconfig,
             content="depth",
             fmu_context="preprocessed",
             casepath=runpath_prehook,
         )
-    assert edata.preprocessed is False
-    assert edata._export_config.preprocessed is True
-    assert edata.fmu_context == "preprocessed"
-    assert edata._export_config.fmu_context == FMUContext.case
 
-    meta = edata.generate_metadata(regsurf)
-    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+    assert edata._export_config.fmu_context == FMUContext.case
+    assert edata._export_config.preprocessed is True
 
 
 def test_preprocessed_outside_fmu(
@@ -1200,35 +1198,35 @@ def test_preprocessed_outside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_preprocessed_inside_fmu(
+def test_preprocessed_inside_realization_raises_error(
     runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
 ) -> None:
-    """Test the preprocessed argument inside FMU context"""
-    # should raise error if preprocessed=True and fmu_context="realization"
-    with pytest.raises(ValueError, match="Can't export preprocessed"):
-        edata = ExportData(
+    """Test that the preprocessed argument is rejected in a realization."""
+    with (
+        pytest.warns(FutureWarning, match="is deprecated"),
+        pytest.raises(ValueError, match="Can't export preprocessed"),
+    ):
+        ExportData(
             config=rmsglobalconfig,
             content="depth",
             fmu_context="realization",
             preprocessed=True,
         )
 
-    # test that no error is raised if preprocessed=True and fmu_context="case"
-    edata = ExportData(
-        config=rmsglobalconfig,
-        content="depth",
-        fmu_context="case",
-        preprocessed=True,
-    )
-    assert edata._export_config.runcontext.inside_fmu is True
-    assert edata.preprocessed is True
-    assert edata.fmu_context == FMUContext.case
 
-    meta = edata.generate_metadata(regsurf)
-    # check that the relative file is at case level and has a preprocessed folder
-    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+def test_preprocessed_inside_case_warns(
+    runpath_no_dotfmu: Path,
+    rmsglobalconfig: dict[str, Any],
+) -> None:
+    """Test that preprocessed case exports remain temporarily supported."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
+        ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+            fmu_context="case",
+            preprocessed=True,
+        )
 
 
 def test_norwegian_letters_globalconfig(
