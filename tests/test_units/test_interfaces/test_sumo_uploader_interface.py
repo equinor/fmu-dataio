@@ -339,25 +339,6 @@ def test_from_new_case_passes_case_metadata_path_to_case_on_disk() -> None:
     ):
         SumoUploaderInterface.from_new_case(
             case_metadata_path=case_metadata_path,
-            global_config_path=Path("global_variables.yml"),
         )
 
     assert mock_cod_cls.call_args.args[0] == case_metadata_path
-
-
-def test_from_new_case_stores_global_config_path() -> None:
-    mock_case = MagicMock()
-    mock_case.register.return_value = "uuid"
-
-    global_config_path = Path("global_variables.yml")
-
-    with (
-        patch("fmu.sumo.uploader.SumoConnection"),
-        patch("fmu.sumo.uploader.CaseOnDisk", return_value=mock_case),
-    ):
-        uploader = SumoUploaderInterface.from_new_case(
-            case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=global_config_path,
-        )
-
-    assert uploader.global_config_path == global_config_path
