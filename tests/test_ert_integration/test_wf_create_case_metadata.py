@@ -123,7 +123,6 @@ def workflow_config(
         register_on_sumo=True,
         verbosity="WARNING",
         global_config=mock_global_config_validated,
-        global_config_path=Path("../../fmuconfig/output/global_variables.yml"),
         fmu_dir=get_fmu_directory(runpath_prehook),
     )
 

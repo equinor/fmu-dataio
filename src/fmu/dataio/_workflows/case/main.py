@@ -230,9 +230,7 @@ def _run_workflow(
     logger.debug(f"Case metadata exported to {case_metadata_path}")
 
     if workflow_config.register_on_sumo:
-        sumo_uploader = SumoUploaderInterface.from_new_case(
-            Path(case_metadata_path), workflow_config.global_config_path
-        )
+        sumo_uploader = SumoUploaderInterface.from_new_case(Path(case_metadata_path))
         _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
 
 

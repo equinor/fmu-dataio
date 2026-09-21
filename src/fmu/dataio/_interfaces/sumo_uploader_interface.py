@@ -34,7 +34,6 @@ class SumoUploaderInterface:
         self,
         env: str,
         case_uuid: str,
-        global_config_path: Path,
         *,
         client_id: str = SUMO_CLIENT_ID,
     ) -> None:
@@ -43,7 +42,6 @@ class SumoUploaderInterface:
         self.env = env
         self.case_uuid = case_uuid
         self.client_id = client_id
-        self.global_config_path = global_config_path
 
         self.connection = SumoConnection(
             self.env, case_uuid=self.case_uuid, client_id=self.client_id
@@ -79,7 +77,6 @@ class SumoUploaderInterface:
             list(self._queue),  # Copy so we don't clear for uploader's executors
             self.case_uuid,
             self.connection,
-            config_path=self.global_config_path,
         )
         self._queue.clear()
         return result
@@ -88,7 +85,6 @@ class SumoUploaderInterface:
     def from_new_case(
         cls,
         case_metadata_path: Path,
-        global_config_path: Path,
         *,
         env: str | None = None,
         client_id: str = SUMO_CLIENT_ID,
@@ -102,4 +98,4 @@ class SumoUploaderInterface:
         case = CaseOnDisk(case_metadata_path, register_connection)
         case_uuid = case.register()
 
-        return cls(_env, case_uuid, global_config_path, client_id=client_id)
+        return cls(_env, case_uuid, client_id=client_id)

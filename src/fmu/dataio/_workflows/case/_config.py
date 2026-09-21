@@ -28,7 +28,6 @@ class CaseWorkflowConfig:
     register_on_sumo: bool
     verbosity: str
     global_config: GlobalConfiguration
-    global_config_path: Path
     fmu_dir: ProjectFMUDirectory | None
 
     def __post_init__(self) -> None:
@@ -72,7 +71,6 @@ class CaseWorkflowConfig:
             register_on_sumo=args.sumo,
             verbosity="WARNING",
             global_config=global_config,
-            global_config_path=config_path,
             fmu_dir=fmu_dir,
         )
 
