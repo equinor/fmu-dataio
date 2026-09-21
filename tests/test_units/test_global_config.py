@@ -1,4 +1,5 @@
 import shutil
+import warnings
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -10,12 +11,16 @@ from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
 from fmu.dataio._global_config import (
+    _missing_required_fields_in_config,
     _resolve_global_config_path,
     build_global_configuration,
+    get_stratigraphy_element_from_config,
+    has_fmu_directory,
     load_global_config,
     load_global_config_from_fmu_settings,
     load_global_config_from_global_variables,
 )
+from fmu.dataio._runcontext import FMUEnvironment
 from fmu.dataio.exceptions import ValidationError
 
 
@@ -41,6 +46,98 @@ def test_build_global_configuration_missing_masterdata(
 
     with pytest.raises(ValidationError, match="https://fmu-dataio.readthedocs.io"):
         build_global_configuration(mock_global_config)
+
+
+def test_build_global_configuration_shows_details_for_invalid_fields(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Pydantic error is shown for invalid fields."""
+    invalid_type_config = dict(mock_global_config)
+    invalid_type_config["model"] = "not-a-model"  # should be a dict
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration(invalid_type_config)
+
+    assert "Detailed information:" in str(err_info.value)
+    assert "The following required entries are missing:" not in str(err_info.value)
+
+
+def test_build_global_configuration_omits_details_when_missing_fields() -> None:
+    """Pydantic error is not shown for missing fields."""
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "Detailed information:" not in str(err_info.value)
+    assert "The following required entries are missing:" in str(err_info.value)
+
+
+@pytest.mark.parametrize(
+    "missing_fields",
+    [["access", "model"], [], ["masterdata", "access", "model"], ["masterdata"]],
+)
+def test_missing_required_fields_in_config(
+    mock_global_config: dict[str, Any], missing_fields: list[str]
+) -> None:
+    """Utility identifies missing required top-level fields in stable order."""
+
+    for field in missing_fields:
+        del mock_global_config[field]
+
+    result = _missing_required_fields_in_config(mock_global_config)
+    assert result == missing_fields
+
+
+def test_build_global_configuration_includes_workflow_note_inside_ert(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """
+    WF_CREATE_CASE_METADATA note is shown when running inside ERT
+    and all required fields are missing.
+    """
+
+    # make sure the test is running inside ERT context
+    monkeypatch.setenv("_ERT_RUNPATH", "/fmu-case/realization-0/iter-0")
+    assert FMUEnvironment.from_env().fmu_context is not None
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "WF_CREATE_CASE_METADATA" in str(err_info.value)
+
+
+def test_build_global_configuration_omits_workflow_note_inside_ert_partial_setup(
+    monkeypatch: MonkeyPatch,
+    mock_global_config: dict[str, Any],
+) -> None:
+    """
+    WF_CREATE_CASE_METADATA note is not shown when running inside ERT
+    and only some required fields are missing.
+    """
+
+    # make sure the test is running inside ERT context
+    monkeypatch.setenv("_ERT_RUNPATH", "/fmu-case/realization-0/iter-0")
+    assert FMUEnvironment.from_env().fmu_context is not None
+
+    # partial setup: some required fields are present, but one is missing
+    del mock_global_config["masterdata"]
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration(mock_global_config)
+
+    assert "WF_CREATE_CASE_METADATA" not in str(err_info.value)
+
+
+def test_build_global_configuration_omits_workflow_note_outside_ert() -> None:
+    """WF_CREATE_CASE_METADATA note is not shown when outside ERT."""
+
+    # make sure the test is running outside ERT context
+    assert FMUEnvironment.from_env().fmu_context is None
+
+    with pytest.raises(ValidationError) as err_info:
+        build_global_configuration({})
+
+    assert "WF_CREATE_CASE_METADATA" not in str(err_info.value)
 
 
 def test_build_global_configuration_standard_result(
@@ -210,17 +307,128 @@ def test_load_from_fmu_settings_returns_none_when_no_dotfmu(
     assert result is None
 
 
-def test_load_from_fmu_settings_returns_none_when_config_incomplete(
+def test_has_fmu_directory_returns_true_when_found(
     tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """If the .fmu config is missing required fields, returns None."""
+    """Returns True when find_nearest_fmu_directory succeeds."""
+    create_drogon_fmu_dir(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    assert has_fmu_directory() is True
+
+
+def test_has_fmu_directory_returns_false_when_not_found(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Returns False when no .fmu/ directory exists."""
+    monkeypatch.chdir(tmp_path)
+    assert has_fmu_directory() is False
+
+
+def test_get_stratigraphy_element_from_config(
+    drogon_global_config_path: Path,
+) -> None:
+    """Test resolving stratigraphy keys to their expected element."""
+    config = load_global_config_from_global_variables(drogon_global_config_path)
+
+    # test resolving an rms name
+    element = get_stratigraphy_element_from_config(config, "TopVolantis")
+    assert element is not None
+    assert element.name == "VOLANTIS GP. Top"
+    assert element.stratigraphic is True
+    assert element.alias == ["TopVOLANTIS", "TOP_VOLANTIS"]
+
+    # test resolving an alias name
+    element = get_stratigraphy_element_from_config(config, "TOP_VOLANTIS")
+    assert element is not None
+    assert element.name == "VOLANTIS GP. Top"
+    assert element.stratigraphic is True
+    assert element.alias == ["TopVOLANTIS", "TOP_VOLANTIS"]
+
+    # test unknown name returns None
+    element = get_stratigraphy_element_from_config(config, "NotInStratigraphy")
+    assert element is None
+
+
+def test_get_stratigraphy_element_from_config_when_no_stratigraphy(
+    drogon_global_config_path: Path,
+) -> None:
+    """Returns None when config has no stratigraphy block."""
+    config = load_global_config_from_global_variables(drogon_global_config_path)
+    config = config.model_copy(update={"stratigraphy": None})
+
+    element = get_stratigraphy_element_from_config(config, "TopVolantis")
+
+    assert element is None
+
+
+def test_get_stratigraphy_element_from_config_key_takes_precedence_over_alias(
+    drogon_global_config_path: Path,
+) -> None:
+    """Test that exact stratigraphy key wins over alias lookup.
+    Note that with .fmu this is not a problem due to validation rules, but with
+    global_variables.yml it is possible to have a key and an alias with the same name.
+    """
+
+    config = load_global_config_from_global_variables(drogon_global_config_path)
+
+    assert config.stratigraphy is not None
+
+    # check that TopVolantis is a stratigraphy key
+    assert "TopVolantis" in config.stratigraphy
+
+    # now add TopVolantis also as an alias to TopTherys
+    config.stratigraphy["TopTherys"].alias = ["TopVolantis"]
+
+    element = get_stratigraphy_element_from_config(config, "TopVolantis")
+
+    # should return official name of TopVolantis, not TopTherys
+    assert element is not None
+    assert element.name == "VOLANTIS GP. Top"
+
+
+def test_load_from_fmu_settings_raises_when_config_incomplete(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """If the .fmu config is missing required fields, raises ValidationError."""
     fmu_dir = create_drogon_fmu_dir(tmp_path)
     monkeypatch.chdir(tmp_path)
 
     fmu_dir.config.set("masterdata", None)
 
-    result = load_global_config_from_fmu_settings()
-    assert result is None
+    with pytest.raises(ValidationError, match="FMU Settings is incomplete"):
+        load_global_config_from_fmu_settings()
+
+
+def test_load_from_fmu_settings_raises_on_bad_config(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Raise ValidationError when .fmu config loading fails."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+
+    fmu_dir.config.path.write_text('{"invalid": "data"}')
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(
+        ValidationError, match=r"Unable to load configuration from FMU Settings"
+    ):
+        load_global_config_from_fmu_settings()
+
+
+def test_load_from_fmu_settings_raises_on_bad_json(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Raise ValidationError when .fmu config contains invalid JSON."""
+    fmu_dir = create_drogon_fmu_dir(tmp_path)
+
+    fmu_dir.config.path.write_text("invalid json")
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(
+        ValidationError, match=r"Unable to load configuration from FMU Settings"
+    ):
+        load_global_config_from_fmu_settings()
 
 
 def test_load_from_fmu_settings_returns_none_on_invalid_access(
@@ -325,12 +533,12 @@ def test_load_global_config_raises_when_neither_source_exists(
         load_global_config()
 
 
-def test_load_global_config_falls_back_when_fmu_settings_incomplete(
+def test_load_global_config_raises_when_fmu_settings_incomplete(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
     drogon_global_config_path: Path,
 ) -> None:
-    """When .fmu/ config is incomplete, falls back to global_variables.yml."""
+    """When .fmu/ config is incomplete, raises ValidationError."""
     fmu_dir = create_drogon_fmu_dir(tmp_path)
 
     fmu_dir.config.set("masterdata", None)
@@ -341,9 +549,8 @@ def test_load_global_config_falls_back_when_fmu_settings_incomplete(
 
     monkeypatch.chdir(tmp_path)
 
-    result = load_global_config()
-    assert isinstance(result, GlobalConfiguration)
-    assert result.model.name == "global_variables"
+    with pytest.raises(ValidationError, match="FMU Settings is incomplete"):
+        load_global_config()
 
 
 def test_load_global_config_with_explicit_path_still_prefers_fmu_settings(
@@ -384,3 +591,67 @@ def test_load_global_config_from_runpath_without_dotfmu(
     result = load_global_config()
     assert isinstance(result, GlobalConfiguration)
     assert result.model.name == "global_variables"
+
+
+def test_load_global_config_warns_when_both_sources_exist(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """Warns users to remove unused global_variables fields when .fmu/ is used."""
+    create_drogon_fmu_dir(tmp_path)
+
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.warns(UserWarning, match=r"Please remove.*no longer used"):
+        result = load_global_config()
+
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "Drogon"
+
+
+def test_load_global_config_does_not_warn_on_invalid_global_variables(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Does not warn users when global_variables.yml is invalid."""
+    create_drogon_fmu_dir(tmp_path)
+
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    fmuconfig = fmuconfig_output / "global_variables.yml"
+
+    fmuconfig.write_text("invalid: data")
+
+    monkeypatch.chdir(tmp_path)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        result = load_global_config()
+
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "Drogon"
+
+
+def test_load_global_config_warns_when_using_global_variables(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    drogon_global_config_path: Path,
+) -> None:
+    """Warns users to initialize FMU settings when loading global_variables.yml."""
+    fmuconfig_output = tmp_path / "fmuconfig" / "output"
+    fmuconfig_output.mkdir(parents=True)
+    shutil.copy(drogon_global_config_path, fmuconfig_output / "global_variables.yml")
+
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.warns(FutureWarning, match="not yet configured to use FMU Settings"):
+        result = load_global_config()
+
+    assert isinstance(result, GlobalConfiguration)
+    assert result.model.name == "global_variables"
+
+    monkeypatch.chdir(tmp_path)

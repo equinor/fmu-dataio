@@ -19,12 +19,12 @@ jobs:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
         os: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
 
       - name: Set up Python
         run: uv python install ${{ matrix.python-version }}
@@ -55,4 +55,56 @@ jobs:
 
       - name: Full test
         run: |
-          uv run pytest -n auto -v --cov --cov-report term-missing
+          uv run pytest -n auto -v --cov=src/fmu/dataio --cov-report=xml:fmudataiocoverage.xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy
+      
+      - name: Upload test coverage to Codecov
+        id: codecov-coverage
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: fmudataiocoverage.xml
+          disable_search: true
+          fail_ci_if_error: true
+
+      - name: Codecov retry sleep
+        if: ${{ steps.codecov-coverage.outcome == 'failure' }}
+        run: sleep 30
+
+      - name: Upload test coverage to Codecov (retry)
+        if: ${{ steps.codecov-coverage.outcome == 'failure' }}
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: fmudataiocoverage.xml
+          disable_search: true
+          fail_ci_if_error: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Publish test summary
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
+        with:
+          paths: junit.xml
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
+          files: junit.xml
+          disable_search: true
+
+      - name: Test for a clean repository
+        if: ${{ !cancelled() }}
+        run: |
+          # Remove expected test and coverage artifacts.
+          ls -la
+          rm -rf .coverage
+          rm -f fmudataiocoverage.xml junit*.xml
+          rm -f codecov.SHA*
+          rm -f codecov
+          rm -f .coverage.*

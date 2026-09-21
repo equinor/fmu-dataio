@@ -11,10 +11,15 @@ import yaml
 from pytest import CaptureFixture, MonkeyPatch
 
 from fmu import dataio
+from fmu.dataio._workflows.copy_preprocessed import (
+    _normalize_workflow_arguments,
+    get_parser,
+)
 
 from .ert_config_utils import (
     add_copy_preprocessed_workflow,
     add_create_case_workflow,
+    remove_sumo_casepath_definition,
 )
 
 if TYPE_CHECKING:
@@ -43,6 +48,35 @@ def _export_preprocessed_data(
     ).export(regsurf)
 
 
+@pytest.mark.parametrize(
+    ("workflow_args", "expected"),
+    [
+        (["preprocessed"], (None, None, "preprocessed")),
+        (
+            ["/case", "/config", "preprocessed"],
+            ("/case", "/config", "preprocessed"),
+        ),
+    ],
+)
+def test_normalize_workflow_arguments(
+    workflow_args: list[str], expected: tuple[str | None, str | None, str]
+) -> None:
+    """Current and legacy positional layouts are normalized unambiguously."""
+    args = get_parser().parse_args(workflow_args)
+
+    _normalize_workflow_arguments(args)
+
+    assert (args.ert_caseroot, args.ert_config_path, args.inpath) == expected
+
+
+def test_normalize_workflow_arguments_rejects_two_paths() -> None:
+    """The ambiguous two-value positional layout is rejected."""
+    args = get_parser().parse_args(["/case", "preprocessed"])
+
+    with pytest.raises(ValueError, match="expects either <inpath>"):
+        _normalize_workflow_arguments(args)
+
+
 def test_copy_preprocessed_runs_successfully(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
@@ -53,6 +87,8 @@ def test_copy_preprocessed_runs_successfully(
     """Test that exporting preprocessed data works and that the metadata is updated"""
     monkeypatch.chdir(fmu_snakeoil_project)
     _export_preprocessed_data(drogon_global_config, regsurf)
+    preprocessed_maps = fmu_snakeoil_project / "share/preprocessed/maps"
+    (preprocessed_maps / "linked.gri").symlink_to(preprocessed_maps / "topvolon.gri")
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
@@ -78,6 +114,7 @@ def test_copy_preprocessed_runs_successfully(
     assert (observations_folder / "maps/.topvolon.gri.yml").exists()
     assert (observations_folder / "maps/mysubfolder/topvolantis.gri").exists()
     assert (observations_folder / "maps/mysubfolder/.topvolantis.gri.yml").exists()
+    assert not (observations_folder / "maps/linked.gri").exists()
 
     # check one of the metafiles to see that the fmu block has been added
     metafile = observations_folder / "maps/.topvolon.gri.yml"
@@ -88,6 +125,99 @@ def test_copy_preprocessed_runs_successfully(
     assert meta["fmu"]["case"]["user"]["id"] == getpass.getuser()
     assert meta["fmu"]["context"]["stage"] == "case"
     assert len(meta["tracklog"]) == 2
+
+
+def test_deprecated_path_arguments_warn_and_are_ignored(
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    drogon_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+) -> None:
+    """Legacy paths warn while ERT substitutions remain authoritative."""
+    monkeypatch.chdir(fmu_snakeoil_project)
+    _export_preprocessed_data(drogon_global_config, regsurf)
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+    legacy_casepath = fmu_snakeoil_project / "scratch/user/legacy"
+    legacy_config_path = fmu_snakeoil_project / "legacy/config"
+
+    add_create_case_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(
+        ert_config_path,
+        legacy_arguments=(str(legacy_casepath), str(legacy_config_path)),
+    )
+
+    mocker.patch(
+        "sys.argv",
+        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+    )
+    with (
+        pytest.warns(FutureWarning, match="'ert_caseroot' is deprecated"),
+        pytest.warns(FutureWarning, match="'ert_config_path' is deprecated"),
+    ):
+        ert.__main__.main()
+
+    expected_file = (
+        fmu_snakeoil_project
+        / "scratch/user/snakeoil/share/observations/maps/topvolon.gri"
+    )
+    legacy_file = legacy_casepath / "share/observations/maps/topvolon.gri"
+    assert expected_file.exists()
+    assert not legacy_file.exists()
+
+
+def test_copy_preprocessed_requires_sumo_casepath(
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    capsys: CaptureFixture[str],
+) -> None:
+    """The new workflow form requires SUMO_CASEPATH in the ERT config."""
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+    remove_sumo_casepath_definition(ert_config_path)
+    add_copy_preprocessed_workflow(ert_config_path)
+
+    mocker.patch(
+        "sys.argv",
+        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+    )
+    ert.__main__.main()
+
+    _stdout, stderr = capsys.readouterr()
+    assert "The case path could not be resolved" in stderr
+
+
+def test_copy_preprocessed_rejects_relative_sumo_casepath(
+    fmu_snakeoil_project: Path,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    capsys: CaptureFixture[str],
+) -> None:
+    """SUMO_CASEPATH must resolve to an absolute path."""
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>",
+            "DEFINE <SUMO_CASEPATH>  relative/path",
+        )
+    )
+    add_copy_preprocessed_workflow(ert_config_path)
+
+    mocker.patch(
+        "sys.argv",
+        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+    )
+    ert.__main__.main()
+
+    _stdout, stderr = capsys.readouterr()
+    assert "'casepath' must be an absolute path. Got: relative/path" in stderr
 
 
 def test_copy_preprocessed_no_casemeta(
@@ -157,21 +287,11 @@ def test_inpath_absolute_path_raises(
 ) -> None:
     """Test that an error is written to stderr if the inpath argument is absolute"""
 
-    # create a workflow file with an absoulte inpath
-    workflow_file = (
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_copy_preprocessed_data"
-    )
-    with open(workflow_file, encoding="utf-8", mode="w") as f:
-        f.write(
-            "WF_COPY_PREPROCESSED_DATAIO <SCRATCH>/<USER>/<CASE_DIR> <CONFIG_PATH> "
-            "/../../share/preprocessed"  # absolute path
-        )
-
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_copy_preprocessed_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(ert_config_path, inpath="/absolute/path")
 
     mocker.patch(
         "sys.argv",
@@ -234,19 +354,14 @@ def test_deprecation_warning_global_variables(
 ) -> None:
     """Test that deprecation warning is issued if global variables path is input"""
 
-    # add the deprecated argument to the workflow file
-    workflow_file = (
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_copy_preprocessed_data"
-    )
-    with open(workflow_file, encoding="utf-8", mode="a") as f:
-        f.write(" '--global_variables_path' dummypath")
-
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
     add_create_case_workflow(ert_config_path)
-    add_copy_preprocessed_workflow(ert_config_path)
+    add_copy_preprocessed_workflow(
+        ert_config_path, extra_args="'--global_variables_path' dummypath"
+    )
 
     mocker.patch(
         "sys.argv",

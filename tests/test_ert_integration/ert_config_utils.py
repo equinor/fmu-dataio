@@ -6,6 +6,14 @@ from textwrap import dedent
 import pandas as pd
 
 
+def remove_sumo_casepath_definition(ert_config_path: Path) -> None:
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>", ""
+        )
+    )
+
+
 def add_design_matrix(ert_config_path: Path) -> None:
     design_df = pd.DataFrame(
         {
@@ -58,23 +66,40 @@ def add_multregt_parameters(ert_config_path: Path) -> None:
         f.writelines([f"GEN_KW MULTREGT {multregt_dist}\n"])
 
 
-def add_create_case_workflow(ert_config_path: Path) -> None:
-    with open(ert_config_path, "a") as f:
-        f.writelines(
-            [
-                "LOAD_WORKFLOW ../bin/workflows/xhook_create_case_metadata\n"
-                "HOOK_WORKFLOW xhook_create_case_metadata PRE_SIMULATION\n"
-            ]
+def add_create_case_workflow(
+    ert_config_path: Path,
+    casepath: str = "",
+    sumo: bool = False,
+    extra_args: str = "",
+) -> None:
+    workflow_args = [casepath]
+    if sumo:
+        workflow_args.append("'--sumo'")
+    if extra_args:
+        workflow_args.append(extra_args)
+
+    with open(ert_config_path, "a", encoding="utf-8") as f:
+        f.write(
+            "HOOK_WORKFLOW_JOB xhook_create_case_metadata "
+            f"WF_CREATE_CASE_METADATA {' '.join(workflow_args)} PRE_SIMULATION\n"
         )
 
 
-def add_copy_preprocessed_workflow(ert_config_path: Path) -> None:
+def add_copy_preprocessed_workflow(
+    ert_config_path: Path,
+    inpath: str = "../../share/preprocessed",
+    extra_args: str = "",
+    legacy_arguments: tuple[str, str] | None = None,
+) -> None:
+    workflow_args = inpath
+    if legacy_arguments:
+        casepath, config_path = legacy_arguments
+        workflow_args = f"{casepath} {config_path} {inpath}"
+
     with open(ert_config_path, "a") as f:
-        f.writelines(
-            [
-                "LOAD_WORKFLOW ../bin/workflows/xhook_copy_preprocessed_data\n"
-                "HOOK_WORKFLOW xhook_copy_preprocessed_data PRE_SIMULATION\n"
-            ]
+        f.write(
+            f"HOOK_WORKFLOW_JOB xhook_copy_preprocessed WF_COPY_PREPROCESSED_DATAIO "
+            f"{workflow_args} {extra_args} PRE_SIMULATION\n"
         )
 
 

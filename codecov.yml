@@ -1,0 +1,15 @@
+codecov:
+  strict_yaml_branch: default
+  notify:
+    wait_for_ci: true
+  require_ci_to_pass: true
+coverage:
+  precision: 2
+  range:
+    - 70.0
+    - 90.0
+  round: down
+  status:
+    changes: false
+    patch: true
+    project: true

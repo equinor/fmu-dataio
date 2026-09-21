@@ -33,8 +33,8 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "PyYAML",
-    "fmu-datamodels~=0.23.0",
-    "fmu-settings",
+    "fmu-datamodels~=0.25.3",
+    "fmu-settings>=0.34.0",
     "fmu-sumo",
     "jsonschema",
     "numpy",
@@ -53,7 +53,7 @@ Documentation = "https://fmu-dataio.readthedocs.io"
 [project.optional-dependencies]
 dev = [
     "coverage>=4.1",
-    "ert>=15",
+    "ert>=22",
     "hypothesis",
     "jsonschema",
     "mypy",
@@ -132,13 +132,16 @@ filterwarnings = [
     "ignore:The value of 'vertical_domain' is 'depth'.*vertical_domain.*will be set to 'time':UserWarning",
     "ignore:Setting 'rep_include' from the config is deprecated:FutureWarning",
     "ignore:Providing input settings through environment variables is deprecated:FutureWarning",
+    "ignore:The 'fmu_context' argument is deprecated:FutureWarning",
     # Ignore mutation deprecation warnings (tested in test_dataio.py::test_mutation_*)
     "ignore:Mutating ExportData\\..* after initialization is deprecated:FutureWarning",
     # Ignore importlib numpy size incompatibility warning
     # https://github.com/scikit-learn-contrib/hdbscan/issues/457#issuecomment-773671043
     # https://numpy.org/doc/stable/release/1.20.0-notes.html#size-of-np-ndarray-and-np-void-changed
     "ignore:numpy.ndarray size changed:RuntimeWarning",
-    "ignore:Config contains a SUMMARY key but no forward model steps known to generate summary files:UserWarning",
+    "ignore:Config contains a SUMMARY key but no forward model steps known to generate summary files:UserWarning",    
+    "ignore:This project is configured to use FMU Settings.:UserWarning",
+    "ignore:This project is not yet configured to use FMU Settings.:FutureWarning",
 ]
 
 [tool.coverage.run]
@@ -213,3 +216,5 @@ exclude-newer = "1 week"
 "sumo-wrapper-python" = false
 "xtgeo" = false
 "ert" = false
+"ropt" = false # Developed in cooperation with Equinor
+"ropt-dakota" = false # Developed in cooperation with Equinor

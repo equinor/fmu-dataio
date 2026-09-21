@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -14,12 +15,15 @@ from fmu.dataio._workflows.case.main import (
     _copy_fmu_directory,
     _get_ensemble_name,
     _queue_ert_parameters,
+    _queue_stratigraphy_mappings,
+    _queue_wellbore_mappings,
+    _upload_files_to_sumo,
 )
 
 
 @pytest.fixture
 def mock_ensemble() -> Callable[[int], MagicMock]:
-    """Mocks an ert.Ensemble object."""
+    """Mocks an ert.storage.Ensemble object."""
 
     def _mock_ensemble(iteration: int = 0) -> MagicMock:
         """Creates the mocked object."""
@@ -32,7 +36,7 @@ def mock_ensemble() -> Callable[[int], MagicMock]:
 
 @pytest.fixture
 def mock_run_paths() -> Callable[[str], MagicMock]:
-    """Mocks and ert.Runpaths object."""
+    """Mocks and ert.runpaths.Runpaths object."""
 
     def _mock_run_paths(runpath: str = "/tmp/realization-0/iter-0") -> MagicMock:
         """Creates the mocked object."""
@@ -161,6 +165,234 @@ def test_queue_ert_parameters_queue_table_when_present(
         _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
 
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
+
+
+def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """
+    When get_stratigraphy_mappings_table returns None queue_table
+    must not be called.
+    """
+    sumo_uploader = MagicMock()
+
+    with patch(
+        "fmu.dataio._workflows.case.main.get_stratigraphy_mappings_table",
+        return_value=None,
+    ):
+        _queue_stratigraphy_mappings("ensemble", workflow_config, sumo_uploader)
+
+    sumo_uploader.queue_table.assert_not_called()
+
+
+def test_queue_stratigraphy_mappings_queue_table_when_present(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """When a table is returned it should be queued with generated metadata."""
+
+    sumo_uploader = MagicMock()
+
+    fake_table = pa.table({"column": ["value"]})
+    fake_metadata = {"data": {"content": "mapping"}}
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.get_stratigraphy_mappings_table",
+            return_value=fake_table,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main.generate_metadata",
+            return_value=fake_metadata,
+        ) as generate_metadata,
+    ):
+        _queue_stratigraphy_mappings("ensemble", workflow_config, sumo_uploader)
+
+    export_config = generate_metadata.call_args.args[0]
+    assert export_config.is_observation is False
+    sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
+
+
+def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """With fmu_dir present, all queues including stratigraphy are called."""
+    ensemble_name = "ens"
+    ensemble = MagicMock()
+    run_paths = MagicMock()
+    sumo_uploader = MagicMock()
+
+    assert workflow_config.fmu_dir is not None
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            return_value=ensemble_name,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+        ) as queue_parameters,
+        patch(
+            "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
+        ) as queue_stratigraphy,
+    ):
+        _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
+
+    queue_stratigraphy.assert_called_once_with(
+        ensemble_name, workflow_config, sumo_uploader
+    )
+    queue_parameters.assert_called_once_with(
+        ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
+    sumo_uploader.upload.assert_called_once_with()
+
+
+def test_upload_files_to_sumo_skips_stratigraphy_when_fmu_dir_missing(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """With no fmu_dir, stratigraphy mappings are not queued."""
+    ensemble_name = "ens"
+    ensemble = MagicMock()
+    run_paths = MagicMock()
+    sumo_uploader = MagicMock()
+
+    # set fmu_dir to None to simulate missing .fmu directory
+    workflow_config_without_fmu = replace(workflow_config, fmu_dir=None)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            return_value=ensemble_name,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+        ) as queue_parameters,
+        patch(
+            "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
+        ) as queue_stratigraphy,
+    ):
+        _upload_files_to_sumo(
+            ensemble, run_paths, workflow_config_without_fmu, sumo_uploader
+        )
+
+    queue_stratigraphy.assert_not_called()
+    queue_parameters.assert_called_once_with(
+        ensemble, ensemble_name, workflow_config_without_fmu, sumo_uploader
+    )
+    sumo_uploader.upload.assert_called_once_with()
+
+
+def test_queue_wellbore_mappings_does_nothing_when_table_is_none(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """
+    When get_wellbore_mappings_table returns None queue_table
+    must not be called.
+    """
+    sumo_uploader = MagicMock()
+
+    with patch(
+        "fmu.dataio._workflows.case.main.get_wellbore_mappings_table",
+        return_value=None,
+    ):
+        _queue_wellbore_mappings("ensemble", workflow_config, sumo_uploader)
+
+    sumo_uploader.queue_table.assert_not_called()
+
+
+def test_queue_wellbore_mappings_queue_table_when_present(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """When a table is returned it should be queued with generated metadata."""
+
+    sumo_uploader = MagicMock()
+
+    fake_table = pa.table({"column": ["value"]})
+    fake_metadata = {"data": {"content": "mapping"}}
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.get_wellbore_mappings_table",
+            return_value=fake_table,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main.generate_metadata",
+            return_value=fake_metadata,
+        ) as generate_metadata,
+    ):
+        _queue_wellbore_mappings("ensemble", workflow_config, sumo_uploader)
+
+    export_config = generate_metadata.call_args.args[0]
+    assert export_config.is_observation is False
+    sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
+
+
+def test_upload_files_to_sumo_queues_wellbore_when_fmu_dir_present(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """With fmu_dir present, all queues including wellbore are called."""
+    ensemble_name = "ens"
+    ensemble = MagicMock()
+    run_paths = MagicMock()
+    sumo_uploader = MagicMock()
+
+    assert workflow_config.fmu_dir is not None
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            return_value=ensemble_name,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+        ) as queue_parameters,
+        patch(
+            "fmu.dataio._workflows.case.main._queue_wellbore_mappings"
+        ) as queue_wellbore,
+    ):
+        _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
+
+    queue_wellbore.assert_called_once_with(
+        ensemble_name, workflow_config, sumo_uploader
+    )
+    queue_parameters.assert_called_once_with(
+        ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
+    sumo_uploader.upload.assert_called_once_with()
+
+
+def test_upload_files_to_sumo_skips_wellbore_when_fmu_dir_missing(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """With no fmu_dir, wellbore mappings are not queued."""
+    ensemble_name = "ens"
+    ensemble = MagicMock()
+    run_paths = MagicMock()
+    sumo_uploader = MagicMock()
+
+    # set fmu_dir to None to simulate missing .fmu directory
+    workflow_config_without_fmu = replace(workflow_config, fmu_dir=None)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            return_value=ensemble_name,
+        ),
+        patch(
+            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+        ) as queue_parameters,
+        patch(
+            "fmu.dataio._workflows.case.main._queue_wellbore_mappings"
+        ) as queue_wellbore,
+    ):
+        _upload_files_to_sumo(
+            ensemble, run_paths, workflow_config_without_fmu, sumo_uploader
+        )
+
+    queue_wellbore.assert_not_called()
+    queue_parameters.assert_called_once_with(
+        ensemble, ensemble_name, workflow_config_without_fmu, sumo_uploader
+    )
+    sumo_uploader.upload.assert_called_once_with()
 
 
 def test_copy_fmu_directory_no_dot_fmu(tmp_path: Path) -> None:

@@ -787,7 +787,7 @@ def test_gridproperty_export_with_geometry_lacking_metadata(
         ).export(gridproperty)
 
     # with invalid config the export works but produces no metadata
-    with pytest.warns(UserWarning, match="global configuration was not provided"):
+    with pytest.warns(UserWarning, match="The global configuration is invalid"):
         prop_output = dataio.ExportData(
             config={},
             content="property",

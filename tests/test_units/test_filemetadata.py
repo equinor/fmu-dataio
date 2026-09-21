@@ -305,7 +305,7 @@ def test_sharepath_get_share_root(
     objdata = create_object_data(regsurf, exportdata._export_config)
     assert SharePathConstructor(
         exportdata._export_config, objdata
-    )._get_share_root() == Path(ShareFolder.RESULTS.value)
+    )._get_share_root() == Path(ShareFolder.results.value)
 
     # share/preprosessed
     preprocessed_exportdata = ExportData(
@@ -317,7 +317,7 @@ def test_sharepath_get_share_root(
     objdata = create_object_data(regsurf, preprocessed_exportdata._export_config)
     assert SharePathConstructor(
         preprocessed_exportdata._export_config, objdata
-    )._get_share_root() == Path(ShareFolder.PREPROCESSED.value)
+    )._get_share_root() == Path(ShareFolder.preprocessed.value)
 
     # share/observations
     obs_exportdata = ExportData(
@@ -329,7 +329,7 @@ def test_sharepath_get_share_root(
     objdata = create_object_data(regsurf, obs_exportdata._export_config)
     assert SharePathConstructor(
         obs_exportdata._export_config, objdata
-    )._get_share_root() == Path(ShareFolder.OBSERVATIONS.value)
+    )._get_share_root() == Path(ShareFolder.observations.value)
 
     # preprosessed should win over is_observation
     preprocessed_obs_exportdata = ExportData(
@@ -341,7 +341,7 @@ def test_sharepath_get_share_root(
     objdata = create_object_data(regsurf, preprocessed_obs_exportdata._export_config)
     assert SharePathConstructor(
         preprocessed_obs_exportdata._export_config, objdata
-    )._get_share_root() == Path(ShareFolder.PREPROCESSED.value)
+    )._get_share_root() == Path(ShareFolder.preprocessed.value)
 
 
 def test_sharepath_with_date(
@@ -361,7 +361,7 @@ def test_sharepath_with_date(
     share_path = SharePathConstructor(exportdata._export_config, objdata)
 
     expected_filename = Path("test--mytag--20250512.gri")
-    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+    expected_path = Path(ShareFolder.results.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
 
@@ -383,7 +383,7 @@ def test_sharepath_with_two_dates(
     share_path = SharePathConstructor(exportdata._export_config, objdata)
 
     expected_filename = Path("test--mytag--20250512_20250511.gri")
-    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+    expected_path = Path(ShareFolder.results.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
     share_path = SharePathConstructor(
@@ -410,7 +410,7 @@ def test_sharepath_with_parent(
     share_path = SharePathConstructor(exportdata._export_config, objdata)
 
     expected_filename = Path("myparent--test--mytag.gri")
-    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+    expected_path = Path(ShareFolder.results.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
     share_path = SharePathConstructor(
@@ -431,7 +431,7 @@ def test_sharepath_name_from_objprovider(
     share_path = SharePathConstructor(exportdata._export_config, objdata)
 
     expected_filename = Path(f"{objdata.name}.gri")
-    expected_path = Path(ShareFolder.RESULTS.value) / "maps" / expected_filename
+    expected_path = Path(ShareFolder.results.value) / "maps" / expected_filename
 
     assert share_path.get_share_path() == expected_path
     share_path = SharePathConstructor(

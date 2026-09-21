@@ -92,9 +92,9 @@ class ExportPreprocessedData:
         if not objfile.exists():
             raise FileNotFoundError(f"The file {obj} does not exist.")
 
-        if ShareFolder.PREPROCESSED not in str(objfile):
+        if ShareFolder.preprocessed not in str(objfile):
             raise RuntimeError(
-                f"Exporting files located outside the '{ShareFolder.PREPROCESSED}' "
+                f"Exporting files located outside the '{ShareFolder.preprocessed}' "
                 "folder is not supported. Please re-export your objects to disk "
                 "using ExportData(preprocessed=True)"
             )
@@ -122,16 +122,16 @@ class ExportPreprocessedData:
         The existing subfolders and filename will be kept.
         """
         share_folder = (
-            Path(ShareFolder.OBSERVATIONS.value)
+            Path(ShareFolder.observations.value)
             if self._is_observation
-            else Path(ShareFolder.RESULTS.value)
+            else Path(ShareFolder.results.value)
         )
         for parent in existing_path.parents:
             if parent.name == "preprocessed" and parent.parent.name == "share":
                 return share_folder / existing_path.relative_to(parent)
 
         raise RuntimeError(
-            f"Path {existing_path} is not inside a '{ShareFolder.PREPROCESSED}' folder."
+            f"Path {existing_path} is not inside a '{ShareFolder.preprocessed}' folder."
         )
 
     def _check_md5sum_consistency(
@@ -154,13 +154,14 @@ class ExportPreprocessedData:
                 "Please re-export your objects to disk."
             )
 
-    def _build_file_metadata(self, objfile: Path, checksum_md5: str) -> File:
-        """Return a File model with updated paths and checksum_md5"""
+    def _build_file_metadata(self, objfile: Path, checksum_md5: str, size: int) -> File:
+        """Return a File model with updated paths, checksum_md5, and size."""
         relative_path = self._get_relative_export_path(existing_path=objfile)
         return File(
             absolute_path=self.casepath / relative_path,
             relative_path=relative_path,
             checksum_md5=checksum_md5,
+            size_bytes=size,
         )
 
     def _get_updated_metadata(
@@ -180,6 +181,7 @@ class ExportPreprocessedData:
         """
 
         checksum_md5_file = md5sum(objfile)
+        size_file = objfile.stat().st_size
         if checksum_md5_meta := existing_metadata["file"].get("checksum_md5"):
             self._check_md5sum_consistency(checksum_md5_file, checksum_md5_meta)
 
@@ -189,7 +191,7 @@ class ExportPreprocessedData:
             runcontext=self._runcontext
         ).get_metadata()
         existing_metadata["file"] = self._build_file_metadata(
-            objfile, checksum_md5_file
+            objfile, checksum_md5_file, size_file
         )
 
         try:

@@ -150,6 +150,12 @@ def test_unknown_name_in_stratigraphy_raises(
     with pytest.raises(ValueError, match="not listed"):
         mock_export_class.export()
 
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        pytest.raises(ValueError, match="mapped in FMU settings"),
+    ):
+        mock_export_class.export()
+
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_stratigraphy_missing_raises(
@@ -170,6 +176,16 @@ def test_stratigraphy_missing_raises(
             return_value=mock_global_config_validated,
         ),
         pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
+    ):
+        export_grid_extracted_depth_surfaces(mock_project_variable, "DS_extracted")
+
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        mock.patch(
+            "fmu.dataio.export._base.load_global_config",
+            return_value=mock_global_config_validated,
+        ),
+        pytest.raises(ValueError, match="No stratigraphy mappings exist"),
     ):
         export_grid_extracted_depth_surfaces(mock_project_variable, "DS_extracted")
 

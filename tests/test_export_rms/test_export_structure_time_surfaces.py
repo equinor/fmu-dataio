@@ -100,6 +100,7 @@ def test_public_export_function(
     metadata = dataio.read_metadata(out.items[0].absolute_path)
 
     assert "time" in metadata["data"]["content"]
+    assert metadata["data"]["unit"] == "ms"
     assert metadata["access"]["classification"] == "internal"
     assert metadata["data"]["is_prediction"]
     assert (
@@ -117,6 +118,12 @@ def test_unknown_name_in_stratigraphy_raises(
     mock_export_class._surfaces[0].name = "missing"
 
     with pytest.raises(ValueError, match="not listed"):
+        mock_export_class.export()
+
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        pytest.raises(ValueError, match="mapped in FMU settings"),
+    ):
         mock_export_class.export()
 
 
@@ -139,6 +146,16 @@ def test_stratigraphy_missing_raises(
             return_value=mock_global_config_validated,
         ),
         pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
+    ):
+        export_structure_time_surfaces(mock_project_variable, "TS_extracted")
+
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        mock.patch(
+            "fmu.dataio.export._base.load_global_config",
+            return_value=mock_global_config_validated,
+        ),
+        pytest.raises(ValueError, match="No stratigraphy mappings exist"),
     ):
         export_structure_time_surfaces(mock_project_variable, "TS_extracted")
 

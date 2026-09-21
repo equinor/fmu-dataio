@@ -13,7 +13,7 @@ from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import ProjectFMUDirectory
 
 if TYPE_CHECKING:
-    import ert
+    from ert.runpaths import Runpaths as ErtRunpaths
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -30,30 +30,16 @@ class CaseWorkflowConfig:
     global_config: GlobalConfiguration
     fmu_dir: ProjectFMUDirectory | None
 
-    def __post_init__(self) -> None:
-        """Run validation."""
-        self.validate()
-
     @property
     def casename(self) -> str:
         return self.casepath.name
 
-    def validate(self) -> None:
-        casepath_str = str(self.casepath)
-        if not self.casepath.is_absolute():
-            if casepath_str.startswith("<") and casepath_str.endswith(">"):
-                raise ValueError(
-                    f"Ert variable for case path is not defined: {self.casepath}"
-                )
-            raise ValueError(
-                f"'casepath' must be an absolute path. Got: {self.casepath}"
-            )
-
     @classmethod
     def from_presim_workflow(
         cls,
-        run_paths: ert.Runpaths,
+        run_paths: ErtRunpaths,
         args: argparse.Namespace,
+        casepath: Path,
         fmu_dir: ProjectFMUDirectory | None = None,
     ) -> Self:
         """Create an instance from Ert workflow arguments."""
@@ -66,7 +52,7 @@ class CaseWorkflowConfig:
         global_config = load_global_config(config_path)
 
         return cls(
-            casepath=args.casepath,
+            casepath=casepath,
             ert_config_path=ert_config_path,
             register_on_sumo=args.sumo,
             verbosity="WARNING",

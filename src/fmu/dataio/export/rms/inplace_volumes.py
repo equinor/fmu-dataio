@@ -15,7 +15,7 @@ from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
 from fmu.dataio.export.rms._utils import (
     check_rmsapi_version,
-    get_rms_project_units,
+    get_rms_project_volume_unit,
 )
 from fmu.datamodels import InplaceVolumesResult
 from fmu.datamodels.common.enums import Classification
@@ -338,7 +338,7 @@ class _ExportVolumetricsRMS(SimpleExportBase):
             ExportConfig.builder()
             .content(Content.volumes)
             .domain(VerticalDomain.depth, DomainReference.msl)
-            .unit("m3" if get_rms_project_units(self.project) == "metric" else "ft3")
+            .unit(get_rms_project_volume_unit(self.project))
             .file_config(
                 name=self.grid_name,
                 subfolder=enums.StandardResultName.inplace_volumes.value,

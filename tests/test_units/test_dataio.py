@@ -37,6 +37,14 @@ def convert_datestr_to_isoformat(value: str, format: str = "%Y%m%d") -> str:
     return datetime.strptime(value, format).isoformat()
 
 
+def test_exportdata_fmu_context_argument_is_deprecated(
+    mock_global_config: dict[str, Any],
+) -> None:
+    """Setting fmu_context on ExportData emits a deprecation warning."""
+    with pytest.warns(FutureWarning, match="'fmu_context' argument is deprecated"):
+        ExportData(config=mock_global_config, content="depth", fmu_context="case")
+
+
 def test_generate_metadata_simple(mock_global_config: dict[str, Any]) -> None:
     """Test generating metadata"""
 
@@ -549,11 +557,13 @@ def test_smda_entity_for_statigraphic_true(
     """Test that smda_entity is set for stratigraphic surface"""
     smda_name = "VOLANTIS GP. Top"
     rms_name = "TopVolantis"
+    smda_uuid = "56c92484-8798-4f1f-9f14-d237a3e1a4ff"
 
     stratigraphy = drogon_global_config["stratigraphy"]
     assert rms_name in stratigraphy
     assert stratigraphy[rms_name]["stratigraphic"] is True
     assert stratigraphy[rms_name]["name"] == smda_name
+    stratigraphy[rms_name]["uuid"] = smda_uuid
 
     # Make sure the surface's name is set to RMS name
     regsurf.name = rms_name
@@ -564,7 +574,7 @@ def test_smda_entity_for_statigraphic_true(
     assert meta["data"]["name"] == smda_name
     assert meta["data"]["stratigraphic"] is True
     assert meta["data"]["smda_entity"]["identifier"] == smda_name
-    assert "uuid" not in meta["data"]["smda_entity"]
+    assert meta["data"]["smda_entity"]["uuid"] == smda_uuid
 
 
 def test_smda_entity_for_statigraphic_false(
@@ -1157,31 +1167,21 @@ def test_fmu_context_preprocessed_deprecation_outside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_fmu_context_preprocessed_deprecation_inside_fmu(
+def test_fmu_context_preprocessed_deprecation_inside_case(
     runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
 ) -> None:
-    """
-    Test the deprecated fmu_context="preprocessed" inside fmu.
-
-    This should not change the explicit FMU context, or the default preprocessed=False
-    and set the resolved preprocessed=True and fmu_context to 'case'.
-    """
-    with pytest.warns(FutureWarning, match="is deprecated"):
+    """The deprecated preprocessed context remains supported in a case context."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
         edata = ExportData(
             config=rmsglobalconfig,
             content="depth",
             fmu_context="preprocessed",
             casepath=runpath_prehook,
         )
-    assert edata.preprocessed is False
-    assert edata._export_config.preprocessed is True
-    assert edata.fmu_context == "preprocessed"
-    assert edata._export_config.fmu_context == FMUContext.case
 
-    meta = edata.generate_metadata(regsurf)
-    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+    assert edata._export_config.fmu_context == FMUContext.case
+    assert edata._export_config.preprocessed is True
 
 
 def test_preprocessed_outside_fmu(
@@ -1198,35 +1198,35 @@ def test_preprocessed_outside_fmu(
     assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
 
 
-def test_preprocessed_inside_fmu(
+def test_preprocessed_inside_realization_raises_error(
     runpath_no_dotfmu: Path,
     rmsglobalconfig: dict[str, Any],
-    regsurf: xtgeo.RegularSurface,
 ) -> None:
-    """Test the preprocessed argument inside FMU context"""
-    # should raise error if preprocessed=True and fmu_context="realization"
-    with pytest.raises(ValueError, match="Can't export preprocessed"):
-        edata = ExportData(
+    """Test that the preprocessed argument is rejected in a realization."""
+    with (
+        pytest.warns(FutureWarning, match="is deprecated"),
+        pytest.raises(ValueError, match="Can't export preprocessed"),
+    ):
+        ExportData(
             config=rmsglobalconfig,
             content="depth",
             fmu_context="realization",
             preprocessed=True,
         )
 
-    # test that no error is raised if preprocessed=True and fmu_context="case"
-    edata = ExportData(
-        config=rmsglobalconfig,
-        content="depth",
-        fmu_context="case",
-        preprocessed=True,
-    )
-    assert edata._export_config.runcontext.inside_fmu is True
-    assert edata.preprocessed is True
-    assert edata.fmu_context == FMUContext.case
 
-    meta = edata.generate_metadata(regsurf)
-    # check that the relative file is at case level and has a preprocessed folder
-    assert meta["file"]["relative_path"] == "share/preprocessed/maps/unknown.gri"
+def test_preprocessed_inside_case_warns(
+    runpath_no_dotfmu: Path,
+    rmsglobalconfig: dict[str, Any],
+) -> None:
+    """Test that preprocessed case exports remain temporarily supported."""
+    with pytest.warns(FutureWarning, match="case context will be removed"):
+        ExportData(
+            config=rmsglobalconfig,
+            content="depth",
+            fmu_context="case",
+            preprocessed=True,
+        )
 
 
 def test_norwegian_letters_globalconfig(
@@ -2053,4 +2053,26 @@ def test_dataio_global_config_loaded_from_dotfmu(
     """ExportData loads global config from .fmu/ when present, ignoring user config."""
     # mock_global_config has model.name="Test", .fmu has model.name="Drogon"
     export_data = ExportData(config=mock_global_config, content="depth")
-    assert export_data._export_config.config.model.name == "Drogon"
+    config = export_data._export_config.config
+    assert config is not None
+    assert config.model.name == "Drogon"
+
+
+def test_smda_entity_uuid_loaded_from_dotfmu(
+    mock_global_config: dict[str, Any],
+    regsurf: xtgeo.RegularSurface,
+    runpath: Path,
+) -> None:
+    """ExportData transfers stratigraphic uuid from .fmu/ to metadata."""
+    expected_uuid = "1629c229-0a2b-4f0a-94f7-dc01b171cb1c"
+    regsurf.name = "TopVolantis"
+
+    export_data = ExportData(config=mock_global_config, content="depth")
+    config = export_data._export_config.config
+    assert config is not None
+    assert config.stratigraphy is not None
+    stratigraphy = config.stratigraphy.root
+    meta = export_data.generate_metadata(regsurf)
+
+    assert str(stratigraphy[regsurf.name].uuid) == expected_uuid
+    assert meta["data"]["smda_entity"]["uuid"] == expected_uuid

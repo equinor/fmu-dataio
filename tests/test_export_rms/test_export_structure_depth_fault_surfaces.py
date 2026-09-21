@@ -159,3 +159,29 @@ def test_unknown_structural_model_name_raises(
             mock_project_variable,
             "Non-existing structural model name",
         )
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+def test_fault_triangle_surface_called_with_realisation_zero(
+    mock_project_variable: MagicMock,
+    mock_structural_model: dict[str, MagicMock],
+    tsurf: TriangulatedSurface,
+) -> None:
+    """Test that RMS fault triangulation is requested with realisation=0."""
+
+    from fmu.dataio.export.rms.structure_depth_fault_surfaces import (
+        _get_fault_surfaces_from_rms,
+    )
+
+    struct_mod_name = next(iter(mock_structural_model))
+    fault_model = mock_project_variable.structural_models[struct_mod_name].fault_model
+
+    fault_surface = MagicMock()
+    fault_surface.get_vertices.return_value = tsurf.vertices
+    fault_surface.get_triangles.return_value = tsurf.triangles
+    fault_model.get_fault_triangle_surface.return_value = fault_surface
+
+    _get_fault_surfaces_from_rms(mock_project_variable, struct_mod_name)
+
+    # ensure realisation 0 is provided as argument
+    fault_model.get_fault_triangle_surface.assert_any_call(name="F6", realisation=0)

@@ -146,6 +146,38 @@ def test_unknown_name_in_stratigraphy_raises(
     with pytest.raises(ValueError, match="not listed"):
         mock_export_class.export()
 
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        pytest.raises(ValueError, match="mapped in FMU settings"),
+    ):
+        mock_export_class.export()
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+def test_alias_name_in_stratigraphy_is_accepted(
+    mock_export_class: _ExportStructureDepthSurfaces, runpath_no_dotfmu: Path
+) -> None:
+    """Alias names are valid and resolve to corresponding stratigraphic names."""
+
+    mock_export_class._surfaces[0].name = "TopVOLANTIS"  # alias for TopVolantis
+
+    out = mock_export_class.export()
+
+    export_path = out.items[0].absolute_path
+    # should still be exported with the alias name
+    assert (
+        export_path
+        == runpath_no_dotfmu
+        / "share/results/maps/structure_depth_surface/topvolantis.gri"
+    )
+
+    metadata = dataio.read_metadata(export_path)
+
+    # official name should be used in the metadata, not the alias or the rms name
+    assert metadata["data"]["name"] == "VOLANTIS GP. Top"
+    assert metadata["data"]["stratigraphic"] is True
+    assert metadata["data"]["smda_entity"]["identifier"] == "VOLANTIS GP. Top"
+
 
 @pytest.mark.usefixtures("inside_rms_interactive")
 def test_stratigraphy_missing_raises(
@@ -166,6 +198,16 @@ def test_stratigraphy_missing_raises(
             return_value=mock_global_config_validated,
         ),
         pytest.raises(ValueError, match=r"stratigraphy.*is lacking"),
+    ):
+        export_structure_depth_surfaces(mock_project_variable, "DS_extracted")
+
+    with (
+        mock.patch("fmu.dataio.export.rms._utils.has_fmu_directory", return_value=True),
+        mock.patch(
+            "fmu.dataio.export._base.load_global_config",
+            return_value=mock_global_config_validated,
+        ),
+        pytest.raises(ValueError, match="No stratigraphy mappings exist"),
     ):
         export_structure_depth_surfaces(mock_project_variable, "DS_extracted")
 

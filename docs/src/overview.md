@@ -113,15 +113,15 @@ A rough example looks like this:
 ```python
 from fmu.dataio import ExportData
 
-df = create_data() # Some function that creates a Pandas dataframe
-cfg = get_global_config() # The FMU global configuration
+df = create_data()  # Some function that creates a Pandas dataframe
+cfg = get_global_config()  # The FMU global configuration
 
 # ExportData can take many arguments. This is a simplified example.
 exp = ExportData(
     config=cfg,
     content="volumes",
 )
-exp.export(df) # Exports the Pandas dataframe as a csv by default
+exp.export(df)  # Exports the Pandas dataframe as a csv by default
 ```
 
 ```{warning}

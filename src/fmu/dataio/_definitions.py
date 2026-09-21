@@ -14,9 +14,9 @@ ERT_RELATIVE_CASE_METADATA_FILE: Final = "share/metadata/fmu_case.yml"
 
 
 class ShareFolder(StrEnum):
-    PREPROCESSED = "share/preprocessed/"
-    OBSERVATIONS = "share/observations/"
-    RESULTS = "share/results/"
+    preprocessed = "share/preprocessed/"
+    observations = "share/observations/"
+    results = "share/results/"
 
 
 class FileExtension(StrEnum):

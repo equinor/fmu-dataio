@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Any, Final
 
 import xtgeo
 from packaging.version import parse as versionparse
 
+from fmu.dataio._global_config import (
+    _FMU_SETTINGS_URL,
+    get_stratigraphy_element_from_config,
+    has_fmu_directory,
+)
 from fmu.dataio._logging import null_logger
 from fmu.dataio.exceptions import ValidationError
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
@@ -23,6 +29,24 @@ if TYPE_CHECKING:
 
 
 logger: Final = null_logger(__name__)
+
+_RMS_METRIC_UNIT_SYSTEMS: Final = frozenset(
+    {
+        "metric",
+        "metric_cmg",
+        "metric_tempest",
+        "si",
+    }
+)
+_RMS_FIELD_UNIT_SYSTEMS: Final = frozenset(
+    {
+        "field",
+        "field_cmg",
+        "field_nexus",
+        "field_us",
+        "mmft",
+    }
+)
 
 
 RMS_API_PROJECT_MAPPING = {
@@ -53,12 +77,57 @@ def check_rmsapi_version(minimum_version: str) -> None:
     logger.debug("Check API version... DONE")
 
 
-def get_rms_project_units(project: Any) -> str:
-    """See if the RMS project is defined in metric or feet."""
+def get_rms_project_units(project: Any) -> str | None:
+    """Return whether the RMS project uses metric or field-family units."""
 
     units = project.project_units
+    unit_name = str(units)
     logger.debug("Units are %s", units)
-    return str(units)
+
+    if unit_name in _RMS_METRIC_UNIT_SYSTEMS:
+        return "metric"
+    if unit_name in _RMS_FIELD_UNIT_SYSTEMS:
+        return "field"
+
+    warnings.warn(
+        f"RMS project unit system {units!r} is not a known RMS unit system. "
+        "Exported metadata unit will be set to an empty string.",
+        UserWarning,
+        stacklevel=2,
+    )
+    return None
+
+
+def get_rms_project_length_unit(project: Any) -> str:
+    """Return the metadata length unit for the RMS project."""
+
+    units = get_rms_project_units(project)
+    if units == "metric":
+        return "m"
+    if units == "field":
+        return "ft"
+    return ""
+
+
+def get_rms_project_volume_unit(project: Any) -> str:
+    """Return the metadata volume unit for the RMS project."""
+
+    units = get_rms_project_units(project)
+    if units == "metric":
+        return "m3"
+    if units == "field":
+        return "ft3"
+    return ""
+
+
+def get_rms_project_time_unit(project: Any) -> str:
+    """Return the metadata time unit for the RMS project."""
+
+    if str(project.project_units) == "si":
+        return "s"
+    if get_rms_project_units(project) in {"metric", "field"}:
+        return "ms"
+    return ""
 
 
 def get_open_polygons_id(pol: xtgeo.Polygons) -> list[int]:
@@ -282,13 +351,39 @@ def get_faultlines_in_folder(project: Any, horizon_folder: str) -> list[xtgeo.Po
 
 def validate_name_in_stratigraphy(name: str, config: GlobalConfiguration) -> None:
     """Validate that an input name is present in the config.stratigraphy."""
+
     if not config.stratigraphy:
+        if has_fmu_directory():
+            raise ValidationError(
+                "No stratigraphy mappings exist in FMU settings. "
+                "This is required for the export function to work. "
+                "From a terminal, navigate to your project directory "
+                "and run 'fmu settings' to open FMU settings. Then add "
+                "the required stratigraphy mappings and rerun.\n"
+                f"Learn more about FMU Settings: {_FMU_SETTINGS_URL}",
+            )
         raise ValidationError(
             "The 'stratigraphy' block is lacking in the config. "
-            "This is required for the export function to work."
+            "This is required for the export function to work.\n"
+            "Tip: FMU Settings is the recommended way to manage "
+            "stratigraphy mappings."
         )
-    if name not in config.stratigraphy:
+    name_in_stratigraphy = (
+        get_stratigraphy_element_from_config(config, name) is not None
+    )
+    if not name_in_stratigraphy:
+        if has_fmu_directory():
+            raise ValidationError(
+                f"The stratigraphic {name=} has not been mapped in FMU settings. "
+                "From a terminal, navigate to your project directory "
+                "and run 'fmu settings' to open FMU settings. Then add the "
+                "required stratigraphy mapping and rerun.\n"
+                f"Learn more about FMU Settings: {_FMU_SETTINGS_URL}",
+            )
+
         raise ValidationError(
             f"The stratigraphic {name=} is not listed in the 'stratigraphy' "
-            "block in the config. This is required, please add it and rerun."
+            "block in the config. This is required, please add it and rerun.\n"
+            "Tip: FMU Settings is the recommended way to manage "
+            "stratigraphy mappings."
         )

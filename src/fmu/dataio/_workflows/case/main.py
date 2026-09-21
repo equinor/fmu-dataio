@@ -8,8 +8,9 @@ from __future__ import annotations
 import argparse
 import logging
 import shutil
+import warnings
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import ert
 
@@ -29,9 +30,15 @@ from fmu.settings import (
 )
 
 from ._config import CaseWorkflowConfig
+from ._mappings import get_stratigraphy_mappings_table, get_wellbore_mappings_table
 from ._observations import get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
+
+if TYPE_CHECKING:
+    from ert.runpaths import Runpaths as ErtRunpaths
+    from ert.storage import Ensemble as ErtEnsemble
+
 
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -39,23 +46,76 @@ logger.setLevel(logging.CRITICAL)
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
 WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio for storing on disk
-and on Sumo.
+and on Sumo. When Sumo upload is enabled, the workflow also uploads Ert parameters
+and observations, including summary, RFT, and breakthrough observations. The workflow
+uses Ert storage directly, so the relevant case metadata, parameters, and observations
+are collected automatically from the active Ert run.
 """
 
 EXAMPLES = """
-Create an Ert workflow e.g. called ``ert/bin/workflows/create_case_metadata`` with::
+Create an Ert workflow e.g. called ``ert/bin/workflows/xhook_create_case_metadata`` with::
 
-  WF_CREATE_CASE_METADATA <casepath> "--sumo"
+    WF_CREATE_CASE_METADATA "--sumo"
 
 Arguments:
-    <casepath>: Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
     --sumo: Register case on Sumo
+
+Note that ``<SUMO_CASEPATH>`` must be defined in the Ert config for this workflow to run::
+
+    DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>
+
 """  # noqa: E501
 
 
+def _validate_casepath(casepath: Path) -> Path:
+    """Validate that the case path is absolute and defined in the ERT config."""
+    if not casepath.is_absolute():
+        casepath_str = str(casepath)
+        if casepath_str.startswith("<") and casepath_str.endswith(">"):
+            raise ValueError(f"Ert variable for casepath is not defined: {casepath}")
+        raise ValueError(f"'casepath' must be an absolute path. Got: {casepath}")
+    return casepath
+
+
+def _resolve_casepath(run_paths: ErtRunpaths, args: argparse.Namespace) -> Path:
+    """Resolve and validate case path from <SUMO_CASEPATH> or deprecated argument.
+
+    Uses <SUMO_CASEPATH> when defined and warns if deprecated <casepath> argument
+    is also provided. If Sumo is enabled but <SUMO_CASEPATH> is missing, an error
+    is raised, otherwise it falls back to <casepath> argument if provided.
+    """
+
+    sumo_casepath = run_paths.substitutions.get("<SUMO_CASEPATH>")
+
+    if sumo_casepath:
+        if args.casepath:
+            warnings.warn(
+                "The argument 'casepath' is deprecated. It is no longer used and can "
+                "safely be removed from WF_CREATE_CASE_METADATA. The case path is now "
+                "read from the <SUMO_CASEPATH> variable.",
+                FutureWarning,
+            )
+        return _validate_casepath(Path(sumo_casepath))
+
+    if args.casepath:
+        if args.sumo:
+            raise ValueError(
+                "Missing required <SUMO_CASEPATH> definition. "
+                "Define it in your ERT config, for example:\n"
+                "DEFINE <SUMO_CASEPATH> <SCRATCH>/<USER>/<CASE_DIR>"
+            )
+        return _validate_casepath(Path(args.casepath))
+
+    raise ValueError(
+        "The case path could not be resolved. Please define the <SUMO_CASEPATH> "
+        "variable in the ERT config, for example:\n\n    "
+        "DEFINE <SUMO_CASEPATH> <SCRATCH>/<USER>/<CASE_DIR>"
+    )
+
+
 def _get_ensemble_name(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble: ErtEnsemble,
+    run_paths: ErtRunpaths,
     casepath: Path,
 ) -> str:
     """Determine ensemble name from run path.
@@ -73,7 +133,7 @@ def _get_ensemble_name(
 
 
 def _queue_ert_parameters(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -103,7 +163,7 @@ def _queue_ert_parameters(
 
 
 def _queue_ert_observations_breakthrough(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -135,7 +195,7 @@ def _queue_ert_observations_breakthrough(
 
 
 def _queue_ert_observations_rft(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -166,7 +226,7 @@ def _queue_ert_observations_rft(
 
 
 def _queue_ert_observations_summary(
-    ensemble: ert.Ensemble,
+    ensemble: ErtEnsemble,
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
@@ -197,9 +257,69 @@ def _queue_ert_observations_summary(
     sumo_uploader.queue_table(table, metadata)
 
 
+def _queue_stratigraphy_mappings(
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export stratigraphy mappings using fmu-dataio."""
+    assert workflow_config.fmu_dir is not None
+
+    table = get_stratigraphy_mappings_table(workflow_config.fmu_dir)
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.mapping)
+        .access(Classification.internal, rep_include=False)
+        .file_config(name=StandardResultName.stratigraphy_mapping.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .standard_result(StandardResultName.stratigraphy_mapping)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
+def _queue_wellbore_mappings(
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export wellbore mappings using fmu-dataio."""
+    assert workflow_config.fmu_dir is not None
+
+    table = get_wellbore_mappings_table(workflow_config.fmu_dir)
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.mapping)
+        .access(Classification.internal, rep_include=False)
+        .file_config(name=StandardResultName.wellbore_mapping.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .standard_result(StandardResultName.wellbore_mapping)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
 def _upload_files_to_sumo(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble: ErtEnsemble,
+    run_paths: ErtRunpaths,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
@@ -213,12 +333,17 @@ def _upload_files_to_sumo(
     _queue_ert_observations_breakthrough(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
+
+    if workflow_config.fmu_dir:
+        _queue_stratigraphy_mappings(ensemble_name, workflow_config, sumo_uploader)
+        _queue_wellbore_mappings(ensemble_name, workflow_config, sumo_uploader)
+
     sumo_uploader.upload()
 
 
 def _run_workflow(
-    ensemble: ert.Ensemble,
-    run_paths: ert.Runpaths,
+    ensemble: ErtEnsemble,
+    run_paths: ErtRunpaths,
     workflow_config: CaseWorkflowConfig,
 ) -> None:
     """Main workflow entry point."""
@@ -257,7 +382,12 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "casepath",
         type=Path,
-        help="Absolute path to the case",
+        nargs="?",
+        default=None,
+        help=(
+            "Absolute path to the case. If not provided, "
+            "it is resolved from the <SUMO_CASEPATH> variable."
+        ),
     )
     parser.add_argument(
         "--sumo",
@@ -315,24 +445,30 @@ class WfExportCaseMetadata(ert.ErtScript):
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
     potential naming collisions in fmu-dataio."""
 
+    # Ensure ERT execution stops if the workflow fails
+    stop_on_fail = True
+
     def run(
         self,
         workflow_args: list[str],
-        ensemble: ert.Ensemble,
-        run_paths: ert.Runpaths,
+        ensemble: ErtEnsemble,
+        run_paths: ErtRunpaths,
     ) -> None:
         """Parse arguments and run the workflow."""
         parser = get_parser()
         args = parser.parse_args(workflow_args)
 
-        maybe_fmu_dir = _copy_fmu_directory(args.casepath)
+        casepath = _resolve_casepath(run_paths, args)
+        maybe_fmu_dir = _copy_fmu_directory(casepath)
 
-        cfg = CaseWorkflowConfig.from_presim_workflow(run_paths, args, maybe_fmu_dir)
+        cfg = CaseWorkflowConfig.from_presim_workflow(
+            run_paths, args, casepath, maybe_fmu_dir
+        )
         _run_workflow(ensemble, run_paths, cfg)
 
 
 @ert.plugin(name="fmu_dataio")
-def ertscript_workflow(config: ert.CaseWorkflowConfigs) -> None:
+def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
     """Hook the WfExportCaseMetadata class with documentation into ERT."""
     config.add_workflow(
         WfExportCaseMetadata,

@@ -13,6 +13,7 @@ from fmu.datamodels import ErtParameterMetadata
 
 if TYPE_CHECKING:
     import polars as pl
+    from ert.storage import Ensemble as ErtEnsemble
 
 
 logger: Final = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ def _resolve_pa_field_type(name: str, pa_type: pa.DataType) -> pa.DataType:
 
 
 def _process_parameters(
-    scalars_df: pl.DataFrame, ensemble: ert.Ensemble
+    scalars_df: pl.DataFrame, ensemble: ErtEnsemble
 ) -> tuple[pa.Table, list[int]]:
     """Process parameters into an Arrow table with metadata."""
     import pyarrow as pa
@@ -96,7 +97,7 @@ def _process_parameters(
     return table, realizations
 
 
-def get_ert_parameters_table(ensemble: ert.Ensemble) -> pa.Table | None:
+def get_ert_parameters_table(ensemble: ErtEnsemble) -> pa.Table | None:
     """Exports Ert parameters as a Parquet file as the ensemble level."""
 
     scalars_df = ensemble.load_scalars()

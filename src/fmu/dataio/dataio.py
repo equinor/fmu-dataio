@@ -496,7 +496,7 @@ class ExportData:
     # Does not appear to have been used for anything.
 
     fmu_context: str | None = None
-    # Optional string with value ``realization`` or ``case``.
+    # Deprecated. fmu-dataio infers this from the environment.
     #
     # .. tip::
     #    You most likely do not need to set this. fmu-dataio infers this by itself.

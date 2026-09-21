@@ -4,21 +4,21 @@ import getpass
 import importlib
 import json
 import os
-import pathlib
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import ert.__main__
+import ert.shared
 import jsonschema
 import polars as pl
 import pyarrow as pa
 import pytest
 import yaml
-from ert.config import GenKwConfig, ShapeRegistry
+from ert.config import GenKwConfig
 from ert.config.distribution import DistributionSettings
-from ert.config.ert_config import create_observation_dataframes
 from fmu.datamodels import (
     ErtObservationsRftSchema,
 )
@@ -30,7 +30,8 @@ from fmu.datamodels.standard_results.ert_parameters import (
     UniformParameter,
 )
 from fmu.settings import get_fmu_directory
-from pytest import CaptureFixture, MonkeyPatch
+from packaging.version import Version
+from pytest import MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._workflows.case._observations import get_ert_observations_table
@@ -48,9 +49,11 @@ from .ert_config_utils import (
     add_multregt_parameters,
     add_observation_config,
     add_rft_observations,
+    remove_sumo_casepath_definition,
 )
 
 if TYPE_CHECKING:
+    from ert.storage import Ensemble as ErtEnsemble
     from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 
@@ -224,58 +227,239 @@ def test_create_case_metadata_warns_without_overwriting(
     assert first_run == second_run
 
 
-def test_create_case_metadata_caseroot_not_defined(
-    fmu_snakeoil_project: Path,
-    monkeypatch: MonkeyPatch,
-    capsys: CaptureFixture[str],
+def test_create_case_metadata_no_casepath_argument(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """Test that a proper error message is given if the case path is
-    input as an undefined ERT variable"""
-    pathlib.Path(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
-    ).write_text(
-        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED>",
-        encoding="utf-8",
+    """
+    Test that the workflow runs without a casepath argument
+    and uses <SUMO_CASEPATH> when defined.
+    """
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, casepath="")  # empty casepath argument
+
+    expected_fmu_case_yml = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
     )
+    assert not expected_fmu_case_yml.exists()
+
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
+
+    assert expected_fmu_case_yml.exists()
+
+
+def test_create_case_metadata_fails_when_casepath_argument_is_undefined(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that the workflow fails if <SUMO_CASEPATH> is not defined and the
+    fallback casepath argument is an unresolved ERT variable.
+    """
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
+    remove_sumo_casepath_definition(ert_config_path)
+
+    add_create_case_workflow(ert_config_path, casepath="<CASEPATH_NOT_DEFINED>")
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="Ert variable for casepath is not defined"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_fails_when_sumo_casepath_is_undefined(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that the workflow fails when <SUMO_CASEPATH> is defined but
+    expands to an unresolved ERT variable.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>",
+            "DEFINE <SUMO_CASEPATH>  <CASEPATH_NOT_DEFINED>",
+        )
+    )
+
+    add_create_case_workflow(ert_config_path, casepath="")
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="Ert variable for casepath is not defined"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_sumo_casepath_not_absolute(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Test that an error is raised when <SUMO_CASEPATH> is not an absolute path"""
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    ert_config_path.write_text(
+        ert_config_path.read_text().replace(
+            "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>",
+            "DEFINE <SUMO_CASEPATH>  relative/path",
+        )
+    )
+
+    add_create_case_workflow(ert_config_path, casepath="")
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(
+            SystemExit, match="'casepath' must be an absolute path. Got: relative/path"
+        ),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_fails_if_sumo_enabled_without_sumo_casepath(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that an error is raised when sumo is enabled and
+    <SUMO_CASEPATH> is missing.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    remove_sumo_casepath_definition(ert_config_path)
+    add_create_case_workflow(
+        ert_config_path, casepath="<SCRATCH>/<USER>/<CASE_DIR>", sumo=True
+    )
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="Missing required <SUMO_CASEPATH> definition"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_fails_if_no_casepath_sources(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that an error is raised when both <SUMO_CASEPATH> and casepath
+    argument are missing.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    remove_sumo_casepath_definition(ert_config_path)
     add_create_case_workflow(ert_config_path)
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.raises(SystemExit, match="The case path could not be resolved"),
+    ):
+        ert.__main__.main()
+
+
+def test_create_case_metadata_uses_casepath_argument_when_sumo_casepath_missing(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that when <SUMO_CASEPATH> is missing and sumo is disabled, the
+    casepath argument is used.
+    """
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    remove_sumo_casepath_definition(ert_config_path)
+
+    casepath_argument = fmu_snakeoil_project / "scratch/user/fallback_case"
+    casepath_argument.mkdir(parents=True, exist_ok=True)
+
+    case_metadata = casepath_argument / "share/metadata/fmu_case.yml"
+
+    assert not case_metadata.exists()
+
+    add_create_case_workflow(
+        ert_config_path, casepath=str(casepath_argument), sumo=False
+    )
 
     with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
         ert.__main__.main()
 
-    _stdout, stderr = capsys.readouterr()
-    assert "ValueError: Ert variable for case path is not defined" in stderr
+    assert case_metadata.exists()
 
 
 def test_create_case_metadata_deprecated_arguments_warn(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    """Now deprecated arguments issue warnings."""
-    pathlib.Path(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata"
-    ).write_text(
-        "WF_CREATE_CASE_METADATA <CASEPATH_NOT_DEFINED> <CONFIG_PATH> <CASE_DIR>",
-        encoding="utf-8",
-    )
+    """Test that deprecated arguments issue warnings."""
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(
+        ert_config_path,
+        casepath="<SUMO_CASEPATH>",
+        extra_args="<CONFIG_PATH> <CASE_DIR> '--sumo_env' prod ",
+    )
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="The argument 'casepath' is deprecated"),
         pytest.warns(
             FutureWarning, match="The argument 'ert_config_path' is deprecated"
         ),
         pytest.warns(FutureWarning, match="The argument 'ert_casename' is deprecated"),
+        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
     ):
         ert.__main__.main()
+
+
+def test_create_case_metadata_prefers_sumo_casepath_over_casepath_argument(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When both are provided, <SUMO_CASEPATH> takes precedence over casepath."""
+
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    another_casepath = fmu_snakeoil_project / "scratch/user/another_casepath"
+    another_casepath.mkdir(parents=True, exist_ok=True)
+
+    expected_fmu_case_yml = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
+    )
+    conflicting_fmu_case_yml = another_casepath / "share/metadata/fmu_case.yml"
+
+    add_create_case_workflow(ert_config_path, casepath=str(another_casepath))
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        pytest.warns(FutureWarning, match="read from the <SUMO_CASEPATH> variable"),
+    ):
+        ert.__main__.main()
+
+    assert expected_fmu_case_yml.exists()
+    assert not conflicting_fmu_case_yml.exists()
 
 
 @pytest.mark.skipif(
@@ -287,22 +471,15 @@ def test_create_case_metadata_enable_mocked_sumo(
     monkeypatch: MonkeyPatch,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo" "--sumo_env" prod')
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
-        pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
     ):
         ert.__main__.main()
 
@@ -319,31 +496,21 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
-    capsys: CaptureFixture[str],
 ) -> None:
     """Test that if the sumo_env argument is input as dev it raises an error"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo" "--sumo_env" dev')
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True, extra_args="'--sumo_env' dev")
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
         pytest.warns(FutureWarning, match="'--sumo_env' is deprecated"),
+        pytest.raises(SystemExit, match=" Setting sumo environment through argument"),
     ):
         ert.__main__.main()
-
-    _stdout, stderr = capsys.readouterr()
-    assert "ValueError: Setting sumo environment through argument" in stderr
-    assert "SUMO_ENV" in stderr
 
 
 @pytest.mark.skipif(
@@ -356,12 +523,6 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that sumo_env is set through the 'SUMO_ENV' environment variable"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo"')
 
     sumo_env = "dev"
     monkeypatch.setenv("SUMO_ENV", sumo_env)
@@ -370,7 +531,7 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
         ert.__main__.main()
@@ -390,18 +551,12 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that sumo_env is defaulted to 'prod' when not set through the environment"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo"')
 
     ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
         ert.__main__.main()
@@ -422,12 +577,6 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     mock_sumo_uploader: dict[str, MagicMock | AsyncMock],
 ) -> None:
     """Test that the environment variable is used over the sumo_env argument"""
-    with open(
-        fmu_snakeoil_project / "ert/bin/workflows/xhook_create_case_metadata",
-        "a",
-        encoding="utf-8",
-    ) as f:
-        f.write(' "--sumo" "--sumo_env" prod')
 
     sumo_env_expected = "dev"
     monkeypatch.setenv("SUMO_ENV", sumo_env_expected)
@@ -436,7 +585,7 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True, extra_args="'--sumo_env' prod")
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -450,9 +599,9 @@ def test_create_case_metadata_sumo_env_input_is_ignored(
 
 
 def test_create_case_metadata_collects_ert_parameters_as_expected(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
@@ -460,12 +609,12 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
     add_globvar_parameters(ert_config_path)
     add_multregt_parameters(ert_config_path)
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     scalars_and_config = []
 
     def capture_params(
-        ensemble: ert.Ensemble,
+        ensemble: ErtEnsemble,
         ensemble_name: str,
         workflow_config: CaseWorkflowConfig,
         sumo_uploader: SumoUploaderInterface,
@@ -595,6 +744,12 @@ def test_distribution_models_one_to_one_with_ert() -> None:
     ert_models = {get_name(t): get_params(t) for t in ert_types}
     datamodels_models = {get_name(t): get_params(t) for t in datamodels_types}
 
+    # TODO: Remove this after ERT 26 is released.
+    # PERT was added accidentally in ERT 25 and will be supported from ERT 26.
+    if Version(ert.shared.__version__).major < 26:
+        ert_models.pop("pert", None)
+        datamodels_models.pop("pert", None)
+
     assert ert_models == datamodels_models
 
 
@@ -696,17 +851,17 @@ def test_get_ert_parameters_table_non_genkw_config_skipped() -> None:
 
 
 def test_create_case_metadata_expects_parameters_standard_result_integration(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Full integration test with the snakeoil Ert model."""
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
     add_design_matrix(ert_config_path)
     add_globvar_parameters(ert_config_path)
     add_multregt_parameters(ert_config_path)
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
@@ -781,26 +936,30 @@ def test_create_case_metadata_expects_parameters_standard_result_integration(
 # it was possible to run it fully for rft, but summary observations was not.
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] == (3, 11),
+    reason="ERT 23 requires an RFT response configuration for this test",
+)
 def test_create_case_metadata_collects_rft_observations_as_expected(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """
     Test rft observations are fetched and returned as expected from ert
     and tried uploaded to Sumo.
     """
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
     add_observation_config(ert_config_path)
     add_rft_observations(ert_config_path)
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     captured_tables = {}
 
     def capture_observation_tables(
-        ensemble: ert.Ensemble,
+        ensemble: ErtEnsemble,
         obs_type: str,
     ) -> None:
         """Captures observation tables from Ert run.
@@ -810,23 +969,7 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
         captured_tables[obs_type] = df
         return df
 
-    def mock_create_observation_dataframes(
-        observations: ert.Ensemble,
-        rft_config: None,
-        shape_registry: ShapeRegistry,
-    ) -> None:
-        """mock"""
-        return create_observation_dataframes(observations, MagicMock(), shape_registry)
-
     with (
-        patch(
-            "ert.storage.local_experiment.create_observation_dataframes",
-            side_effect=mock_create_observation_dataframes,
-        ),
-        patch(
-            "ert.config.ert_config.create_observation_dataframes",
-            side_effect=mock_create_observation_dataframes,
-        ),
         patch(
             "fmu.dataio._workflows.case.main.SumoUploaderInterface",
             spec=SumoUploaderInterface,
@@ -864,19 +1007,19 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
 
 
 def test_create_case_metadata_with_no_observations(
-    fmu_snakeoil_project_sumo: Path, monkeypatch: MonkeyPatch
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:
     """Test no tables are uploaded when observations are not present in ert config"""
-    ert_model_path = fmu_snakeoil_project_sumo / "ert/model"
+    ert_model_path = fmu_snakeoil_project / "ert/model"
     monkeypatch.chdir(ert_model_path)
     ert_config_path = ert_model_path / "snakeoil.ert"
 
-    add_create_case_workflow(ert_config_path)
+    add_create_case_workflow(ert_config_path, sumo=True)
 
     captured_tables = {}
 
     def capture_observation_tables(
-        ensemble: ert.Ensemble,
+        ensemble: ErtEnsemble,
         obs_type: str,
     ) -> None:
         """Captures rft observations from Ert run"""
@@ -910,3 +1053,277 @@ def test_create_case_metadata_with_no_observations(
     assert captured_tables["summary"] is None
     assert captured_tables["breakthrough"] is None
     assert captured_tables["rft"] is None
+
+
+def test_create_case_metadata_uploads_wellbore_mappings(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    When .fmu/ exists and wellbore mappings are present, they are uploaded
+    on expected format.
+    """
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+
+        queue_table = from_new_case.return_value.queue_table
+        queued_mappings = {
+            call.args[1]["data"]["standard_result"]["name"]: call.args
+            for call in queue_table.call_args_list
+        }
+        assert set(queued_mappings) == {
+            "stratigraphy_mapping",
+            "wellbore_mapping",
+        }
+        mappings_table, metadata = queued_mappings["wellbore_mapping"]
+
+    assert metadata["data"]["content"] == "mapping"
+    assert metadata["data"]["standard_result"]["name"] == "wellbore_mapping"
+
+    assert metadata["fmu"]["context"]["stage"] == "ensemble"
+    assert metadata["fmu"]["ensemble"]["name"] == "iter-0"
+
+    assert isinstance(mappings_table, pa.Table)
+
+    assert set(mappings_table.column_names) == {
+        "source_system",
+        "source_id",
+        "source_uuid",
+        "target_system",
+        "target_id",
+        "target_uuid",
+        "mapping_type",
+        "relation_type",
+    }
+
+    casedir = fmu_snakeoil_project_with_dotfmu / "scratch/user/snakeoil"
+
+    fmu_dir = get_fmu_directory(casedir)
+    assert fmu_dir is not None
+
+    mappings_list = mappings_table.to_pylist()
+    expected_mappings = fmu_dir.mappings.wellbore_mappings
+
+    # check that the mappings uploaded is identical to the ones in .fmu
+    assert mappings_list == expected_mappings.model_dump(mode="json")
+
+    for mapping in mappings_list:
+        assert mapping["source_system"] == "rms"
+        assert mapping["target_system"] == "smda"
+        assert mapping["mapping_type"] == "wellbore"
+        assert mapping["relation_type"] == "primary"
+        assert mapping["source_uuid"] is None
+        assert mapping["target_uuid"] is not None
+
+
+def test_create_case_metadata_without_wellbore_mappings(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When .fmu/ doesn't exist, wellbore mappings are not uploaded."""
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_not_called()
+
+
+def test_create_case_metadata_dotfmu_without_wellbore_mappings(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When no mappings are present in .fmu/, wellbore mappings are not uploaded."""
+
+    mappings_file = fmu_snakeoil_project_with_dotfmu / ".fmu/mappings.json"
+    mappings_file.unlink()
+
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_not_called()
+
+
+def test_create_case_metadata_uploads_stratigraphy_mappings(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    When .fmu/ exists and stratigraphy mappings are present, they are uploaded
+    on expected format.
+    """
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+
+        queue_table = from_new_case.return_value.queue_table
+        queued_mappings = {
+            call.args[1]["data"]["standard_result"]["name"]: call.args
+            for call in queue_table.call_args_list
+        }
+        assert set(queued_mappings) == {
+            "stratigraphy_mapping",
+            "wellbore_mapping",
+        }
+        mappings_table, metadata = queued_mappings["stratigraphy_mapping"]
+
+    assert metadata["data"]["content"] == "mapping"
+    assert metadata["data"]["standard_result"]["name"] == "stratigraphy_mapping"
+
+    assert metadata["fmu"]["context"]["stage"] == "ensemble"
+    assert metadata["fmu"]["ensemble"]["name"] == "iter-0"
+
+    assert isinstance(mappings_table, pa.Table)
+    assert len(mappings_table) == 11
+
+    assert set(mappings_table.column_names) == {
+        "source_system",
+        "source_id",
+        "source_uuid",
+        "target_system",
+        "target_id",
+        "target_uuid",
+        "mapping_type",
+        "relation_type",
+    }
+
+    casedir = fmu_snakeoil_project_with_dotfmu / "scratch/user/snakeoil"
+
+    fmu_dir = get_fmu_directory(casedir)
+    assert fmu_dir is not None
+
+    mappings = mappings_table.to_pylist()
+    expected_mappings = fmu_dir.mappings.stratigraphy_mappings
+
+    # check that the mappings uploaded is identical to the ones in .fmu
+    assert mappings == expected_mappings.model_dump(mode="json")
+
+    assert mappings[0]["source_system"] == "rms"
+    assert mappings[0]["target_system"] == "smda"
+    assert mappings[0]["source_id"] == "TopVolantis"
+    assert mappings[0]["target_id"] == "VOLANTIS GP. Top"
+    assert mappings[0]["mapping_type"] == "stratigraphy"
+    assert mappings[0]["relation_type"] == "primary"
+    assert mappings[0]["source_uuid"] is None
+    assert mappings[0]["target_uuid"] == "1629c229-0a2b-4f0a-94f7-dc01b171cb1c"
+
+
+def test_create_case_metadata_without_stratigraphy_mappings(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When .fmu/ doesn't exist, stratigraphy mappings are not uploaded."""
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_not_called()
+
+
+def test_create_case_metadata_dotfmu_without_stratigraphy_mappings(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """When no mappings are present in .fmu/, stratigraphy mappings are not uploaded."""
+
+    mappings_file = fmu_snakeoil_project_with_dotfmu / ".fmu/mappings.json"
+    mappings_file.unlink()
+
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        from_new_case = mock_uploader_interface.from_new_case
+        from_new_case.assert_called_once()
+        from_new_case.return_value.queue_table.assert_not_called()
