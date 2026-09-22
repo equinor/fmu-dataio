@@ -423,7 +423,7 @@ def test_create_case_metadata_deprecated_arguments_warn(
 
     with (
         patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
-        pytest.warns(FutureWarning, match="The argument 'casepath' is deprecated"),
+        pytest.warns(FutureWarning, match="case path as argument is deprecated"),
         pytest.warns(
             FutureWarning, match="The argument 'ert_config_path' is deprecated"
         ),
