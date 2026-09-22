@@ -48,7 +48,7 @@ def simple_metadata() -> dict[str, Any]:
 @pytest.fixture
 def mock_uploader() -> Generator[SumoUploaderInterface]:
     with patch("fmu.sumo.uploader.SumoConnection"):
-        yield SumoUploaderInterface("prod", "uuid-1", Path("global_variables.yml"))
+        yield SumoUploaderInterface("prod", "uuid-1")
 
 
 def test_pa_table_to_bytes_returns_bytes(simple_parameters: pa.Table) -> None:
@@ -69,9 +69,7 @@ def test_init_creates_sumo_connection() -> None:
     """A Sumo connection is created with values instantiated."""
     mock_conn = MagicMock()
     with patch("fmu.sumo.uploader.SumoConnection", return_value=mock_conn) as mock_cls:
-        uploader = SumoUploaderInterface(
-            env="prod", case_uuid="uuid-123", global_config_path=Path("/some/path")
-        )
+        uploader = SumoUploaderInterface(env="prod", case_uuid="uuid-123")
 
     mock_cls.assert_called_once_with(
         "prod", case_uuid="uuid-123", client_id=uploader.client_id
@@ -90,9 +88,7 @@ def test_init_uses_default_client_id(mock_uploader: SumoUploaderInterface) -> No
 def test_init_accepts_custom_client_id() -> None:
     """Ensure a custom id can be accepted, just in case."""
     with patch("fmu.sumo.uploader.SumoConnection"):
-        uploader = SumoUploaderInterface(
-            "prod", "uuid-1", Path("/p"), client_id="custom-id"
-        )
+        uploader = SumoUploaderInterface("prod", "uuid-1", client_id="custom-id")
 
     assert uploader.client_id == "custom-id"
 
@@ -199,7 +195,6 @@ def test_upload_calls_upload_files_with_correct_args(
         [mock_file],
         "uuid-1",
         mock_uploader.connection,
-        config_path=Path("global_variables.yml"),
     )
     assert result == mock_result
 
@@ -228,7 +223,6 @@ def test_upload_with_empty_queue(mock_uploader: SumoUploaderInterface) -> None:
         [],
         "uuid-1",
         mock_uploader.connection,
-        config_path=Path("global_variables.yml"),
     )
 
 
@@ -242,7 +236,6 @@ def test_from_new_case_registers_case_and_returns_instance() -> None:
     ):
         uploader = SumoUploaderInterface.from_new_case(
             case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=Path("global_variables.yml"),
         )
 
     mock_case.register.assert_called_once()
@@ -264,7 +257,6 @@ def test_from_new_case_defaults_env_to_prod_when_env_var_unset(
     ):
         uploader = SumoUploaderInterface.from_new_case(
             case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=Path("global_variables.yml"),
         )
 
     first_call_args = mock_conn_cls.call_args_list[0]
@@ -286,7 +278,6 @@ def test_from_new_case_reads_env_from_environment_variable(
     ):
         uploader = SumoUploaderInterface.from_new_case(
             case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=Path("global_variables.yml"),
         )
 
     first_call_args = mock_conn_cls.call_args_list[0]
@@ -308,7 +299,6 @@ def test_from_new_case_explicit_env_overrides_environment_variable(
     ):
         uploader = SumoUploaderInterface.from_new_case(
             case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=Path("global_variables.yml"),
             env="prod",
         )
 
@@ -329,7 +319,6 @@ def test_from_new_case_passes_client_id_to_sumo_connection() -> None:
     ):
         uploader = SumoUploaderInterface.from_new_case(
             case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=Path("global_variables.yml"),
             client_id=client_id,
         )
 
@@ -350,25 +339,6 @@ def test_from_new_case_passes_case_metadata_path_to_case_on_disk() -> None:
     ):
         SumoUploaderInterface.from_new_case(
             case_metadata_path=case_metadata_path,
-            global_config_path=Path("global_variables.yml"),
         )
 
     assert mock_cod_cls.call_args.args[0] == case_metadata_path
-
-
-def test_from_new_case_stores_global_config_path() -> None:
-    mock_case = MagicMock()
-    mock_case.register.return_value = "uuid"
-
-    global_config_path = Path("global_variables.yml")
-
-    with (
-        patch("fmu.sumo.uploader.SumoConnection"),
-        patch("fmu.sumo.uploader.CaseOnDisk", return_value=mock_case),
-    ):
-        uploader = SumoUploaderInterface.from_new_case(
-            case_metadata_path=Path("fmu_case.yml"),
-            global_config_path=global_config_path,
-        )
-
-    assert uploader.global_config_path == global_config_path
