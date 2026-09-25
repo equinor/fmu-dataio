@@ -153,11 +153,14 @@ def test_get_wellbore_mappings_table_as_expected(tmp_path: Path) -> None:
     assert mappings_list == expected_mappings
     for mapping in mappings_list:
         assert mapping["source_system"] == "rms"
-        assert mapping["target_system"] == "smda"
+        assert mapping["target_system"] in {"smda", "simulator"}
         assert mapping["mapping_type"] == "wellbore"
         assert mapping["relation_type"] == "primary"
         assert mapping["source_uuid"] is None
-        assert mapping["target_uuid"] is not None
+        if mapping["target_system"] == "smda":
+            assert mapping["target_uuid"] is not None
+        else:
+            assert mapping["target_uuid"] is None
 
 
 def test_get_wellbore_mappings_table_returns_none_when_no_wellbore_mappings(
