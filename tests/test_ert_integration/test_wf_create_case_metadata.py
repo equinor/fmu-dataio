@@ -1126,11 +1126,14 @@ def test_create_case_metadata_uploads_wellbore_mappings(
 
     for mapping in mappings_list:
         assert mapping["source_system"] == "rms"
-        assert mapping["target_system"] == "smda"
+        assert mapping["target_system"] in {"smda", "simulator"}
         assert mapping["mapping_type"] == "wellbore"
         assert mapping["relation_type"] == "primary"
         assert mapping["source_uuid"] is None
-        assert mapping["target_uuid"] is not None
+        if mapping["target_system"] == "smda":
+            assert mapping["target_uuid"] is not None
+        else:
+            assert mapping["target_uuid"] is None
 
 
 def test_create_case_metadata_without_wellbore_mappings(
