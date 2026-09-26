@@ -155,7 +155,7 @@ def test_deprecated_path_arguments_warn_and_are_ignored(
         ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
     )
     with (
-        pytest.warns(FutureWarning, match="'ert_caseroot' is deprecated"),
+        pytest.warns(FutureWarning, match="case path as argument is deprecated"),
         pytest.warns(FutureWarning, match="'ert_config_path' is deprecated"),
     ):
         ert.__main__.main()

@@ -18,6 +18,8 @@ import ert
 
 from fmu.dataio import ExportPreprocessedData
 
+from ._utils import resolve_casepath
+
 if TYPE_CHECKING:
     from ert.runpaths import Runpaths as ErtRunpaths
 
@@ -50,19 +52,6 @@ Add following lines to your ERT config to have the job automatically executed::
 """  # noqa
 
 
-def main() -> None:
-    """Entry point from command line
-
-    When script is called from an ERT workflow, it will be called through the 'run'
-    method on the WfCopyPreprocessedData class. This context is the intended usage.
-    The command line entry point is still included, to clarify the difference and
-    for debugging purposes.
-    """
-    parser = get_parser()
-    commandline_args = parser.parse_args()
-    copy_preprocessed_data_main(commandline_args, run_paths=None)
-
-
 class WfCopyPreprocessedData(ert.ErtScript):
     """A class with a run() function that can be registered as an ERT plugin.
 
@@ -81,7 +70,7 @@ class WfCopyPreprocessedData(ert.ErtScript):
 
 
 def copy_preprocessed_data_main(
-    args: argparse.Namespace, run_paths: ErtRunpaths | None = None
+    args: argparse.Namespace, run_paths: ErtRunpaths
 ) -> None:
     """Copy the preprocessed data to scratch and upload it to sumo."""
 
@@ -89,9 +78,10 @@ def copy_preprocessed_data_main(
     check_arguments(args)
     logger.setLevel(args.verbosity)
 
-    casepath = _resolve_casepath(run_paths, args.ert_caseroot)
-    ert_config_path = _resolve_ert_config_path(run_paths, args.ert_config_path)
+    casepath = resolve_casepath(run_paths, args.ert_caseroot)
+    ert_config_path = Path(run_paths.substitutions["<CONFIG_PATH>"])
     searchpath = ert_config_path / args.inpath
+
     match_pattern = "[!.]*"  # ignore metafiles (starts with '.')
     files = [
         filepath
@@ -126,6 +116,13 @@ def check_arguments(args: argparse.Namespace) -> None:
             FutureWarning,
         )
 
+    if args.ert_config_path:
+        warnings.warn(
+            "The argument 'ert_config_path' is deprecated. It is no longer used "
+            "and can safely be removed from WF_COPY_PREPROCESSED_DATAIO.",
+            FutureWarning,
+        )
+
     if Path(args.inpath).is_absolute():
         logger.debug("Argument 'inpath' is absolute: %s", args.inpath)
         raise ValueError(
@@ -149,74 +146,6 @@ def _normalize_workflow_arguments(args: argparse.Namespace) -> None:
         "WF_COPY_PREPROCESSED_DATAIO expects either <inpath> or the deprecated "
         "<ert_caseroot> <ert_config_path> <inpath> arguments."
     )
-
-
-def _validate_casepath(casepath: Path) -> Path:
-    """Validate that the case path is absolute and resolved."""
-    if not casepath.is_absolute():
-        casepath_str = str(casepath)
-        if casepath_str.startswith("<") and casepath_str.endswith(">"):
-            raise ValueError(f"Ert variable for casepath is not defined: {casepath}")
-        raise ValueError(f"'casepath' must be an absolute path. Got: {casepath}")
-    return casepath
-
-
-def _resolve_casepath(
-    run_paths: ErtRunpaths | None, legacy_casepath: str | None
-) -> Path:
-    """Resolve the case path from ERT, with legacy argument fallback."""
-    sumo_casepath = (
-        run_paths.substitutions.get("<SUMO_CASEPATH>") if run_paths else None
-    )
-
-    if sumo_casepath:
-        if legacy_casepath:
-            warnings.warn(
-                "The argument 'ert_caseroot' is deprecated. It is no longer used "
-                "and can safely be removed from WF_COPY_PREPROCESSED_DATAIO.",
-                FutureWarning,
-            )
-        return _validate_casepath(Path(sumo_casepath))
-    if legacy_casepath:
-        warnings.warn(
-            "The argument 'ert_caseroot' is deprecated. Define <SUMO_CASEPATH> "
-            "in the ERT config before removing it from "
-            "WF_COPY_PREPROCESSED_DATAIO.",
-            FutureWarning,
-        )
-        return _validate_casepath(Path(legacy_casepath))
-
-    raise ValueError(
-        "The case path could not be resolved. Please define the <SUMO_CASEPATH> "
-        "variable in the ERT config."
-    )
-
-
-def _resolve_ert_config_path(
-    run_paths: ErtRunpaths | None, legacy_config_path: str | None
-) -> Path:
-    """Resolve the ERT config path from ERT, with legacy argument fallback."""
-    ert_config_path = (
-        run_paths.substitutions.get("<CONFIG_PATH>") if run_paths else None
-    )
-
-    if ert_config_path:
-        if legacy_config_path:
-            warnings.warn(
-                "The argument 'ert_config_path' is deprecated. It is no longer used "
-                "and can safely be removed from WF_COPY_PREPROCESSED_DATAIO.",
-                FutureWarning,
-            )
-        return Path(ert_config_path)
-    if legacy_config_path:
-        warnings.warn(
-            "The argument 'ert_config_path' is deprecated. Run this workflow "
-            "through ERT before removing it from WF_COPY_PREPROCESSED_DATAIO.",
-            FutureWarning,
-        )
-        return Path(legacy_config_path)
-
-    raise ValueError("The ERT config path could not be resolved from <CONFIG_PATH>.")
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -254,7 +183,3 @@ def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
         examples=EXAMPLES,
         category="export",
     )
-
-
-if __name__ == "__main__":
-    main()

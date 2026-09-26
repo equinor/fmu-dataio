@@ -8,7 +8,6 @@ from __future__ import annotations
 import argparse
 import logging
 import shutil
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
@@ -29,6 +28,7 @@ from fmu.settings import (
     get_fmu_directory,
 )
 
+from .._utils import resolve_casepath
 from ._config import CaseWorkflowConfig
 from ._mappings import get_stratigraphy_mappings_table, get_wellbore_mappings_table
 from ._observations import get_ert_observations_table
@@ -65,52 +65,6 @@ Note that ``<SUMO_CASEPATH>`` must be defined in the Ert config for this workflo
     DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>
 
 """  # noqa: E501
-
-
-def _validate_casepath(casepath: Path) -> Path:
-    """Validate that the case path is absolute and defined in the ERT config."""
-    if not casepath.is_absolute():
-        casepath_str = str(casepath)
-        if casepath_str.startswith("<") and casepath_str.endswith(">"):
-            raise ValueError(f"Ert variable for casepath is not defined: {casepath}")
-        raise ValueError(f"'casepath' must be an absolute path. Got: {casepath}")
-    return casepath
-
-
-def _resolve_casepath(run_paths: ErtRunpaths, args: argparse.Namespace) -> Path:
-    """Resolve and validate case path from <SUMO_CASEPATH> or deprecated argument.
-
-    Uses <SUMO_CASEPATH> when defined and warns if deprecated <casepath> argument
-    is also provided. If Sumo is enabled but <SUMO_CASEPATH> is missing, an error
-    is raised, otherwise it falls back to <casepath> argument if provided.
-    """
-
-    sumo_casepath = run_paths.substitutions.get("<SUMO_CASEPATH>")
-
-    if sumo_casepath:
-        if args.casepath:
-            warnings.warn(
-                "The argument 'casepath' is deprecated. It is no longer used and can "
-                "safely be removed from WF_CREATE_CASE_METADATA. The case path is now "
-                "read from the <SUMO_CASEPATH> variable.",
-                FutureWarning,
-            )
-        return _validate_casepath(Path(sumo_casepath))
-
-    if args.casepath:
-        if args.sumo:
-            raise ValueError(
-                "Missing required <SUMO_CASEPATH> definition. "
-                "Define it in your ERT config, for example:\n"
-                "DEFINE <SUMO_CASEPATH> <SCRATCH>/<USER>/<CASE_DIR>"
-            )
-        return _validate_casepath(Path(args.casepath))
-
-    raise ValueError(
-        "The case path could not be resolved. Please define the <SUMO_CASEPATH> "
-        "variable in the ERT config, for example:\n\n    "
-        "DEFINE <SUMO_CASEPATH> <SCRATCH>/<USER>/<CASE_DIR>"
-    )
 
 
 def _get_ensemble_name(
@@ -458,7 +412,9 @@ class WfExportCaseMetadata(ert.ErtScript):
         parser = get_parser()
         args = parser.parse_args(workflow_args)
 
-        casepath = _resolve_casepath(run_paths, args)
+        casepath = resolve_casepath(
+            run_paths, args.casepath, require_sumo_casepath=args.sumo
+        )
         maybe_fmu_dir = _copy_fmu_directory(casepath)
 
         cfg = CaseWorkflowConfig.from_presim_workflow(

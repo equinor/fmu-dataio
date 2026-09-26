@@ -93,7 +93,7 @@ def test_snakeoil_wf_case_metadata_includes_config_user_and_casename(
         ["ert", "ensemble_experiment", "snakeoil.ert", "--disable-monitoring"],
     )
     with (
-        pytest.warns(FutureWarning, match="'casepath' is deprecated"),
+        pytest.warns(FutureWarning, match="case path as argument is deprecated"),
         pytest.warns(FutureWarning, match="'ert_config_path' is deprecated"),
         pytest.warns(FutureWarning, match="'ert_casename' is deprecated"),
         pytest.warns(FutureWarning, match="'ert_username' is deprecated"),
