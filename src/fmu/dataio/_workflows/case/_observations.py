@@ -24,7 +24,8 @@ def _convert_type_large_string_to_string(pa_type: pa.DataType) -> pa.DataType:
 
 
 def _prepare_observations_dataframe(
-    obs_df: pl.DataFrame, obs_type: Literal["rft", "summary", "breakthrough"]
+    obs_df: pl.DataFrame,
+    obs_type: Literal["rft", "summary", "breakthrough", "seismic"],
 ) -> pl.DataFrame:
     """Modify observations dataframe to comply with the standard result schema.
 
@@ -36,7 +37,7 @@ def _prepare_observations_dataframe(
             pl.col("response_key").str.split(":").list.last().alias("property")
         )
 
-    columns_to_drop = ["observation_key", "radius"]
+    columns_to_drop = ["observation_key", "radius", "boundary_id"]
     rename_map = {
         "observations": "observation_value",
         "std": "observation_error",
@@ -46,7 +47,8 @@ def _prepare_observations_dataframe(
 
 
 def get_ert_observations_table(
-    ensemble: ErtEnsemble, obs_type: Literal["rft", "summary", "breakthrough"]
+    ensemble: ErtEnsemble,
+    obs_type: Literal["rft", "summary", "breakthrough", "seismic"],
 ) -> pa.Table | None:
     """Extract observations from ert storage and process it into an arrow table."""
     logger.info(f"Observation type: {obs_type}")

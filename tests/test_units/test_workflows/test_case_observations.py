@@ -118,6 +118,30 @@ def test_prepare_observations_dataframe_breakthrough_does_not_add_property() -> 
     assert set(df.columns) == {"response_key", "observation_value", "observation_error"}
 
 
+def test_prepare_observations_dataframe_seismic_drops_boundary_id() -> None:
+    """Seismic observations exclude ERT's boundary membership metadata."""
+    obs_df = pl.DataFrame(
+        {
+            "response_key": ["seismic_amplitude"],
+            "observations": [0.42],
+            "std": [0.05],
+            "east": [456000.0],
+            "north": [6789000.0],
+            "boundary_id": [1],
+        }
+    )
+
+    df = _prepare_observations_dataframe(obs_df, "seismic")
+
+    assert set(df.columns) == {
+        "response_key",
+        "observation_value",
+        "observation_error",
+        "east",
+        "north",
+    }
+
+
 def test_prepare_observations_dataframe_keeps_existing_property() -> None:
     """Existing property values are preserved when already present."""
     obs_df = pl.DataFrame(

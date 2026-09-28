@@ -6,7 +6,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, get_args
+from typing import TYPE_CHECKING, Literal, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -960,8 +960,8 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
 
     def capture_observation_tables(
         ensemble: ErtEnsemble,
-        obs_type: str,
-    ) -> None:
+        obs_type: Literal["rft", "summary", "breakthrough", "seismic"],
+    ) -> pa.Table | None:
         """Captures observation tables from Ert run.
 
         Requires the Ert runtime context to load from local storage."""
@@ -990,10 +990,11 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
         # only rft table should be queued, summary should be None and not queued
         from_new_case.return_value.queue_table.assert_called_once()
 
-    assert len(captured_tables) == 3
+    assert set(captured_tables) == {"rft", "summary", "breakthrough", "seismic"}
 
     assert captured_tables["summary"] is None
     assert captured_tables["breakthrough"] is None
+    assert captured_tables["seismic"] is None
     assert captured_tables["rft"] is not None
 
     table = captured_tables["rft"]
@@ -1020,8 +1021,8 @@ def test_create_case_metadata_with_no_observations(
 
     def capture_observation_tables(
         ensemble: ErtEnsemble,
-        obs_type: str,
-    ) -> None:
+        obs_type: Literal["rft", "summary", "breakthrough", "seismic"],
+    ) -> pa.Table | None:
         """Captures rft observations from Ert run"""
         df = get_ert_observations_table(ensemble, obs_type)
         captured_tables[obs_type] = df
@@ -1048,10 +1049,11 @@ def test_create_case_metadata_with_no_observations(
         # no tables should be queued
         from_new_case.return_value.queue_table.assert_not_called()
 
-    assert len(captured_tables) == 3
+    assert set(captured_tables) == {"rft", "summary", "breakthrough", "seismic"}
 
     assert captured_tables["summary"] is None
     assert captured_tables["breakthrough"] is None
+    assert captured_tables["seismic"] is None
     assert captured_tables["rft"] is None
 
 
