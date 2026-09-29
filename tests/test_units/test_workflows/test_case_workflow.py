@@ -14,6 +14,7 @@ from fmu.dataio._workflows.case.main import (
     CaseWorkflowConfig,
     _copy_fmu_directory,
     _get_ensemble_name,
+    _queue_ert_observations_seismic,
     _queue_ert_parameters,
     _queue_stratigraphy_mappings,
     _queue_wellbore_mappings,
@@ -167,6 +168,38 @@ def test_queue_ert_parameters_queue_table_when_present(
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
 
 
+def test_queue_ert_observations_seismic_queues_standard_result(
+    mock_ensemble: Callable[[], MagicMock],
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """Seismic observations are queued with observation standard-result metadata."""
+    ensemble = mock_ensemble()
+    sumo_uploader = MagicMock()
+    fake_table = pa.table(
+        {
+            "response_key": ["seismic_amplitude"],
+            "observation_value": [0.42],
+            "observation_error": [0.05],
+            "east": [456000.0],
+            "north": [6789000.0],
+        }
+    )
+
+    with patch(
+        "fmu.dataio._workflows.case.main.get_ert_observations_table",
+        return_value=fake_table,
+    ):
+        _queue_ert_observations_seismic(
+            ensemble, "iter-0", workflow_config, sumo_uploader
+        )
+
+    queued_table, metadata = sumo_uploader.queue_table.call_args.args
+    assert queued_table == fake_table
+    assert metadata["data"]["is_observation"] is True
+    assert metadata["data"]["standard_result"]["name"] == "observations_seismic"
+    assert metadata["data"]["table_index"] == ["response_key"]
+
+
 def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
     workflow_config: CaseWorkflowConfig,
 ) -> None:
@@ -232,6 +265,9 @@ def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
             "fmu.dataio._workflows.case.main._queue_ert_parameters"
         ) as queue_parameters,
         patch(
+            "fmu.dataio._workflows.case.main._queue_ert_observations_seismic"
+        ) as queue_seismic_observations,
+        patch(
             "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
         ) as queue_stratigraphy,
     ):
@@ -241,6 +277,9 @@ def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
         ensemble_name, workflow_config, sumo_uploader
     )
     queue_parameters.assert_called_once_with(
+        ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
+    queue_seismic_observations.assert_called_once_with(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
     sumo_uploader.upload.assert_called_once_with()

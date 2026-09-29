@@ -186,3 +186,23 @@ def add_breakthrough_observations(ert_config_path: Path) -> None:
     )
     with open(ert_config_path.parent / "observations", "a") as f:
         f.write(obs_config)
+
+
+def add_seismic_observations(ert_config_path: Path) -> None:
+    observation_file = ert_config_path.parent / "seismic_observations.csv"
+    observation_file.write_text(
+        "X_UTME,Y_UTMN,OBS,OBS_ERROR\n"
+        "456000.0,6789000.0,0.42,0.05\n"
+        "456100.0,6789100.0,0.84,0.10\n",
+        encoding="utf-8",
+    )
+    obs_config = dedent(
+        f"""
+        SEISMIC_OBSERVATION seismic_amplitude
+        {{
+            OBS_FILE={observation_file.name};
+        }};
+        """
+    )
+    with open(ert_config_path.parent / "observations", "a") as f:
+        f.write(obs_config)

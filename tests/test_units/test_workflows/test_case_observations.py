@@ -9,6 +9,7 @@ import pyarrow as pa
 import pytest
 
 from fmu.dataio._workflows.case._observations import (
+    ObservationType,
     _convert_type_large_string_to_string,
     _prepare_observations_dataframe,
     get_ert_observations_table,
@@ -32,7 +33,7 @@ def test_get_ert_observations_table_converts_large_string() -> None:
         "fmu.dataio._workflows.case._observations._prepare_observations_dataframe",
         return_value=obs_df,
     ):
-        table = get_ert_observations_table(ensemble, "rft")
+        table = get_ert_observations_table(ensemble, ObservationType.rft)
 
     assert table is not None
     assert table.schema.field("name").type == pa.string()
@@ -43,7 +44,7 @@ def test_get_ert_observations_table_returns_none_when_missing() -> None:
     ensemble = MagicMock()
     ensemble.experiment.observations.get.return_value = None
 
-    table = get_ert_observations_table(ensemble, "summary")
+    table = get_ert_observations_table(ensemble, ObservationType.summary)
     assert table is None
 
 
@@ -75,7 +76,7 @@ def test_prepare_observations_dataframe_rft_as_expected() -> None:
         }
     )
 
-    df = _prepare_observations_dataframe(obs_df, "rft")
+    df = _prepare_observations_dataframe(obs_df, ObservationType.rft)
 
     assert set(df.columns) == {
         "response_key",
@@ -97,7 +98,7 @@ def test_prepare_observations_dataframe_summary_does_not_add_property() -> None:
         }
     )
 
-    df = _prepare_observations_dataframe(obs_df, "summary")
+    df = _prepare_observations_dataframe(obs_df, ObservationType.summary)
 
     assert set(df.columns) == {"response_key", "observation_value", "observation_error"}
 
@@ -113,9 +114,33 @@ def test_prepare_observations_dataframe_breakthrough_does_not_add_property() -> 
         }
     )
 
-    df = _prepare_observations_dataframe(obs_df, "breakthrough")
+    df = _prepare_observations_dataframe(obs_df, ObservationType.breakthrough)
 
     assert set(df.columns) == {"response_key", "observation_value", "observation_error"}
+
+
+def test_prepare_observations_dataframe_seismic_drops_boundary_id() -> None:
+    """Seismic observations exclude ERT's boundary membership metadata."""
+    obs_df = pl.DataFrame(
+        {
+            "response_key": ["seismic_amplitude"],
+            "observations": [0.42],
+            "std": [0.05],
+            "east": [456000.0],
+            "north": [6789000.0],
+            "boundary_id": [1],
+        }
+    )
+
+    df = _prepare_observations_dataframe(obs_df, ObservationType.seismic)
+
+    assert set(df.columns) == {
+        "response_key",
+        "observation_value",
+        "observation_error",
+        "east",
+        "north",
+    }
 
 
 def test_prepare_observations_dataframe_keeps_existing_property() -> None:
@@ -129,6 +154,6 @@ def test_prepare_observations_dataframe_keeps_existing_property() -> None:
         }
     )
 
-    df = _prepare_observations_dataframe(obs_df, "rft")
+    df = _prepare_observations_dataframe(obs_df, ObservationType.rft)
 
     assert df["property"].to_list() == ["SWAT"]

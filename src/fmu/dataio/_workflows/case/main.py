@@ -31,7 +31,7 @@ from fmu.settings import (
 
 from ._config import CaseWorkflowConfig
 from ._mappings import get_stratigraphy_mappings_table, get_wellbore_mappings_table
-from ._observations import get_ert_observations_table
+from ._observations import ObservationType, get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
 
@@ -47,9 +47,9 @@ logger.setLevel(logging.CRITICAL)
 DESCRIPTION = """
 WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio for storing on disk
 and on Sumo. When Sumo upload is enabled, the workflow also uploads Ert parameters
-and observations, including summary, RFT, and breakthrough observations. The workflow
-uses Ert storage directly, so the relevant case metadata, parameters, and observations
-are collected automatically from the active Ert run.
+and observations, including summary, RFT, breakthrough, and seismic observations. The
+workflow uses Ert storage directly, so the relevant case metadata, parameters, and
+observations are collected automatically from the active Ert run.
 """
 
 EXAMPLES = """
@@ -170,7 +170,7 @@ def _queue_ert_observations_breakthrough(
 ) -> None:
     """Export breakthrough observation table using fmu-dataio."""
 
-    table = get_ert_observations_table(ensemble, "breakthrough")
+    table = get_ert_observations_table(ensemble, ObservationType.breakthrough)
     if table is None:
         return
 
@@ -201,7 +201,7 @@ def _queue_ert_observations_rft(
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
     """Export rft observation table using fmu-dataio."""
-    table = get_ert_observations_table(ensemble, "rft")
+    table = get_ert_observations_table(ensemble, ObservationType.rft)
     if table is None:
         return
 
@@ -233,7 +233,7 @@ def _queue_ert_observations_summary(
 ) -> None:
     """Export summary observation table using fmu-dataio."""
 
-    table = get_ert_observations_table(ensemble, "summary")
+    table = get_ert_observations_table(ensemble, ObservationType.summary)
     if table is None:
         return
 
@@ -251,6 +251,37 @@ def _queue_ert_observations_summary(
         )
         .flags(is_observation=True)
         .standard_result(StandardResultName.observations_summary)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
+def _queue_ert_observations_seismic(
+    ensemble: ErtEnsemble,
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export seismic observation table using fmu-dataio."""
+    table = get_ert_observations_table(ensemble, ObservationType.seismic)
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.observations)
+        .access(Classification.internal, rep_include=False)
+        .table_config(table_index=ErtObservations.SeismicColumns.index_columns())
+        .file_config(name=StandardResultName.observations_seismic.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .flags(is_observation=True)
+        .standard_result(StandardResultName.observations_seismic)
         .build()
     )
     metadata = generate_metadata(export_config, table)
@@ -331,6 +362,9 @@ def _upload_files_to_sumo(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
     _queue_ert_observations_breakthrough(
+        ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
+    _queue_ert_observations_seismic(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
 

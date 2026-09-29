@@ -8,23 +8,32 @@ from typing import get_args
 import jsonschema
 import pytest
 from ert.config import ErtConfig, RFTConfig
+from ert.config.parsing.observations_parser import ObservationType as ErtObservationType
 from ert.storage import Ensemble, open_storage
 from fmu.datamodels import (
     ErtObservationsBreakthroughResult,
     ErtObservationsBreakthroughSchema,
     ErtObservationsRftResult,
     ErtObservationsRftSchema,
+    ErtObservationsSeismicResult,
+    ErtObservationsSeismicSchema,
     ErtObservationsSummaryResult,
     ErtObservationsSummarySchema,
 )
 
-from fmu.dataio._workflows.case._observations import get_ert_observations_table
+from fmu.dataio._workflows.case._observations import (
+    ObservationType,
+    get_ert_observations_table,
+)
 
 from .ert_config_utils import (
     add_breakthrough_observations,
     add_rft_observations,
+    add_seismic_observations,
     add_summary_observations,
 )
+
+HAS_SEISMIC_OBSERVATIONS = hasattr(ErtObservationType, "SEISMIC")
 
 
 @pytest.fixture
@@ -61,9 +70,37 @@ def observation_ensemble(
         yield experiment.create_ensemble(ensemble_size=1, name="observations")
 
 
+@pytest.fixture
+def seismic_observation_ensemble(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Ensemble]:
+    """Create stored seismic observations through ERT's public APIs."""
+    monkeypatch.chdir(tmp_path)
+    config_path = tmp_path / "observations.ert"
+    config_path.write_text(
+        "NUM_REALIZATIONS 1\nECLBASE ECLIPSE_%d\nOBS_CONFIG observations\n",
+        encoding="utf-8",
+    )
+    add_seismic_observations(config_path)
+    config = ErtConfig.from_file(str(config_path))
+
+    with open_storage(tmp_path / "storage", "w") as storage:
+        experiment = storage.create_experiment(
+            experiment_config={
+                "observations": [
+                    observation.model_dump(mode="json")
+                    for observation in config.observation_declarations
+                ],
+                "shape_registry": config.shape_registry.model_dump(mode="json"),
+            },
+        )
+        assert set(experiment.observations) == {"seismic"}
+        yield experiment.create_ensemble(ensemble_size=1, name="observations")
+
+
 def test_stored_rft_observations(observation_ensemble: Ensemble) -> None:
     """Stored RFT observations retain their values and satisfy the RFT schema."""
-    table = get_ert_observations_table(observation_ensemble, "rft")
+    table = get_ert_observations_table(observation_ensemble, ObservationType.rft)
     assert table is not None
     row_model = get_args(ErtObservationsRftResult.model_fields["root"].annotation)[0]
     assert set(table.column_names) == set(row_model.model_fields)
@@ -89,7 +126,7 @@ def test_stored_rft_observations(observation_ensemble: Ensemble) -> None:
 
 def test_stored_summary_observations(observation_ensemble: Ensemble) -> None:
     """Stored summary observations retain their values and satisfy the schema."""
-    table = get_ert_observations_table(observation_ensemble, "summary")
+    table = get_ert_observations_table(observation_ensemble, ObservationType.summary)
     assert table is not None
     root_field = ErtObservationsSummaryResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
@@ -114,7 +151,9 @@ def test_stored_summary_observations(observation_ensemble: Ensemble) -> None:
 
 def test_stored_breakthrough_observations(observation_ensemble: Ensemble) -> None:
     """Stored breakthrough observations retain their values and satisfy the schema."""
-    table = get_ert_observations_table(observation_ensemble, "breakthrough")
+    table = get_ert_observations_table(
+        observation_ensemble, ObservationType.breakthrough
+    )
     assert table is not None
     root_field = ErtObservationsBreakthroughResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
@@ -139,3 +178,40 @@ def test_stored_breakthrough_observations(observation_ensemble: Ensemble) -> Non
         row["time"] = row["time"].isoformat()
 
     jsonschema.validate(instance=rows, schema=ErtObservationsBreakthroughSchema.dump())
+
+
+@pytest.mark.skipif(
+    not HAS_SEISMIC_OBSERVATIONS,
+    reason="Installed ERT does not support SEISMIC_OBSERVATION",
+)
+def test_stored_seismic_observations(
+    seismic_observation_ensemble: Ensemble,
+) -> None:
+    """Stored seismic observations exclude boundary IDs and satisfy the schema."""
+    table = get_ert_observations_table(
+        seismic_observation_ensemble, ObservationType.seismic
+    )
+    assert table is not None
+    root_field = ErtObservationsSeismicResult.model_fields["root"]
+    row_model = get_args(root_field.annotation)[0]
+    assert set(table.column_names) == set(row_model.model_fields)
+    assert "boundary_id" not in table.column_names
+    rows = table.to_pylist()
+
+    assert rows == [
+        {
+            "response_key": "seismic_observations",
+            "observation_value": pytest.approx(0.42),
+            "observation_error": pytest.approx(0.05),
+            "east": 456000.0,
+            "north": 6789000.0,
+        },
+        {
+            "response_key": "seismic_observations",
+            "observation_value": pytest.approx(0.84),
+            "observation_error": pytest.approx(0.10),
+            "east": 456100.0,
+            "north": 6789100.0,
+        },
+    ]
+    jsonschema.validate(instance=rows, schema=ErtObservationsSeismicSchema.dump())
