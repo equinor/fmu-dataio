@@ -8,7 +8,7 @@ from typing import get_args
 import jsonschema
 import pytest
 from ert.config import ErtConfig, RFTConfig
-from ert.config.parsing.observations_parser import ObservationType
+from ert.config.parsing.observations_parser import ObservationType as ErtObservationType
 from ert.storage import Ensemble, open_storage
 from fmu.datamodels import (
     ErtObservationsBreakthroughResult,
@@ -21,7 +21,10 @@ from fmu.datamodels import (
     ErtObservationsSummarySchema,
 )
 
-from fmu.dataio._workflows.case._observations import get_ert_observations_table
+from fmu.dataio._workflows.case._observations import (
+    ObservationType,
+    get_ert_observations_table,
+)
 
 from .ert_config_utils import (
     add_breakthrough_observations,
@@ -30,7 +33,7 @@ from .ert_config_utils import (
     add_summary_observations,
 )
 
-HAS_SEISMIC_OBSERVATIONS = hasattr(ObservationType, "SEISMIC")
+HAS_SEISMIC_OBSERVATIONS = hasattr(ErtObservationType, "SEISMIC")
 
 
 @pytest.fixture
@@ -97,7 +100,7 @@ def seismic_observation_ensemble(
 
 def test_stored_rft_observations(observation_ensemble: Ensemble) -> None:
     """Stored RFT observations retain their values and satisfy the RFT schema."""
-    table = get_ert_observations_table(observation_ensemble, "rft")
+    table = get_ert_observations_table(observation_ensemble, ObservationType.rft)
     assert table is not None
     row_model = get_args(ErtObservationsRftResult.model_fields["root"].annotation)[0]
     assert set(table.column_names) == set(row_model.model_fields)
@@ -123,7 +126,7 @@ def test_stored_rft_observations(observation_ensemble: Ensemble) -> None:
 
 def test_stored_summary_observations(observation_ensemble: Ensemble) -> None:
     """Stored summary observations retain their values and satisfy the schema."""
-    table = get_ert_observations_table(observation_ensemble, "summary")
+    table = get_ert_observations_table(observation_ensemble, ObservationType.summary)
     assert table is not None
     root_field = ErtObservationsSummaryResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
@@ -148,7 +151,9 @@ def test_stored_summary_observations(observation_ensemble: Ensemble) -> None:
 
 def test_stored_breakthrough_observations(observation_ensemble: Ensemble) -> None:
     """Stored breakthrough observations retain their values and satisfy the schema."""
-    table = get_ert_observations_table(observation_ensemble, "breakthrough")
+    table = get_ert_observations_table(
+        observation_ensemble, ObservationType.breakthrough
+    )
     assert table is not None
     root_field = ErtObservationsBreakthroughResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
@@ -183,7 +188,9 @@ def test_stored_seismic_observations(
     seismic_observation_ensemble: Ensemble,
 ) -> None:
     """Stored seismic observations exclude boundary IDs and satisfy the schema."""
-    table = get_ert_observations_table(seismic_observation_ensemble, "seismic")
+    table = get_ert_observations_table(
+        seismic_observation_ensemble, ObservationType.seismic
+    )
     assert table is not None
     root_field = ErtObservationsSeismicResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]

@@ -31,7 +31,7 @@ from fmu.settings import (
 
 from ._config import CaseWorkflowConfig
 from ._mappings import get_stratigraphy_mappings_table, get_wellbore_mappings_table
-from ._observations import get_ert_observations_table
+from ._observations import ObservationType, get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
 
@@ -170,7 +170,7 @@ def _queue_ert_observations_breakthrough(
 ) -> None:
     """Export breakthrough observation table using fmu-dataio."""
 
-    table = get_ert_observations_table(ensemble, "breakthrough")
+    table = get_ert_observations_table(ensemble, ObservationType.breakthrough)
     if table is None:
         return
 
@@ -201,7 +201,7 @@ def _queue_ert_observations_rft(
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
     """Export rft observation table using fmu-dataio."""
-    table = get_ert_observations_table(ensemble, "rft")
+    table = get_ert_observations_table(ensemble, ObservationType.rft)
     if table is None:
         return
 
@@ -233,7 +233,7 @@ def _queue_ert_observations_summary(
 ) -> None:
     """Export summary observation table using fmu-dataio."""
 
-    table = get_ert_observations_table(ensemble, "summary")
+    table = get_ert_observations_table(ensemble, ObservationType.summary)
     if table is None:
         return
 
@@ -264,7 +264,7 @@ def _queue_ert_observations_seismic(
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
     """Export seismic observation table using fmu-dataio."""
-    table = get_ert_observations_table(ensemble, "seismic")
+    table = get_ert_observations_table(ensemble, ObservationType.seismic)
     if table is None:
         return
 

@@ -6,7 +6,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, get_args
+from typing import TYPE_CHECKING, get_args
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -34,7 +34,10 @@ from packaging.version import Version
 from pytest import MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
-from fmu.dataio._workflows.case._observations import get_ert_observations_table
+from fmu.dataio._workflows.case._observations import (
+    ObservationType,
+    get_ert_observations_table,
+)
 from fmu.dataio._workflows.case._parameters import (
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
@@ -960,7 +963,7 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
 
     def capture_observation_tables(
         ensemble: ErtEnsemble,
-        obs_type: Literal["rft", "summary", "breakthrough", "seismic"],
+        obs_type: ObservationType,
     ) -> pa.Table | None:
         """Captures observation tables from Ert run.
 
@@ -990,14 +993,14 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
         # only rft table should be queued, summary should be None and not queued
         from_new_case.return_value.queue_table.assert_called_once()
 
-    assert set(captured_tables) == {"rft", "summary", "breakthrough", "seismic"}
+    assert set(captured_tables) == set(ObservationType)
 
-    assert captured_tables["summary"] is None
-    assert captured_tables["breakthrough"] is None
-    assert captured_tables["seismic"] is None
-    assert captured_tables["rft"] is not None
+    assert captured_tables[ObservationType.summary] is None
+    assert captured_tables[ObservationType.breakthrough] is None
+    assert captured_tables[ObservationType.seismic] is None
+    assert captured_tables[ObservationType.rft] is not None
 
-    table = captured_tables["rft"]
+    table = captured_tables[ObservationType.rft]
 
     assert isinstance(table, pa.Table)
     assert table.num_rows == 1
@@ -1021,7 +1024,7 @@ def test_create_case_metadata_with_no_observations(
 
     def capture_observation_tables(
         ensemble: ErtEnsemble,
-        obs_type: Literal["rft", "summary", "breakthrough", "seismic"],
+        obs_type: ObservationType,
     ) -> pa.Table | None:
         """Captures rft observations from Ert run"""
         df = get_ert_observations_table(ensemble, obs_type)
@@ -1049,12 +1052,12 @@ def test_create_case_metadata_with_no_observations(
         # no tables should be queued
         from_new_case.return_value.queue_table.assert_not_called()
 
-    assert set(captured_tables) == {"rft", "summary", "breakthrough", "seismic"}
+    assert set(captured_tables) == set(ObservationType)
 
-    assert captured_tables["summary"] is None
-    assert captured_tables["breakthrough"] is None
-    assert captured_tables["seismic"] is None
-    assert captured_tables["rft"] is None
+    assert captured_tables[ObservationType.summary] is None
+    assert captured_tables[ObservationType.breakthrough] is None
+    assert captured_tables[ObservationType.seismic] is None
+    assert captured_tables[ObservationType.rft] is None
 
 
 def test_create_case_metadata_uploads_wellbore_mappings(
