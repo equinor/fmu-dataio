@@ -34,7 +34,7 @@ _VOLUMETRIC_COLUMN_SUFFIXES: Final = ("_OIL", "_GAS", "_WATER", "_TOTAL")
 _RMS_UNIT_MAPPING: Final = {
     "STB": "stb",
     "MSCF": "Mscf",
-    "SCF": "Mscf",
+    "SCF": "scf",
 }
 
 # rename columns to FMU standard
@@ -138,8 +138,7 @@ class _ExportVolumetricsRMS(SimpleExportBase):
         """
         Convert an RMS volumetric table to the inplace_volumes standard format.
         """
-        table = pd.DataFrame.from_dict(rms_volume_table.to_dict())
-        table = self._convert_table_from_rms_to_legacy_format(table)
+        table = self._convert_table_from_rms_to_legacy_format(rms_volume_table)
         return self._convert_table_from_legacy_to_standard_format(table)
 
     def _get_table_from_rms(self) -> Any:
@@ -151,14 +150,17 @@ class _ExportVolumetricsRMS(SimpleExportBase):
     def _get_column_units(rms_volume_table: Any) -> dict[str, str]:
         """Get normalized units for each column in an RMS volumetric table."""
         return {
-            name: normalize_rms_unit(rms_volume_table.column_unit(name) or "")
+            name: normalize_rms_unit(rms_volume_table.column_unit(name))
             for name in rms_volume_table.column_names()
         }
 
     @staticmethod
-    def _convert_table_from_rms_to_legacy_format(table: pd.DataFrame) -> pd.DataFrame:
+    def _convert_table_from_rms_to_legacy_format(
+        rms_volume_table: Any,
+    ) -> pd.DataFrame:
         """Rename columns to legacy naming standard and drop REAL column if present."""
         _logger.debug("Converting dataframe from RMS to legacy format...")
+        table = pd.DataFrame.from_dict(rms_volume_table.to_dict())
         return table.rename(columns=_RENAME_COLUMNS_FROM_RMS).drop(
             columns="REAL", errors="ignore"
         )

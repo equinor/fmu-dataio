@@ -138,7 +138,7 @@ def test_rms_volumetrics_gets_normalized_column_units(
 ) -> None:
     data_table = MagicMock()
     data_table.column_names.return_value = ["Zone", "BulkOil"]
-    data_table.column_unit.side_effect = {"Zone": None, "BulkOil": "[m³]"}.get
+    data_table.column_unit.side_effect = {"Zone": "", "BulkOil": "[m³]"}.get
 
     assert exportvolumetrics._get_column_units(data_table) == {
         "Zone": "",
@@ -158,7 +158,7 @@ def test_rms_volumetrics_gets_normalized_column_units(
         ("[m²]", "m2"),
         ("[STB]", "stb"),
         ("[MSCF]", "Mscf"),
-        ("[SCF]", "Mscf"),
+        ("[SCF]", "scf"),
     ],
 )
 def test_normalize_rms_unit(rms_unit: str, expected: str) -> None:
@@ -242,6 +242,26 @@ def test_no_volume_job_for_grid_raises(
             grid_name,
             missing_volume_job_name,
         )
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+def test_convert_table_from_rms_to_legacy_format() -> None:
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
+
+    rms_volume_table = MagicMock()
+    rms_volume_table.to_dict.return_value = {
+        "Proj. real.": [0],
+        "Zone": ["A"],
+        "BulkOil": [1.0],
+    }
+
+    result = _ExportVolumetricsRMS._convert_table_from_rms_to_legacy_format(
+        rms_volume_table
+    )
+
+    expected = pd.DataFrame({"ZONE": ["A"], "BULK_OIL": [1.0]})
+    pd.testing.assert_frame_equal(result, expected)
+    rms_volume_table.to_dict.assert_called_once_with()
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
