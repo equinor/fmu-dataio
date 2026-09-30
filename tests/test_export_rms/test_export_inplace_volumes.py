@@ -78,7 +78,9 @@ def exportvolumetrics(
     from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     with mock.patch.object(
-        _ExportVolumetricsRMS, "_get_table_with_volumes", return_value=voltable_standard
+        _ExportVolumetricsRMS,
+        "_create_standard_volume_table",
+        return_value=voltable_standard,
     ):
         yield _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
 
@@ -131,33 +133,38 @@ def test_rms_volumetrics_export_has_units_on_each_column(
     assert metadata["data"]["unit"] == ""
 
 
-def test_rms_volumetrics_reads_column_units(
+def test_rms_volumetrics_gets_normalized_column_units(
     exportvolumetrics: _ExportVolumetricsRMS,
 ) -> None:
     data_table = MagicMock()
     data_table.column_names.return_value = ["Zone", "BulkOil"]
-    data_table.column_unit.side_effect = {"Zone": "", "BulkOil": "m3"}.get
-    data_table.to_dict.return_value = {
-        "Zone": ["Valysar"],
-        "BulkOil": [1.0],
-    }
-    volume_table = MagicMock()
-    volume_table.get_data_table.return_value = data_table
-    exportvolumetrics.project.volumetric_tables = {
-        exportvolumetrics._volume_table_name: volume_table
-    }
+    data_table.column_unit.side_effect = {"Zone": None, "BulkOil": "[m³]"}.get
 
-    result = exportvolumetrics._get_table_from_rms()
-
-    pd.testing.assert_frame_equal(
-        result,
-        pd.DataFrame({"Zone": ["Valysar"], "BulkOil": [1.0]}),
-    )
-    assert exportvolumetrics._column_units == {"Zone": "", "BulkOil": "m3"}
+    assert exportvolumetrics._get_column_units(data_table) == {
+        "Zone": "",
+        "BulkOil": "m3",
+    }
     assert data_table.column_unit.call_args_list == [
         mock.call("Zone"),
         mock.call("BulkOil"),
     ]
+
+
+@pytest.mark.parametrize(
+    ("rms_unit", "expected"),
+    [
+        ("", ""),
+        ("[m³]", "m3"),
+        ("[m²]", "m2"),
+        ("[STB]", "stb"),
+        ("[MSCF]", "Mscf"),
+        ("[SCF]", "Mscf"),
+    ],
+)
+def test_normalize_rms_unit(rms_unit: str, expected: str) -> None:
+    from fmu.dataio.export.rms.inplace_volumes import normalize_rms_unit
+
+    assert normalize_rms_unit(rms_unit) == expected
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -736,7 +743,7 @@ def test_rms_volumetrics_export_function(
 
     with mock.patch.object(
         _ExportVolumetricsRMS,
-        "_get_table_with_volumes",
+        "_create_standard_volume_table",
         return_value=voltable_standard,
     ):
         result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")

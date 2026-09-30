@@ -31,6 +31,11 @@ _logger: Final = null_logger(__name__)
 _VolumetricColumns = enums.InplaceVolumes.VolumetricColumns
 _TableIndexColumns = enums.InplaceVolumes.TableIndexColumns
 _VOLUMETRIC_COLUMN_SUFFIXES: Final = ("_OIL", "_GAS", "_WATER", "_TOTAL")
+_RMS_UNIT_MAPPING: Final = {
+    "STB": "stb",
+    "MSCF": "Mscf",
+    "SCF": "Mscf",
+}
 
 # rename columns to FMU standard
 _RENAME_COLUMNS_FROM_RMS: Final = {
@@ -57,6 +62,12 @@ _RENAME_COLUMNS_FROM_RMS: Final = {
 }
 
 
+def normalize_rms_unit(unit: str) -> str:
+    """Convert an RMS unit name to the standard unit name."""
+    normalized = unit.strip("[]").replace("³", "3").replace("²", "2")
+    return _RMS_UNIT_MAPPING.get(normalized, normalized)
+
+
 class _ExportVolumetricsRMS(SimpleExportBase):
     """Export volumetric tables from RMS to FMU standard result."""
 
@@ -75,8 +86,9 @@ class _ExportVolumetricsRMS(SimpleExportBase):
         _logger.debug("Process data, establish state prior to export.")
         self._volume_job = self._get_rms_volume_job_settings()
         self._volume_table_name = self._read_volume_table_name_from_job()
-        self._column_units: dict[str, str] = {}
-        self._dataframe = self._get_table_with_volumes()
+        rms_volume_table = self._get_table_from_rms()
+        self._column_units = self._get_column_units(rms_volume_table)
+        self._dataframe = self._create_standard_volume_table(rms_volume_table)
         _logger.debug("Process data... DONE")
 
     def _get_rms_volume_job_settings(self) -> dict:
@@ -122,26 +134,26 @@ class _ExportVolumetricsRMS(SimpleExportBase):
         _logger.debug("The volume table name is %s", volume_table_name)
         return volume_table_name
 
-    def _get_table_with_volumes(self) -> pd.DataFrame:
+    def _create_standard_volume_table(self, rms_volume_table: Any) -> pd.DataFrame:
         """
-        Get a volumetric table from RMS converted into a pandas
-        dataframe on standard format for the inplace_volumes standard result.
+        Convert an RMS volumetric table to the inplace_volumes standard format.
         """
-        table = self._get_table_from_rms()
+        table = pd.DataFrame.from_dict(rms_volume_table.to_dict())
         table = self._convert_table_from_rms_to_legacy_format(table)
         return self._convert_table_from_legacy_to_standard_format(table)
 
-    def _get_table_from_rms(self) -> pd.DataFrame:
-        """Fetch volumetric table from RMS and convert to pandas dataframe"""
-        _logger.debug("Read values and convert to pandas dataframe...")
-        data_table = self.project.volumetric_tables[
-            self._volume_table_name
-        ].get_data_table()
-        self._column_units = {
-            name: data_table.column_unit(name) or ""
-            for name in data_table.column_names()
+    def _get_table_from_rms(self) -> Any:
+        """Fetch a volumetric table from RMS."""
+        _logger.debug("Read volumetric table from RMS...")
+        return self.project.volumetric_tables[self._volume_table_name].get_data_table()
+
+    @staticmethod
+    def _get_column_units(rms_volume_table: Any) -> dict[str, str]:
+        """Get normalized units for each column in an RMS volumetric table."""
+        return {
+            name: normalize_rms_unit(rms_volume_table.column_unit(name) or "")
+            for name in rms_volume_table.column_names()
         }
-        return pd.DataFrame.from_dict(data_table.to_dict())
 
     @staticmethod
     def _convert_table_from_rms_to_legacy_format(table: pd.DataFrame) -> pd.DataFrame:
