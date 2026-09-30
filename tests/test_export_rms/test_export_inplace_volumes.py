@@ -78,7 +78,9 @@ def exportvolumetrics(
     from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
 
     with mock.patch.object(
-        _ExportVolumetricsRMS, "_get_table_with_volumes", return_value=voltable_standard
+        _ExportVolumetricsRMS,
+        "_create_standard_volume_table",
+        return_value=voltable_standard,
     ):
         yield _ExportVolumetricsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
 
@@ -102,6 +104,67 @@ def test_rms_volumetrics_export_class(exportvolumetrics: _ExportVolumetricsRMS) 
 
     assert "volumes" in metadata["data"]["content"]
     assert metadata["access"]["classification"] == "restricted"
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+def test_rms_volumetrics_export_has_units_on_each_column(
+    exportvolumetrics: _ExportVolumetricsRMS,
+) -> None:
+    exportvolumetrics._column_units = {
+        "Zone": "",
+        "Segment": "",
+        "Facies": "",
+        "BulkOil": "m3",
+        "PoreOil": "m3",
+        "HCPVOil": "m3",
+        "STOIIP": "Sm3",
+    }
+
+    out = exportvolumetrics._export_data_as_standard_result()
+    schema = pq.read_schema(out.items[0].absolute_path)
+
+    assert all(field.metadata is not None for field in schema)
+    assert schema.field("ZONE").metadata == {b"unit": b""}
+    assert schema.field("BULK").metadata == {b"unit": b"m3"}
+    assert schema.field("NET").metadata == {b"unit": b"m3"}
+    assert schema.field("STOIIP").metadata == {b"unit": b"Sm3"}
+
+    metadata = dataio.read_metadata(out.items[0].absolute_path)
+    assert metadata["data"]["unit"] == ""
+
+
+def test_rms_volumetrics_gets_normalized_column_units(
+    exportvolumetrics: _ExportVolumetricsRMS,
+) -> None:
+    data_table = MagicMock()
+    data_table.column_names.return_value = ["Zone", "BulkOil"]
+    data_table.column_unit.side_effect = {"Zone": "", "BulkOil": "[m³]"}.get
+
+    assert exportvolumetrics._get_column_units(data_table) == {
+        "Zone": "",
+        "BulkOil": "m3",
+    }
+    assert data_table.column_unit.call_args_list == [
+        mock.call("Zone"),
+        mock.call("BulkOil"),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("rms_unit", "expected"),
+    [
+        ("", ""),
+        ("[m³]", "m3"),
+        ("[m²]", "m2"),
+        ("[STB]", "stb"),
+        ("[MSCF]", "Mscf"),
+        ("[SCF]", "scf"),
+    ],
+)
+def test_normalize_rms_unit(rms_unit: str, expected: str) -> None:
+    from fmu.dataio.export.rms.inplace_volumes import normalize_rms_unit
+
+    assert normalize_rms_unit(rms_unit) == expected
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -179,6 +242,26 @@ def test_no_volume_job_for_grid_raises(
             grid_name,
             missing_volume_job_name,
         )
+
+
+@pytest.mark.usefixtures("inside_rms_interactive")
+def test_convert_table_from_rms_to_legacy_format() -> None:
+    from fmu.dataio.export.rms.inplace_volumes import _ExportVolumetricsRMS
+
+    rms_volume_table = MagicMock()
+    rms_volume_table.to_dict.return_value = {
+        "Proj. real.": [0],
+        "Zone": ["A"],
+        "BulkOil": [1.0],
+    }
+
+    result = _ExportVolumetricsRMS._convert_table_from_rms_to_legacy_format(
+        rms_volume_table
+    )
+
+    expected = pd.DataFrame({"ZONE": ["A"], "BULK_OIL": [1.0]})
+    pd.testing.assert_frame_equal(result, expected)
+    rms_volume_table.to_dict.assert_called_once_with()
 
 
 @pytest.mark.usefixtures("inside_rms_interactive")
@@ -680,7 +763,7 @@ def test_rms_volumetrics_export_function(
 
     with mock.patch.object(
         _ExportVolumetricsRMS,
-        "_get_table_with_volumes",
+        "_create_standard_volume_table",
         return_value=voltable_standard,
     ):
         result = export_inplace_volumes(mock_project_variable, "Geogrid", "geogrid_vol")
