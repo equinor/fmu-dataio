@@ -3,11 +3,8 @@
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as ut
 
 from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 # If re-exporting already exported files for Sumo, set the directory where the files
 # have been exported.
@@ -18,7 +15,6 @@ def export_field_region():
     """Re-export a field region polygon with metadata."""
 
     export_data = ExportData(
-        config=CFG,
         content="field_region",
         content_metadata={"id": 1},
         unit="m",
@@ -42,7 +38,6 @@ def export_field_outline():
     """Re-export a field outline polygon with metadata."""
 
     export_data = ExportData(
-        config=CFG,
         content="field_outline",
         content_metadata={"contact": "goc"},
         unit="m",

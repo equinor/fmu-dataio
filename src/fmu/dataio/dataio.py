@@ -75,7 +75,6 @@ class ExportData:
            poly = xtgeo.polygons_from_roxar(project, name, POL_FOLDER)
 
            ed = dataio.ExportData(
-               config=CFG,
                content="depth",
                unit="m",
                vertical_domain="fault_lines",
@@ -173,18 +172,13 @@ class ExportData:
     # ----------------------------------------------------------------------------------
 
     config: dict[str, Any] | GlobalConfiguration = field(default_factory=dict)
-    """Required in order to produce valid metadata.
+    """Deprecated custom global configuration.
 
-    This global config must be provided either as an input value here or through an
-    environment variable.
+    By default, fmu-dataio discovers the global configuration automatically. It first
+    looks for the nearest ``.fmu/`` directory in the current directory or its parents,
+    then falls back to the global configuration file at the standard location.
 
-    This value should be a dictionary with static settings. In the standard case
-    this is read from FMU global variables produced by ``fmuconfig``. The dictionary
-    must contain some predefined main level keys to work with fmu-dataio.
 
-    .. note::
-       If missing or empty, an :meth:`export` may still be done, but without any
-       metadata produced.
 
     """
 

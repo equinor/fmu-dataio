@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.20.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -36,6 +36,11 @@ data:
     ncol: 92
     nlay: 65
     nrow: 146
+    value_statistics:
+      max: 2000000000.0
+      mean: 500664317.6862807
+      min: 0.0
+      std: 866408604.9172002
   stratigraphic: false
   tagname: ''
   undef_is_zero: false
@@ -45,7 +50,7 @@ display:
   name: facies
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 8e6a16b8747f17db4f7345eaa47d998f
+  checksum_md5: 3c57da8d86b01731eb0f4d1187e36f30
   relative_path: example_exports/share/results/grids/geogrid--facies.roff
   runpath_relative_path: share/results/grids/geogrid--facies.roff
   size_bytes: 3492813
@@ -116,4 +121,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.20.0
+version: 0.26.0

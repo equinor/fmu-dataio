@@ -3,11 +3,8 @@
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as ut
 
 from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 PORO_FILE = Path("../output/maps/props/poro_average.gri")
 DEPTH_FILE = Path("../output/maps/structure/topvolantis--ds_extract_geogrid.gri")
@@ -25,7 +22,6 @@ def export_porosity_average_map():
     print(f"Average value of map is {poro_surf.values.mean()}")
 
     export_data = ExportData(
-        config=CFG,
         name="all",
         unit="fraction",
         content="property",
@@ -46,7 +42,6 @@ def export_depth_surface():
     print(f"Average value of map is {surf.values.mean()}")
 
     export_data = ExportData(
-        config=CFG,
         name="topvolantis",
         unit="m",
         content="depth",
@@ -68,7 +63,6 @@ def export_fluid_contact_surface():
     fluid_contact_surf = xtgeo.surface_from_file(DEPTH_FILE)
 
     export_data = ExportData(
-        config=CFG,
         name="surface_fluid_contact",
         unit="m",
         content="fluid_contact",
@@ -91,7 +85,6 @@ def export_seismic_amplitude_surface():
     seismic_attribute_surf = xtgeo.surface_from_file(DEPTH_FILE)
 
     export_data = ExportData(
-        config=CFG,
         name="surface_seismic_amplitude",
         unit="m",
         content="seismic",
