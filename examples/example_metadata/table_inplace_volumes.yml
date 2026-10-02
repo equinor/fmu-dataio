@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.20.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -123,4 +123,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.20.0
+version: 0.26.0

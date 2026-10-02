@@ -13,11 +13,8 @@ Therys).
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as ut
 
 from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 # Property attributes. This maps a property name (key) to an attribute name (value).
 PROP_ATTRIBUTE_MAP = {
@@ -54,7 +51,6 @@ def export_property_maps():
                 name = to_name
 
         export_data = ExportData(
-            config=CFG,
             name=name,
             unit="fraction",
             content="property",

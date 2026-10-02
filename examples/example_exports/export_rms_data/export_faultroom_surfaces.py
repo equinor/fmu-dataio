@@ -2,12 +2,8 @@
 
 from pathlib import Path
 
-from fmu.config import utilities as ut
-
 from fmu.dataio import ExportData
 from fmu.dataio._readers import faultroom
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 # If running outside RMS using files that are stored e.g. on rms/output
 FAULTROOM_FILE = Path("../output/faultroom/some_faultroom.json")
@@ -22,7 +18,6 @@ def export_faultroom_surface():
     faultroom_object = faultroom.read_faultroom_file(FAULTROOM_FILE)
 
     export_data = ExportData(
-        config=CFG,
         content="fault_properties",
         workflow="rms structural model",
         tagname=faultroom_object.tagname,
