@@ -32,7 +32,6 @@ def export_fault_lines():
     for fmt in ["csv|xtgeo", "irap_ascii"]:
         ExportData.polygons_fformat = fmt
         export_data = ExportData(
-            config=CFG,
             content="fault_lines",
             unit="m",
             tagname="faultlines",

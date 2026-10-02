@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.20.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -27,6 +27,11 @@ data:
     ncol: 92
     nlay: 65
     nrow: 146
+    value_statistics:
+      max: 1.0e+33
+      mean: 2.503321574197095e+32
+      min: 0.0
+      std: 4.332043032811462e+32
   stratigraphic: false
   tagname: ''
   undef_is_zero: false
@@ -36,7 +41,7 @@ display:
   name: phit
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 81a976835da6a5fcc75608de22bb36c8
+  checksum_md5: 5330925512f41404c594819c9a4c9a8c
   relative_path: example_exports/share/results/grids/geogrid--phit.roff
   runpath_relative_path: share/results/grids/geogrid--phit.roff
   size_bytes: 3492651
@@ -107,4 +112,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.20.0
+version: 0.26.0

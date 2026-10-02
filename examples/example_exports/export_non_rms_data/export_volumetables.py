@@ -3,11 +3,8 @@
 from pathlib import Path
 
 import pandas as pd
-from fmu.config import utilities as ut
 
 from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 VOL_DIR = Path("../output/volumes/")
 VOL_FILES = ["geogrid_vol.csv", "simgrid_vol.csv"]
@@ -24,7 +21,6 @@ def export_volumes(df, grid_name):
 
     export_data = ExportData(
         name=grid_name,
-        config=CFG,
         content="volumes",
         unit="m3",
         tagname="volumes",
