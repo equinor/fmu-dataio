@@ -90,52 +90,24 @@ read by individual export jobs, and, if you opt to upload data into Sumo, the
 case metadata are used to register the case. Case metadata are made by a
 hooked (pre-sim) Ert workflow running `PRE_SIMULATION`.
 
-To make this, first create the workflow file in
-`ert/bin/workflows/xhook_create_case_metadata`.
-
-```{note}
-The "xhook" prefix is convention, but not mandatory. As all workflows will be
-included in the Ert GUI dropdown, the "hook" prefix signals that the workflow
-is not intended to be run manually. Further, the "x" makes it go to the bottom
-of the (alphabetically) sorted dropdown. If you have many workflows, this
-makes things a little bit more tidy.
-```
-
-The workflow calls a pre-installed workflow job: `WF_CREATE_CASE_METADATA`.
-Example script from the Drogon workflow:
-
-```sql
--- Create case metadata
---                       ert-casepath     sumo-flag
-WF_CREATE_CASE_METADATA  <SUMO_CASEPATH>  "--sumo"
-
--- This workflow is intended to run as a HOOK workflow.
-
--- Arguments:
--- casepath (Path): Absolute path to root of the case, typically <SCRATCH>/<USER>/<CASE_DIR>
-
--- Optional arguments:
--- --sumo (str):      If passed, case will be registered on Sumo.
--- --verbosity (str): Set log level
-
--- NOTE! If using optional arguments, note that the "--" annotation will be interpreted
---       as comments by ERT if not wrapped in quotes. This is the syntax to use:
---       (existing arguments) "--sumo"
-```
-
-Now, load this workflow in your ERT config file and make it a HOOK workflow:
+Add the pre-installed workflow job `WF_CREATE_CASE_METADATA` as a
+[`HOOK_WORKFLOW_JOB`](https://fmu-docs.equinor.com/docs/ert/reference/configuration/keywords.html#hook-workflow-job)
+in your ERT config file:
 
 ```sql
 -- Hook workflow for creating case metadata and (optional) registering case on Sumo
-LOAD_WORKFLOW   ../../bin/workflows/xhook_create_case_metadata
-HOOK_WORKFLOW   xhook_create_case_metadata  PRE_SIMULATION
+HOOK_WORKFLOW_JOB  xhook_create_case_metadata  WF_CREATE_CASE_METADATA  "--sumo"  PRE_SIMULATION
 ```
 
-```{note}
-In the Drogon example, you will notice that the loading is done in the
-`install_custom_jobs.ert` include file, while the HOOK_WORKFLOW call is in
-the main config file.
+````{note}
+The `"--sumo"` argument is recommended and is used to register the case in
+Sumo. If specified, `<SUMO_CASEPATH>` must be defined in the ERT config, for
+example:
+
+```sql
+DEFINE <SUMO_CASEPATH> <SCRATCH>/<USER>/<CASE_DIR>
 ```
+````
 
 You can now start ERT to verify that the workflow is loading and working. You
 should see the workflow appear in the workflows dropdown, and when you run a
