@@ -292,9 +292,10 @@ To handle this, two important concepts has been introduced.
    should not change erratically, and when we need to change them, this needs to
    be subject to alignment.
 
-### Schema version changelog
-
-{{ FmuResultsSchema.VERSION_CHANGELOG }}
+:::{important}
+See the [Schema version changelog](schema_changelog.md) for a complete history
+of changes to the FMU results schema.
+:::
 
 ### Contractual attributes
 
@@ -315,6 +316,12 @@ Expand below to see a full example of valid metadata for surface exported from F
 ```
 
 You will find more examples in [fmu-dataio github repository](https://github.com/equinor/fmu-dataio/tree/main/examples/0.8.0).
+
+```{toctree}
+:hidden:
+
+schema_changelog.md
+```
 
 
 ## FAQ
