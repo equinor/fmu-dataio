@@ -3,11 +3,8 @@
 from pathlib import Path
 
 import xtgeo
-from fmu.config import utilities as ut
 
 from fmu.dataio import ExportData
-
-CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
 
 OUT_DIR = Path("../output/grids")
 GRID_FILE = "gg"
@@ -27,7 +24,6 @@ def export_geogrid_geometry():
     grd = xtgeo.grid_from_file(filename)
 
     export_data = ExportData(
-        config=CFG,
         name=GRID_NAME,
         content="depth",
         unit="m",
@@ -52,7 +48,6 @@ def export_geogrid_parameters(outgrid):
         prop = xtgeo.gridproperty_from_file(filename)
 
         export_data = ExportData(
-            config=CFG,
             name=propname,
             geometry=outgrid,
             content="property",

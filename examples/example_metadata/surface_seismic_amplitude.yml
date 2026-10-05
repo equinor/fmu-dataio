@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.20.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -42,6 +42,11 @@ data:
     nrow: 645
     rotation: 0.0
     undef: 1.0e+30
+    value_statistics:
+      max: 1933.5001220703125
+      mean: 1709.595262681414
+      min: 1554.5228271484375
+      std: 62.61827838371753
     xinc: 20.0
     xori: 456063.6875
     yflip: 1
@@ -138,4 +143,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.20.0
+version: 0.26.0
