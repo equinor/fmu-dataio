@@ -29,7 +29,7 @@ of initial volumes from the dynamic simulation against static inplace volumes.
 
 | Field | Value |
 | --- | --- |
-| Version | NA |
+| Version | **{{ SimulatorFipregionsMappingSchema.VERSION }}** |
 | Output | `share/results/tables/simulator_fipregions_mapping/fipnum.parquet` |
 | Security classification | 🟡 Internal |
 :::
