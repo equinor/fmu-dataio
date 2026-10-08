@@ -16,6 +16,8 @@ from fmu.dataio._workflows.case.main import (
     _get_ensemble_name,
     _queue_ert_observations_seismic,
     _queue_ert_parameters,
+    _queue_model_stratigraphy_horizons,
+    _queue_model_stratigraphy_zones,
     _queue_stratigraphy_mappings,
     _queue_wellbore_mappings,
     _upload_files_to_sumo,
@@ -200,6 +202,63 @@ def test_queue_ert_observations_seismic_queues_standard_result(
     assert metadata["data"]["table_index"] == ["response_key"]
 
 
+def test_queue_model_stratigraphy_horizons_queues_standard_result(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """Model horizons are queued with standard-result metadata."""
+    sumo_uploader = MagicMock()
+    fake_table = pa.table(
+        {
+            "name": ["TopVolantis"],
+            "type": ["interpreted"],
+            "stratigraphic_order": [0],
+        }
+    )
+
+    with patch(
+        "fmu.dataio._workflows.case.main.get_model_stratigraphy_horizons_table",
+        return_value=fake_table,
+    ):
+        _queue_model_stratigraphy_horizons("iter-0", workflow_config, sumo_uploader)
+
+    queued_table, metadata = sumo_uploader.queue_table.call_args.args
+    assert queued_table == fake_table
+    assert metadata["data"]["standard_result"]["name"] == (
+        "model_stratigraphy_horizons"
+    )
+    assert metadata["data"]["table_index"] == ["name", "type"]
+
+
+def test_queue_model_stratigraphy_zones_queues_standard_result(
+    workflow_config: CaseWorkflowConfig,
+) -> None:
+    """Model zones are queued with standard-result metadata."""
+    sumo_uploader = MagicMock()
+    fake_table = pa.table(
+        {
+            "name": ["Volantis"],
+            "top_horizon_name": ["TopVolantis"],
+            "base_horizon_name": ["BaseVolantis"],
+            "stratigraphic_column_names": [["Column"]],
+        }
+    )
+
+    with patch(
+        "fmu.dataio._workflows.case.main.get_model_stratigraphy_zones_table",
+        return_value=fake_table,
+    ):
+        _queue_model_stratigraphy_zones("iter-0", workflow_config, sumo_uploader)
+
+    queued_table, metadata = sumo_uploader.queue_table.call_args.args
+    assert queued_table == fake_table
+    assert metadata["data"]["standard_result"]["name"] == ("model_stratigraphy_zones")
+    assert metadata["data"]["table_index"] == [
+        "name",
+        "top_horizon_name",
+        "base_horizon_name",
+    ]
+
+
 def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
     workflow_config: CaseWorkflowConfig,
 ) -> None:
@@ -268,6 +327,12 @@ def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
             "fmu.dataio._workflows.case.main._queue_ert_observations_seismic"
         ) as queue_seismic_observations,
         patch(
+            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_horizons"
+        ) as queue_model_horizons,
+        patch(
+            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_zones"
+        ) as queue_model_zones,
+        patch(
             "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
         ) as queue_stratigraphy,
     ):
@@ -281,6 +346,12 @@ def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
     )
     queue_seismic_observations.assert_called_once_with(
         ensemble, ensemble_name, workflow_config, sumo_uploader
+    )
+    queue_model_horizons.assert_called_once_with(
+        ensemble_name, workflow_config, sumo_uploader
+    )
+    queue_model_zones.assert_called_once_with(
+        ensemble_name, workflow_config, sumo_uploader
     )
     sumo_uploader.upload.assert_called_once_with()
 
@@ -306,6 +377,12 @@ def test_upload_files_to_sumo_skips_stratigraphy_when_fmu_dir_missing(
             "fmu.dataio._workflows.case.main._queue_ert_parameters"
         ) as queue_parameters,
         patch(
+            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_horizons"
+        ) as queue_model_horizons,
+        patch(
+            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_zones"
+        ) as queue_model_zones,
+        patch(
             "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
         ) as queue_stratigraphy,
     ):
@@ -314,6 +391,8 @@ def test_upload_files_to_sumo_skips_stratigraphy_when_fmu_dir_missing(
         )
 
     queue_stratigraphy.assert_not_called()
+    queue_model_horizons.assert_not_called()
+    queue_model_zones.assert_not_called()
     queue_parameters.assert_called_once_with(
         ensemble, ensemble_name, workflow_config_without_fmu, sumo_uploader
     )

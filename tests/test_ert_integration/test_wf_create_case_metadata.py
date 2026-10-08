@@ -29,6 +29,12 @@ from fmu.datamodels.standard_results.ert_parameters import (
     RawParameter,
     UniformParameter,
 )
+from fmu.datamodels.standard_results.model_stratigraphy_horizons import (
+    ModelStratigraphyHorizonsSchema,
+)
+from fmu.datamodels.standard_results.model_stratigraphy_zones import (
+    ModelStratigraphyZonesSchema,
+)
 from fmu.settings import get_fmu_directory
 from packaging.version import Version
 from pytest import MonkeyPatch
@@ -1094,6 +1100,8 @@ def test_create_case_metadata_uploads_wellbore_mappings(
             for call in queue_table.call_args_list
         }
         assert set(queued_mappings) == {
+            "model_stratigraphy_horizons",
+            "model_stratigraphy_zones",
             "stratigraphy_mapping",
             "wellbore_mapping",
         }
@@ -1196,7 +1204,14 @@ def test_create_case_metadata_dotfmu_without_wellbore_mappings(
 
         from_new_case = mock_uploader_interface.from_new_case
         from_new_case.assert_called_once()
-        from_new_case.return_value.queue_table.assert_not_called()
+        queued_names = {
+            call.args[1]["data"]["standard_result"]["name"]
+            for call in from_new_case.return_value.queue_table.call_args_list
+        }
+        assert queued_names == {
+            "model_stratigraphy_horizons",
+            "model_stratigraphy_zones",
+        }
 
 
 def test_create_case_metadata_uploads_stratigraphy_mappings(
@@ -1233,6 +1248,8 @@ def test_create_case_metadata_uploads_stratigraphy_mappings(
             for call in queue_table.call_args_list
         }
         assert set(queued_mappings) == {
+            "model_stratigraphy_horizons",
+            "model_stratigraphy_zones",
             "stratigraphy_mapping",
             "wellbore_mapping",
         }
@@ -1277,6 +1294,57 @@ def test_create_case_metadata_uploads_stratigraphy_mappings(
     assert mappings[0]["relation_type"] == "primary"
     assert mappings[0]["source_uuid"] is None
     assert mappings[0]["target_uuid"] == "1629c229-0a2b-4f0a-94f7-dc01b171cb1c"
+
+
+def test_create_case_metadata_uploads_model_stratigraphy(
+    fmu_snakeoil_project_with_dotfmu: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Model stratigraphy horizons and zones are uploaded as standard results."""
+    ert_model_path = fmu_snakeoil_project_with_dotfmu / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    add_create_case_workflow(ert_config_path, sumo=True)
+
+    with (
+        patch(
+            "fmu.dataio._workflows.case.main.SumoUploaderInterface",
+            spec=SumoUploaderInterface,
+        ) as mock_uploader_interface,
+        patch(
+            "sys.argv",
+            ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ),
+    ):
+        ert.__main__.main()
+
+        queue_table = mock_uploader_interface.from_new_case.return_value.queue_table
+        queued_tables = {
+            call.args[1]["data"]["standard_result"]["name"]: call.args
+            for call in queue_table.call_args_list
+        }
+
+    horizons, horizons_metadata = queued_tables["model_stratigraphy_horizons"]
+    assert horizons.column_names == ["name", "type", "stratigraphic_order"]
+    assert horizons["stratigraphic_order"].to_pylist() == list(range(len(horizons)))
+    assert horizons_metadata["data"]["content"] == "mapping"
+    assert horizons_metadata["data"]["standard_result"]["file_schema"] == {
+        "version": ModelStratigraphyHorizonsSchema.VERSION,
+        "url": ModelStratigraphyHorizonsSchema.url(),
+    }
+
+    zones, zones_metadata = queued_tables["model_stratigraphy_zones"]
+    assert zones.column_names == [
+        "name",
+        "top_horizon_name",
+        "base_horizon_name",
+        "stratigraphic_column_names",
+    ]
+    assert zones_metadata["data"]["content"] == "mapping"
+    assert zones_metadata["data"]["standard_result"]["file_schema"] == {
+        "version": ModelStratigraphyZonesSchema.VERSION,
+        "url": ModelStratigraphyZonesSchema.url(),
+    }
 
 
 def test_create_case_metadata_without_stratigraphy_mappings(
@@ -1334,4 +1402,11 @@ def test_create_case_metadata_dotfmu_without_stratigraphy_mappings(
 
         from_new_case = mock_uploader_interface.from_new_case
         from_new_case.assert_called_once()
-        from_new_case.return_value.queue_table.assert_not_called()
+        queued_names = {
+            call.args[1]["data"]["standard_result"]["name"]
+            for call in from_new_case.return_value.queue_table.call_args_list
+        }
+        assert queued_names == {
+            "model_stratigraphy_horizons",
+            "model_stratigraphy_zones",
+        }
