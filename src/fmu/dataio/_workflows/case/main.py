@@ -20,6 +20,7 @@ from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
 from fmu.datamodels.standard_results.enums import (
     ErtObservations,
+    ModelStratigraphy,
     StandardResultName,
 )
 from fmu.settings import (
@@ -31,6 +32,10 @@ from fmu.settings import (
 from .._utils import resolve_casepath
 from ._config import CaseWorkflowConfig
 from ._mappings import get_stratigraphy_mappings_table, get_wellbore_mappings_table
+from ._model_stratigraphy import (
+    get_model_stratigraphy_horizons_table,
+    get_model_stratigraphy_zones_table,
+)
 from ._observations import ObservationType, get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
@@ -272,6 +277,68 @@ def _queue_stratigraphy_mappings(
     sumo_uploader.queue_table(table, metadata)
 
 
+def _queue_model_stratigraphy_horizons(
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export model stratigraphy horizons using fmu-dataio."""
+    assert workflow_config.fmu_dir is not None
+
+    table = get_model_stratigraphy_horizons_table(workflow_config.fmu_dir)
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.mapping)
+        .access(Classification.internal, rep_include=False)
+        .table_config(table_index=ModelStratigraphy.HorizonsColumns.index_columns())
+        .file_config(name=StandardResultName.model_stratigraphy_horizons.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .standard_result(StandardResultName.model_stratigraphy_horizons)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
+def _queue_model_stratigraphy_zones(
+    ensemble_name: str,
+    workflow_config: CaseWorkflowConfig,
+    sumo_uploader: SumoUploaderInterface,
+) -> None:
+    """Export model stratigraphy zones using fmu-dataio."""
+    assert workflow_config.fmu_dir is not None
+
+    table = get_model_stratigraphy_zones_table(workflow_config.fmu_dir)
+    if table is None:
+        return
+
+    export_config = (
+        ExportConfig.builder()
+        .content(Content.mapping)
+        .access(Classification.internal, rep_include=False)
+        .table_config(table_index=ModelStratigraphy.ZonesColumns.index_columns())
+        .file_config(name=StandardResultName.model_stratigraphy_zones.value)
+        .global_config(workflow_config.global_config)
+        .run_context(
+            fmu_context=FMUContext.ensemble,
+            ensemble_name=ensemble_name,
+            casepath=workflow_config.casepath,
+        )
+        .standard_result(StandardResultName.model_stratigraphy_zones)
+        .build()
+    )
+    metadata = generate_metadata(export_config, table)
+    sumo_uploader.queue_table(table, metadata)
+
+
 def _queue_wellbore_mappings(
     ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
@@ -323,6 +390,10 @@ def _upload_files_to_sumo(
     )
 
     if workflow_config.fmu_dir:
+        _queue_model_stratigraphy_horizons(
+            ensemble_name, workflow_config, sumo_uploader
+        )
+        _queue_model_stratigraphy_zones(ensemble_name, workflow_config, sumo_uploader)
         _queue_stratigraphy_mappings(ensemble_name, workflow_config, sumo_uploader)
         _queue_wellbore_mappings(ensemble_name, workflow_config, sumo_uploader)
 
