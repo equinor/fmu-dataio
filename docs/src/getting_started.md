@@ -114,6 +114,23 @@ should see the workflow appear in the workflows dropdown, and when you run a
 case, you should see case metadata appear in
 `scratch/<field>/<casedir>/share/metadata/fmu_case.yml`.
 
+### Upload simulated responses after simulation
+
+Configure `WF_FMU_POST_SIMULATION` as a `POST_SIMULATION` hook, and keep
+`WF_CREATE_CASE_METADATA` as a `PRE_SIMULATION` hook so the case is registered
+before responses are uploaded:
+
+```text
+HOOK_WORKFLOW_JOB xhook_wf_fmu_post WF_FMU_POST_SIMULATION POST_SIMULATION
+```
+
+The following workflow runs the post hook after each ensemble simulation.
+It uploads available summary and RFT,responses for completed realizations in the
+active ensemble; missing or empty tables are skipped.
+These simulated responses are separate from measured observations.
+The hook needs no arguments or storage configuration, and uses
+`SUMO_ENV` (default: `prod`) to select the Sumo environment to upload observations
+responses.
 
 ## 3. Include a data export job
 
