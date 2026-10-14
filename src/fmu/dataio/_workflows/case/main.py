@@ -291,7 +291,7 @@ def _queue_model_stratigraphy_horizons(
 
     export_config = (
         ExportConfig.builder()
-        .content(Content.mapping)
+        .content(Content.stratigraphy)
         .access(Classification.internal, rep_include=False)
         .table_config(table_index=ModelStratigraphy.HorizonsColumns.index_columns())
         .file_config(name=StandardResultName.model_stratigraphy_horizons.value)
@@ -322,7 +322,7 @@ def _queue_model_stratigraphy_zones(
 
     export_config = (
         ExportConfig.builder()
-        .content(Content.mapping)
+        .content(Content.stratigraphy)
         .access(Classification.internal, rep_include=False)
         .table_config(table_index=ModelStratigraphy.ZonesColumns.index_columns())
         .file_config(name=StandardResultName.model_stratigraphy_zones.value)

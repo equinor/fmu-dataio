@@ -1327,7 +1327,7 @@ def test_create_case_metadata_uploads_model_stratigraphy(
     horizons, horizons_metadata = queued_tables["model_stratigraphy_horizons"]
     assert horizons.column_names == ["name", "type", "stratigraphic_order"]
     assert horizons["stratigraphic_order"].to_pylist() == list(range(len(horizons)))
-    assert horizons_metadata["data"]["content"] == "mapping"
+    assert horizons_metadata["data"]["content"] == "stratigraphy"
     assert horizons_metadata["data"]["standard_result"]["file_schema"] == {
         "version": ModelStratigraphyHorizonsSchema.VERSION,
         "url": ModelStratigraphyHorizonsSchema.url(),
@@ -1340,7 +1340,7 @@ def test_create_case_metadata_uploads_model_stratigraphy(
         "base_horizon_name",
         "stratigraphic_column_names",
     ]
-    assert zones_metadata["data"]["content"] == "mapping"
+    assert zones_metadata["data"]["content"] == "stratigraphy"
     assert zones_metadata["data"]["standard_result"]["file_schema"] == {
         "version": ModelStratigraphyZonesSchema.VERSION,
         "url": ModelStratigraphyZonesSchema.url(),

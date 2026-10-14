@@ -223,6 +223,7 @@ def test_queue_model_stratigraphy_horizons_queues_standard_result(
 
     queued_table, metadata = sumo_uploader.queue_table.call_args.args
     assert queued_table == fake_table
+    assert metadata["data"]["content"] == "stratigraphy"
     assert metadata["data"]["standard_result"]["name"] == (
         "model_stratigraphy_horizons"
     )
@@ -251,6 +252,7 @@ def test_queue_model_stratigraphy_zones_queues_standard_result(
 
     queued_table, metadata = sumo_uploader.queue_table.call_args.args
     assert queued_table == fake_table
+    assert metadata["data"]["content"] == "stratigraphy"
     assert metadata["data"]["standard_result"]["name"] == ("model_stratigraphy_zones")
     assert metadata["data"]["table_index"] == [
         "name",
