@@ -103,7 +103,7 @@ def test_stored_rft_observations(observation_ensemble: Ensemble) -> None:
     table = get_ert_observations_table(observation_ensemble, ObservationType.rft)
     assert table is not None
     row_model = get_args(ErtObservationsRftResult.model_fields["root"].annotation)[0]
-    assert set(table.column_names) == set(row_model.model_fields)
+    assert set(table.column_names) == set(row_model.model_fields) - {"observation_id"}
     rows = table.to_pylist()
 
     assert rows == [
@@ -130,7 +130,7 @@ def test_stored_summary_observations(observation_ensemble: Ensemble) -> None:
     assert table is not None
     root_field = ErtObservationsSummaryResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
-    assert set(table.column_names) == set(row_model.model_fields)
+    assert set(table.column_names) == set(row_model.model_fields) - {"observation_id"}
     rows = table.to_pylist()
 
     assert len(rows) == 2
@@ -157,7 +157,7 @@ def test_stored_breakthrough_observations(observation_ensemble: Ensemble) -> Non
     assert table is not None
     root_field = ErtObservationsBreakthroughResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
-    assert set(table.column_names) == set(row_model.model_fields)
+    assert set(table.column_names) == set(row_model.model_fields) - {"observation_id"}
     rows = table.to_pylist()
 
     assert len(rows) == 2
@@ -194,7 +194,7 @@ def test_stored_seismic_observations(
     assert table is not None
     root_field = ErtObservationsSeismicResult.model_fields["root"]
     row_model = get_args(root_field.annotation)[0]
-    assert set(table.column_names) == set(row_model.model_fields)
+    assert set(table.column_names) == set(row_model.model_fields) - {"observation_id"}
     assert "boundary_id" not in table.column_names
     rows = table.to_pylist()
 
