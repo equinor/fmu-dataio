@@ -1599,7 +1599,7 @@ requires-dist = [
     { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=22" },
-    { name = "fmu-datamodels", specifier = "~=0.26.0" },
+    { name = "fmu-datamodels", specifier = "~=0.26.3" },
     { name = "fmu-settings", specifier = ">=0.34.0" },
     { name = "fmu-sumo" },
     { name = "furo", marker = "extra == 'docs'" },
@@ -1640,14 +1640,14 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "fmu-datamodels"
-version = "0.26.2"
+version = "0.26.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/4c/8dc6353c46561f9e3f40e42246ace0f3b01444deb6b9af99d8406be85d8e/fmu_datamodels-0.26.2.tar.gz", hash = "sha256:4fecb33b38bff116e7164fc70805071c6b8e294220cc2f3722f36b0dea3265b1", size = 536771, upload-time = "2026-10-07T08:42:54.371Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/85/eb6dec206018b9652e3a9014127f1ca0911ef7dfd34569d36aca36febb16/fmu_datamodels-0.26.4.tar.gz", hash = "sha256:313e2b55d8cf3872b84f8c11beea37ba50f5e751874e0dc3e8658cfa3c169941", size = 536946, upload-time = "2026-10-14T07:27:51.685Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/92/1a/b7603e52fddd50225f3f68f4554f322935f47043ff555a3030e0eacf1b1b/fmu_datamodels-0.26.2-py3-none-any.whl", hash = "sha256:9baa834418501345b1328be374b881a940c020bb85d87fe53234fb7ea21f4b0c", size = 67930, upload-time = "2026-10-07T08:42:52.751Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/ea/9392dc3815582e65f61ceb9df8c114cf8932c16c0ac87839c75b9e019ba4/fmu_datamodels-0.26.4-py3-none-any.whl", hash = "sha256:97f084e11d4e8d5a93cc757272a5aff06da4014bf93a4703dff769bb186f0c05", size = 68008, upload-time = "2026-10-14T07:27:49.932Z" },
 ]
 
 [[package]]
