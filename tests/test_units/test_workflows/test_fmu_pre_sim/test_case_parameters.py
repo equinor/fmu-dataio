@@ -1,7 +1,7 @@
 import pyarrow as pa
 import pytest
 
-from fmu.dataio._workflows.case._parameters import _resolve_pa_field_type
+from fmu.dataio._workflows.fmu_pre_sim._parameters import _resolve_pa_field_type
 
 
 def test_resolve_pa_field_type_realization_col() -> None:

@@ -9,7 +9,7 @@ from fmu.datamodels.standard_results.model_stratigraphy_zones import (
 )
 from fmu.settings._drogon import create_drogon_fmu_dir
 
-from fmu.dataio._workflows.case._model_stratigraphy import (
+from fmu.dataio._workflows.fmu_pre_sim._model_stratigraphy import (
     get_model_stratigraphy_horizons_table,
     get_model_stratigraphy_zones_table,
 )

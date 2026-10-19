@@ -21,7 +21,7 @@ from fmu.datamodels import (
     ErtObservationsSummarySchema,
 )
 
-from fmu.dataio._workflows.case._observations import (
+from fmu.dataio._workflows.fmu_pre_sim._observations import (
     ObservationType,
     get_ert_observations_table,
 )
