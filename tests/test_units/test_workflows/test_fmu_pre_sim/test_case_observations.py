@@ -8,7 +8,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 
-from fmu.dataio._workflows.case._observations import (
+from fmu.dataio._workflows.fmu_pre_sim._observations import (
     ObservationType,
     _convert_type_large_string_to_string,
     _prepare_observations_dataframe,
@@ -30,7 +30,7 @@ def test_get_ert_observations_table_converts_large_string() -> None:
     ensemble.experiment.observations.get.return_value = obs_df
 
     with patch(
-        "fmu.dataio._workflows.case._observations._prepare_observations_dataframe",
+        "fmu.dataio._workflows.fmu_pre_sim._observations._prepare_observations_dataframe",
         return_value=obs_df,
     ):
         table = get_ert_observations_table(ensemble, ObservationType.rft)
