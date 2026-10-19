@@ -4,7 +4,7 @@ import pyarrow as pa
 from fmu.settings import get_fmu_directory
 from fmu.settings._drogon import create_drogon_fmu_dir
 
-from fmu.dataio._workflows.case._mappings import (
+from fmu.dataio._workflows.fmu_pre_sim._mappings import (
     get_stratigraphy_mappings_table,
     get_wellbore_mappings_table,
     has_stratigraphy_mappings,

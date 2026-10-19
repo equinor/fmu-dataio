@@ -4,7 +4,7 @@ import logging
 
 from fmu.config import utilities as utils
 
-from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
+from fmu.dataio._workflows.fmu_pre_sim.export_case_metadata import ExportCaseMetadata
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
