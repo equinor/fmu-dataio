@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,9 +47,9 @@ jobs:
           uv pip install \
             "fmu-datamodels @ git+https://github.com/equinor/fmu-datamodels.git"
 
-      # fmu-sumo-uploader blocked by OpenVDS on Python 3.14
+      # fmu-sumo-uploader blocked by OpenVDS on Python 3.14+
       - name: Install fmu-sumo-uploader
-        if: matrix.python-version != '3.14'
+        if: matrix.python-version != '3.14' && matrix.python-version != '3.15'
         run: uv pip install \ "fmu-sumo-uploader @
           git+https://github.com/equinor/fmu-sumo-uploader.git"
 
