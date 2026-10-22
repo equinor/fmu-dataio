@@ -530,7 +530,8 @@ class WfExportCaseMetadata(ert.ErtScript):
 
 @ert.plugin(name="fmu_dataio")
 def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
-    """Hook the WfExportCaseMetadata class with documentation into ERT."""
+    """Hook the workflow classes with documentation into ERT."""
+
     config.add_workflow(
         WfExportCaseMetadata,
         "WF_CREATE_CASE_METADATA",
