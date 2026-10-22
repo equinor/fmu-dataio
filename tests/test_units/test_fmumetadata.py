@@ -5,10 +5,12 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import ert.shared
 import pydantic
 import pytest
 from fmu.datamodels.fmu_results.enums import ErtSimulationMode, FMUContext
 from fmu.datamodels.fmu_results.fields import Workflow
+from packaging.version import Version
 from pytest import MonkeyPatch
 
 from fmu import dataio
@@ -442,6 +444,12 @@ def test_ert_simulation_modes_one_to_one() -> None:
         and isinstance(getattr(ert_mode_definitions, name), str)
     }
     dataio_known_modes = {mode.value for mode in ErtSimulationMode}
+
+    # TODO: Remove this after ERT 27 is released.
+    # The latest ERT builds have deprecated ensemble_smoother, so exclude it
+    # from dataio's known modes when testing against those builds.
+    if Version(ert.shared.__version__).major >= 27:
+        dataio_known_modes.discard("ensemble_smoother")
 
     assert ert_modes == dataio_known_modes
 
