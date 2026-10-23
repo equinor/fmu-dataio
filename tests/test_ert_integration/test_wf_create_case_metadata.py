@@ -252,6 +252,42 @@ def test_create_case_metadata_no_casepath_argument(
     assert expected_fmu_case_yml.exists()
 
 
+def test_create_case_metadata_sumo_casepath_resolved_regardless_of_define_order(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """
+    Test that <SUMO_CASEPATH> is fully resolved even when a variable it depends
+    on (<USER>) is defined after it in the ERT config.
+    """
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+
+    config = ert_config_path.read_text()
+
+    user_define_line = "DEFINE <USER>  user\n"
+
+    # Ensure that the user define line is added after the SUMO_CASEPATH definition
+    assert user_define_line in config
+    config = config.replace(user_define_line, "")
+    config = config.replace(
+        "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>\n",
+        "DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>\n" + user_define_line,
+    )
+    ert_config_path.write_text(config)
+
+    add_create_case_workflow(ert_config_path, casepath="")
+
+    with patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]):
+        ert.__main__.main()
+
+    expected_fmu_case_yml = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
+    )
+    assert expected_fmu_case_yml.exists()
+    assert not (fmu_snakeoil_project / "scratch/<USER>").exists()
+
+
 def test_create_case_metadata_fails_when_casepath_argument_is_undefined(
     fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
 ) -> None:

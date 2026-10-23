@@ -16,7 +16,7 @@ from pytest import MonkeyPatch
 def base_ert_config() -> str:
     return dedent(
         r"""
-        DEFINE <USER>       user
+        DEFINE <USER>  user
         DEFINE <SCRATCH>    $DATAIO_TMP_PATH/scratch
         DEFINE <CASE_DIR>   snakeoil
 

@@ -85,7 +85,11 @@ def _resolve_casepath(run_paths: ErtRunpaths, args: argparse.Namespace) -> Path:
     is raised, otherwise it falls back to <casepath> argument if provided.
     """
 
-    sumo_casepath = run_paths.substitutions.get("<SUMO_CASEPATH>")
+    sumo_casepath = (
+        run_paths.substitutions.substitute("<SUMO_CASEPATH>")
+        if "<SUMO_CASEPATH>" in run_paths.substitutions
+        else None
+    )
 
     if sumo_casepath:
         if args.casepath:
