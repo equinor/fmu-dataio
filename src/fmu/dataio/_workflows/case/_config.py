@@ -47,7 +47,7 @@ class CaseWorkflowConfig:
         _warn_deprecations(args)
 
         # /../ert/model/
-        ert_config_path = Path(run_paths.substitutions["<CONFIG_PATH>"])
+        ert_config_path = Path(run_paths.substitutions.substitute("<CONFIG_PATH>"))
         config_path = ert_config_path / RELATIVE_GLOBAL_VARIABLES_PATH
 
         global_config = load_global_config(config_path)

@@ -1,3 +1,4 @@
+import argparse
 from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
@@ -5,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pyarrow as pa
 import pytest
+from ert.substitutions import Substitutions
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import get_fmu_directory
 from fmu.settings._drogon import create_drogon_fmu_dir
@@ -17,6 +19,7 @@ from fmu.dataio._workflows.case.main import (
     _queue_ert_parameters,
     _queue_stratigraphy_mappings,
     _queue_wellbore_mappings,
+    _resolve_casepath,
     _upload_files_to_sumo,
 )
 
@@ -442,3 +445,102 @@ def test_copy_fmu_directory_with_fmu_already_exists(
 
     assert dest_fmu_dir.config.load() != new_dest_fmu_dir.config.load()
     assert src_fmu_dir.config.load() == new_dest_fmu_dir.config.load()
+
+
+def test_resolve_casepath_uses_sumo_casepath_when_defined() -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions(
+        {"<SUMO_CASEPATH>": "/tmp/scratch/user/case"}
+    )
+
+    assert _resolve_casepath(
+        run_paths, argparse.Namespace(casepath=None, sumo=False)
+    ) == Path("/tmp/scratch/user/case")
+
+
+def test_resolve_casepath_warns_when_legacy_casepath_is_provided() -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions(
+        {"<SUMO_CASEPATH>": "/tmp/scratch/user/case"}
+    )
+
+    with pytest.warns(FutureWarning, match="The argument 'casepath' is deprecated"):
+        resolved = _resolve_casepath(
+            run_paths, argparse.Namespace(casepath="/tmp/legacy/case", sumo=False)
+        )
+
+    assert resolved == Path("/tmp/scratch/user/case")
+
+
+def test_resolve_casepath_uses_legacy_casepath_when_allowed() -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions({})  # missing <SUMO_CASEPATH>
+
+    assert _resolve_casepath(
+        run_paths, argparse.Namespace(casepath="/tmp/legacy/case", sumo=False)
+    ) == Path("/tmp/legacy/case")
+
+
+def test_resolve_casepath_raises_when_sumo_required_but_missing() -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions({})  # missing <SUMO_CASEPATH>
+
+    with pytest.raises(ValueError, match="Missing required <SUMO_CASEPATH> definition"):
+        _resolve_casepath(
+            run_paths, argparse.Namespace(casepath="/tmp/legacy/case", sumo=True)
+        )
+
+
+def test_resolve_casepath_raises_when_no_casepath_is_available() -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions({})  # missing <SUMO_CASEPATH>
+
+    with pytest.raises(ValueError, match="The case path could not be resolved"):
+        _resolve_casepath(run_paths, argparse.Namespace(casepath=None, sumo=False))
+
+
+def test_resolve_casepath_resolves_nested_substitutions_regardless_of_order() -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions(
+        {
+            "<SUMO_CASEPATH>": "<SCRATCH>/<USER>/case",
+            "<SCRATCH>": "/tmp/scratch",
+            "<USER>": "user",
+        }
+    )
+
+    assert _resolve_casepath(
+        run_paths, argparse.Namespace(casepath=None, sumo=False)
+    ) == Path("/tmp/scratch/user/case")
+
+
+def test_workflow_config_resolves_nested_config_path(
+    mock_global_config_validated: GlobalConfiguration,
+) -> None:
+    run_paths = MagicMock()
+    run_paths.substitutions = Substitutions(
+        {"<CONFIG_PATH>": "<PROJECT_PATH>/ert/model", "<PROJECT_PATH>": "/tmp/project"}
+    )
+    args = argparse.Namespace(
+        casepath=None,
+        sumo=False,
+        ert_config_path=None,
+        ert_casename=None,
+        ert_username=None,
+        global_variables_path=None,
+        verbosity=None,
+        sumo_env=None,
+    )
+
+    with patch(
+        "fmu.dataio._workflows.case._config.load_global_config",
+        return_value=mock_global_config_validated,
+    ) as load_global_config:
+        config = CaseWorkflowConfig.from_presim_workflow(
+            run_paths, args, Path("/tmp/scratch/user/case")
+        )
+
+    assert config.ert_config_path == Path("/tmp/project/ert/model")
+    load_global_config.assert_called_once_with(
+        Path("/tmp/project/ert/model/../../fmuconfig/output/global_variables.yml")
+    )
