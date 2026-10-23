@@ -791,7 +791,7 @@ def test_distribution_models_one_to_one_with_ert() -> None:
 
     # TODO: Remove this after ERT 26 is released.
     # PERT was added accidentally in ERT 25 and will be supported from ERT 26.
-    if Version(ert.shared.__version__).major < 26:
+    if 0 < Version(ert.shared.__version__).major < 26:
         ert_models.pop("pert", None)
         datamodels_models.pop("pert", None)
 
