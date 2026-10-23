@@ -7,6 +7,7 @@ from packaging.version import Version
 import fmu.dataio._workflows.jobs
 from fmu.dataio._workflows import copy_preprocessed
 from fmu.dataio._workflows.case import main as create_case_metadata
+from fmu.dataio._workflows.fmu_pre_sim import main as fmu_pre_sim
 
 
 def test_hook_implementations() -> None:
@@ -14,6 +15,7 @@ def test_hook_implementations() -> None:
         plugins=[
             fmu.dataio._workflows.jobs,
             create_case_metadata,
+            fmu_pre_sim,
             copy_preprocessed,
         ]
     )
@@ -25,7 +27,11 @@ def test_hook_implementations() -> None:
         installable_fms = plugin_manager.get_installable_jobs()
     assert set(installable_fms) == expected_forward_models
 
-    expected_workflow_jobs = {"WF_CREATE_CASE_METADATA", "WF_COPY_PREPROCESSED_DATAIO"}
+    expected_workflow_jobs = {
+        "WF_CREATE_CASE_METADATA",
+        "WF_COPY_PREPROCESSED_DATAIO",
+        "WF_FMU_PRE_SIMULATION",
+    }
     installable_workflow_jobs = plugin_manager.get_ertscript_workflows().get_workflows()
     for wf_name, _ in installable_workflow_jobs.items():
         assert wf_name in expected_workflow_jobs
@@ -38,6 +44,7 @@ def test_hook_implementations_docs() -> None:
         plugins=[
             fmu.dataio._workflows.jobs,
             create_case_metadata,
+            fmu_pre_sim,
             copy_preprocessed,
         ]
     )
