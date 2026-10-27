@@ -19,10 +19,10 @@ def test_hook_implementations() -> None:
     )
 
     expected_forward_models: set[str] = set()
-    if Version(ert.shared.__version__) > Version("17.0.0"):
-        installable_fms = plugin_manager.forward_model_steps
-    else:
+    if Version("0.0.0") < Version(ert.shared.__version__) < Version("17.0.0"):
         installable_fms = plugin_manager.get_installable_jobs()
+    else:
+        installable_fms = plugin_manager.forward_model_steps
     assert set(installable_fms) == expected_forward_models
 
     expected_workflow_jobs = {"WF_CREATE_CASE_METADATA", "WF_COPY_PREPROCESSED_DATAIO"}
@@ -42,12 +42,12 @@ def test_hook_implementations_docs() -> None:
         ]
     )
 
-    if Version(ert.shared.__version__) > Version("17.0.0"):
-        installable_fms = plugin_manager.forward_model_steps
-        fm_docs = plugin_manager.get_documentation_for_forward_model_steps()
-    else:
+    if Version("0.0.0") < Version(ert.shared.__version__) < Version("17.0.0"):
         installable_fms = plugin_manager.get_installable_jobs()
         fm_docs = plugin_manager.get_documentation_for_jobs()
+    else:
+        installable_fms = plugin_manager.forward_model_steps
+        fm_docs = plugin_manager.get_documentation_for_forward_model_steps()
 
     assert set(fm_docs) == set(installable_fms)
 
