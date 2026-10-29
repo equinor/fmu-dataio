@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import shlex
@@ -33,6 +34,7 @@ def casepath_has_metadata(casepath: Path) -> bool:
 
 
 def md5sum(file: Path | BytesIO) -> str:
+    """Return the MD5 checksum of a file or buffer as base64."""
     if isinstance(file, (str, Path)):
         with open(file, "rb") as stream:
             return md5sum_stream(stream)
@@ -40,7 +42,7 @@ def md5sum(file: Path | BytesIO) -> str:
 
 
 def md5sum_stream(stream: BufferedIOBase) -> str:
-    """Calculate the MD5 checksum of a stream."""
+    """Return the MD5 checksum of a stream as base64."""
     stream.seek(0)
 
     hash_md5 = hashlib.md5()
@@ -49,7 +51,7 @@ def md5sum_stream(stream: BufferedIOBase) -> str:
         if not chunk:
             break
         hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+    return base64.b64encode(hash_md5.digest()).decode("ascii")
 
 
 def uuid_from_string(string: str) -> uuid.UUID:

@@ -1,5 +1,7 @@
 """Test the dataio re-export of preprocessed data through ExportDataPreprocessed."""
 
+import base64
+import hashlib
 import logging
 from collections.abc import Callable
 from pathlib import Path
@@ -8,6 +10,7 @@ from typing import Any
 import pytest
 import xtgeo
 import yaml
+from fmu.datamodels.fmu_results.fmu_results import FmuResultsSchema
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 
 from fmu import dataio
@@ -43,12 +46,15 @@ def export_preprocessed_surface(
     return surfacepath, metafile
 
 
+@pytest.mark.parametrize("checksum_encoding", ["base64", "hex"])
+@pytest.mark.filterwarnings("error:The preprocessed file seems to have been modified")
 def test_export_preprocessed_surfacefile(
     runpath_prehook: Path,
     rmsglobalconfig: dict[str, Any],
     regsurf: xtgeo.RegularSurface,
     remove_ert_env: Callable[[], None],
     set_ert_env_prehook: Callable[[], None],
+    checksum_encoding: str,
 ) -> None:
     """
     Test re-exporting a preprocessed surface in a fmu run, and check that the
@@ -60,6 +66,15 @@ def test_export_preprocessed_surfacefile(
     surfacepath, metafile = export_preprocessed_surface(rmsglobalconfig, regsurf)
 
     existing_meta = read_metadata(metafile)
+    digest = hashlib.md5(surfacepath.read_bytes()).digest()
+    if checksum_encoding == "hex":
+        existing_meta["file"]["checksum_md5"] = digest.hex().upper()
+        existing_meta["version"] = "0.26.0"
+        existing_meta["$schema"] = (
+            "https://main-fmu-schemas-prod.radix.equinor.com/"
+            "schemas/0.26.0/fmu_results.json"
+        )
+        export_metadata_file(file=metafile, metadata=existing_meta)
     # check that '_preprocesssed' is originally present
     assert existing_meta is not None
     assert "_preprocessed" in existing_meta
@@ -69,6 +84,9 @@ def test_export_preprocessed_surfacefile(
     edata = dataio.ExportPreprocessedData(is_observation=True, casepath=runpath_prehook)
     # generate the updated metadata
     metadata = edata.generate_metadata(surfacepath)
+    assert metadata["file"]["checksum_md5"] == base64.b64encode(digest).decode("ascii")
+    assert metadata["version"] == FmuResultsSchema.VERSION
+    assert metadata["$schema"] == FmuResultsSchema.url()
 
     # check that _preprocessed is removed
     assert "_preprocessed" not in metadata
@@ -91,7 +109,14 @@ def test_export_preprocessed_surfacefile(
 
     #  check that for all other keys the new metadata is equal to the existing
     for key, value in existing_meta.items():
-        if key not in ["fmu", "file", "tracklog", "_preprocessed"]:
+        if key not in [
+            "fmu",
+            "file",
+            "tracklog",
+            "_preprocessed",
+            "version",
+            "$schema",
+        ]:
             assert metadata[key] == value
 
     # do the actual export and check that both files exists
