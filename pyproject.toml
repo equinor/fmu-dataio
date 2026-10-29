@@ -9,9 +9,7 @@ description = "Facilitate data io in FMU with rich metadata"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
-authors = [
-    { name = "Equinor", email = "fg_fmu-atlas@equinor.com" },
-]
+authors = [{ name = "Equinor", email = "fg_fmu-atlas@equinor.com" }]
 keywords = ["fmu", "sumo"]
 
 classifiers = [
@@ -32,7 +30,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "PyYAML",
-    "fmu-datamodels~=0.26.3",
+    "fmu-datamodels~=0.27.0",
     "fmu-settings>=0.34.0",
     "fmu-sumo",
     "jsonschema",
@@ -60,7 +58,7 @@ dev = [
     "pandas-stubs",
     "pyarrow-stubs",
     "pydocstyle",
-    "pyqt6<6.10.0",  # Fails installing via ert
+    "pyqt6<6.10.0",   # Fails installing via ert
     "pytest",
     "pytest-cov",
     "pytest-mock",
@@ -138,16 +136,13 @@ filterwarnings = [
     # https://github.com/scikit-learn-contrib/hdbscan/issues/457#issuecomment-773671043
     # https://numpy.org/doc/stable/release/1.20.0-notes.html#size-of-np-ndarray-and-np-void-changed
     "ignore:numpy.ndarray size changed:RuntimeWarning",
-    "ignore:Config contains a SUMMARY key but no forward model steps known to generate summary files:UserWarning",    
+    "ignore:Config contains a SUMMARY key but no forward model steps known to generate summary files:UserWarning",
     "ignore:This project is configured to use FMU Settings.:UserWarning",
     "ignore:This project is not yet configured to use FMU Settings.:FutureWarning",
 ]
 
 [tool.coverage.run]
-omit = [
-    "version.py",
-    "tests/**",
-]
+omit = ["version.py", "tests/**"]
 
 [tool.pydocstyle]
 convention = "google"
@@ -161,26 +156,26 @@ exclude = ["version.py", "docs/ext/**"]
 ignore = [
     "B028",  # No explicit `stacklevel` keyword argument found
     "C901",  # mccabe complex-structure
-    "PD011",  # Avoid using .values on dataframes (gives false positives)
-    "TC001",  # Move imports under TYPE_CHECKING. Breaks Pydantic annotations
-    "TC003",  # Move stdlib imports under TYPE_CHECKING. Breaks Pydantic annotations
+    "PD011", # Avoid using .values on dataframes (gives false positives)
+    "TC001", # Move imports under TYPE_CHECKING. Breaks Pydantic annotations
+    "TC003", # Move stdlib imports under TYPE_CHECKING. Breaks Pydantic annotations
 ]
 select = [
-    "B",  # flake-8-bugbear
-    "C90",  # mccabe
-    "E",  # pycodestyle-error
-    "F",  # pyflakes
-    "I",  # isort
-    "NPY",  # numpy
+    "B",   # flake-8-bugbear
+    "C90", # mccabe
+    "E",   # pycodestyle-error
+    "F",   # pyflakes
+    "I",   # isort
+    "NPY", # numpy
     "PD",  # pandas-vet
-    "PIE",  # flake8-pie
-    "Q",  # flake8-quotes
-    "RET",  # flake8-return
-    "RSE",  # flake8-raise
-    "SIM",  # flake8-simplify
-    "TCH",  # flake8-type-checking
+    "PIE", # flake8-pie
+    "Q",   # flake8-quotes
+    "RET", # flake8-return
+    "RSE", # flake8-raise
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
     # "TID",  # flake8-tidy-imports
-    "UP",  # pyupgrade
+    "UP", # pyupgrade
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -211,9 +206,9 @@ exclude-newer = "1 week"
 "fmu-sumo" = false
 "fmu-sumo-uploader" = false
 "graphite-maps" = false
-"iterative-ensemble-smoother" = false 
+"iterative-ensemble-smoother" = false
 "sumo-wrapper-python" = false
 "xtgeo" = false
 "ert" = false
-"ropt" = false # Developed in cooperation with Equinor
-"ropt-dakota" = false # Developed in cooperation with Equinor
+"ropt" = false                        # Developed in cooperation with Equinor
+"ropt-dakota" = false                 # Developed in cooperation with Equinor
