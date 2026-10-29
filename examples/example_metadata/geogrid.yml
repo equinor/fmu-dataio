@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.27.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -54,7 +54,7 @@ display:
   name: geogrid
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 3a45baff22bec3b9ae9a21cbf8b31de7
+  checksum_md5: OkW6/yK+w7mumiHL+LMd5w==
   relative_path: example_exports/share/results/grids/geogrid.roff
   runpath_relative_path: share/results/grids/geogrid.roff
   size_bytes: 16540658
@@ -125,4 +125,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.26.0
+version: 0.27.0

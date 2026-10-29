@@ -4,8 +4,10 @@ The ExportPreprocessedData is used for exporting preprocessed data that already
 contains metadata, into a FMU run.
 """
 
+import base64
 import shutil
 import warnings
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, Final
 
@@ -15,6 +17,7 @@ from pydantic import ValidationError
 from fmu.datamodels.common.enums import TrackLogEventType
 from fmu.datamodels.fmu_results.enums import FMUContext
 from fmu.datamodels.fmu_results.fields import File
+from fmu.datamodels.fmu_results.fmu_results import FmuResultsSchema
 
 from ._definitions import ERT_RELATIVE_CASE_METADATA_FILE
 from ._export import ObjectMetadataExport, export_metadata_file
@@ -32,10 +35,12 @@ logger: Final = null_logger(__name__)
 class ExportPreprocessedData:
     """Export a preprocessed file and its metadata into a FMU run at case level.
 
-    The existing metadata will be validated and three fields will be updated
+    The existing metadata will be validated and five fields will be updated:
     - The 'fmu' block will be added with information about the existing FMU/ERT run
     - The 'file' block will be updated with new file paths.
     - The 'tracklog' block will be extended with a new event tagged "merged".
+    - The 'version' field will be updated to the current schema version.
+    - The '$schema' field will be updated to the current schema URL.
 
     Note it is important that the preprocessed data have been created upfront with the,
     ExportData class using the argument fmu_context='preprocessed'. This ensures
@@ -137,7 +142,15 @@ class ExportPreprocessedData:
     def _check_md5sum_consistency(
         self, checksum_md5_file: str, checksum_md5_meta: str
     ) -> None:
-        """Check if the md5sum for the file is equal to the one in the metadata."""
+        """Check if the md5sum for the file is equal to the one in the metadata.
+
+        The file checksum is base64. The stored MD5 checksum can be hex or base64.
+        """
+        if len(checksum_md5_meta) == 32:
+            with suppress(ValueError):
+                checksum_md5_meta = base64.b64encode(
+                    bytes.fromhex(checksum_md5_meta)
+                ).decode("ascii")
         if checksum_md5_file != checksum_md5_meta:
             warnings.warn(
                 "The preprocessed file seems to have been modified since it was "
@@ -168,10 +181,12 @@ class ExportPreprocessedData:
         self, existing_metadata: dict[str, Any], objfile: Path
     ) -> dict[str, Any]:
         """
-        Update the existing metadata with updated fmu/file/tracklog info:
+        Update five fields in the existing metadata:
         - The 'fmu' block will be added
         - The 'file' block will be updated with new paths.
         - The 'tracklog' block will be extended with a new event tagged "merged".
+        - The 'version' field will be updated to the current schema version.
+        - The '$schema' field will be updated to the current schema URL.
 
         A simple consistency check will be run to detect if the file has been
         modified since it was initially exported.
@@ -193,6 +208,8 @@ class ExportPreprocessedData:
         existing_metadata["file"] = self._build_file_metadata(
             objfile, checksum_md5_file, size_file
         )
+        existing_metadata["version"] = FmuResultsSchema.VERSION
+        existing_metadata["$schema"] = FmuResultsSchema.url()
 
         try:
             # TODO: Would like to use meta.Root.model_validate() here

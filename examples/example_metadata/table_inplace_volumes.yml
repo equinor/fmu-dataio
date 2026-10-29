@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.27.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -52,7 +52,7 @@ display:
   name: geogrid
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 173c646133f5a47c9bfbc4432a0a2812
+  checksum_md5: FzxkYTP1pHyb+8RDKgooEg==
   relative_path: example_exports/share/results/tables/geogrid--volumes.csv
   runpath_relative_path: share/results/tables/geogrid--volumes.csv
   size_bytes: 3921
@@ -123,4 +123,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.26.0
+version: 0.27.0

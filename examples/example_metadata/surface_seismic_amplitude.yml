@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.27.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -72,7 +72,7 @@ display:
   name: surface_seismic_amplitude
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: ab0fb42049138871749c6c367d2d094f
+  checksum_md5: qw+0IEkTiHF0nGw2fS0JTw==
   relative_path: example_exports/share/results/maps/surface_seismic_amplitude--20201028_20201028.gri
   runpath_relative_path: share/results/maps/surface_seismic_amplitude--20201028_20201028.gri
   size_bytes: 1481020
@@ -143,4 +143,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.26.0
+version: 0.27.0

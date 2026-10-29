@@ -1,5 +1,6 @@
 """Tests for the _export.serialize module."""
 
+import base64
 from collections.abc import Callable
 from io import BytesIO
 from pathlib import Path
@@ -118,7 +119,8 @@ def test_compute_md5_deterministic(
     result2 = compute_md5_and_size(objdata)
 
     assert result1 == result2
-    assert len(result1[0]) == 32  # md5 hex digest length
+    # Decoding base64 restores the 16-byte MD5 digest.
+    assert len(base64.b64decode(result1[0], validate=True)) == 16
     assert result1[1] > 0
 
 

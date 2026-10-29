@@ -1,4 +1,4 @@
-$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.26.0/fmu_results.json
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.27.0/fmu_results.json
 _preprocessed: false
 access:
   asset:
@@ -46,7 +46,7 @@ display:
   name: poly
 file:
   absolute_path: /some/absolute/path/
-  checksum_md5: 560dca7801c1cad8ee8c81fc4f9c9860
+  checksum_md5: Vg3KeAHBytjujIH8T5yYYA==
   relative_path: example_exports/share/results/polygons/poly--polygons_field_outline.csv
   runpath_relative_path: share/results/polygons/poly--polygons_field_outline.csv
   size_bytes: 35651
@@ -117,4 +117,4 @@ tracklog:
       version: dummy_version
   user:
     id: user
-version: 0.26.0
+version: 0.27.0
