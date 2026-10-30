@@ -10,8 +10,9 @@ from fmu.settings import get_fmu_directory
 from fmu.settings._drogon import create_drogon_fmu_dir
 from pytest import MonkeyPatch
 
-from fmu.dataio._workflows.case.main import (
-    CaseWorkflowConfig,
+from fmu.dataio._workflows.case._config import CaseWorkflowConfig
+from fmu.dataio._workflows.fmu_pre_sim._config import PreSimulationConfig
+from fmu.dataio._workflows.fmu_pre_sim.main import (
     _copy_fmu_directory,
     _get_ensemble_name,
     _queue_ert_observations_seismic,
@@ -54,13 +55,10 @@ def mock_run_paths() -> Callable[[str], MagicMock]:
 def workflow_config(
     runpath_prehook: Path,
     mock_global_config_validated: GlobalConfiguration,
-) -> CaseWorkflowConfig:
-    """Create a mock CaseWorkflowConfig."""
-    return CaseWorkflowConfig(
+) -> PreSimulationConfig:
+    """Create a mock pre-simulation workflow config."""
+    return PreSimulationConfig(
         casepath=runpath_prehook,
-        ert_config_path=Path("../../ert/model/"),
-        register_on_sumo=True,
-        verbosity="WARNING",
         global_config=mock_global_config_validated,
         fmu_dir=get_fmu_directory(runpath_prehook),
     )
@@ -118,38 +116,32 @@ def test_get_ensemble_name_pred_run(
 
 
 def test_queue_ert_parameters_does_nothing_when_table_is_none(
-    tmp_path: Path,
     mock_ensemble: Callable[[], MagicMock],
-    mock_run_paths: Callable[[], MagicMock],
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """When get_ert_parameters_table returns None queue_table must not be called.
 
     This shouldn't happen (Ert should have parameters), but in theory is possible.
     """
     ensemble = mock_ensemble()
-    run_paths = mock_run_paths()
     sumo_uploader = MagicMock()
 
     with patch(
-        "fmu.dataio._workflows.case.main.get_ert_parameters_table",
+        "fmu.dataio._workflows.fmu_pre_sim.main.get_ert_parameters_table",
         return_value=None,
     ):
-        _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
+        _queue_ert_parameters(ensemble, "ens", workflow_config, sumo_uploader)
 
     sumo_uploader.queue_table.assert_not_called()
 
 
 def test_queue_ert_parameters_queue_table_when_present(
-    tmp_path: Path,
     mock_ensemble: Callable[[], MagicMock],
-    mock_run_paths: Callable[[str], MagicMock],
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """When a table is returned it should be queued with generated metadata."""
 
     ensemble = mock_ensemble()
-    run_paths = mock_run_paths(str(tmp_path / "realization-0/iter-0"))
     sumo_uploader = MagicMock()
 
     fake_table = pa.table({"REAL": [0]})
@@ -157,22 +149,22 @@ def test_queue_ert_parameters_queue_table_when_present(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main.get_ert_parameters_table",
+            "fmu.dataio._workflows.fmu_pre_sim.main.get_ert_parameters_table",
             return_value=fake_table,
         ),
         patch(
-            "fmu.dataio._workflows.case.main.generate_metadata",
+            "fmu.dataio._workflows.fmu_pre_sim.main.generate_metadata",
             return_value=fake_metadata,
         ),
     ):
-        _queue_ert_parameters(ensemble, run_paths, workflow_config, sumo_uploader)
+        _queue_ert_parameters(ensemble, "ens", workflow_config, sumo_uploader)
 
     sumo_uploader.queue_table.assert_called_once_with(fake_table, fake_metadata)
 
 
 def test_queue_ert_observations_seismic_queues_standard_result(
     mock_ensemble: Callable[[], MagicMock],
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """Seismic observations are queued with observation standard-result metadata."""
     ensemble = mock_ensemble()
@@ -188,7 +180,7 @@ def test_queue_ert_observations_seismic_queues_standard_result(
     )
 
     with patch(
-        "fmu.dataio._workflows.case.main.get_ert_observations_table",
+        "fmu.dataio._workflows.fmu_pre_sim.main.get_ert_observations_table",
         return_value=fake_table,
     ):
         _queue_ert_observations_seismic(
@@ -216,7 +208,7 @@ def test_queue_model_stratigraphy_horizons_queues_standard_result(
     )
 
     with patch(
-        "fmu.dataio._workflows.case.main.get_model_stratigraphy_horizons_table",
+        "fmu.dataio._workflows.fmu_pre_sim.main.get_model_stratigraphy_horizons_table",
         return_value=fake_table,
     ):
         _queue_model_stratigraphy_horizons("iter-0", workflow_config, sumo_uploader)
@@ -245,7 +237,7 @@ def test_queue_model_stratigraphy_zones_queues_standard_result(
     )
 
     with patch(
-        "fmu.dataio._workflows.case.main.get_model_stratigraphy_zones_table",
+        "fmu.dataio._workflows.fmu_pre_sim.main.get_model_stratigraphy_zones_table",
         return_value=fake_table,
     ):
         _queue_model_stratigraphy_zones("iter-0", workflow_config, sumo_uploader)
@@ -262,7 +254,7 @@ def test_queue_model_stratigraphy_zones_queues_standard_result(
 
 
 def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """
     When get_stratigraphy_mappings_table returns None queue_table
@@ -271,7 +263,7 @@ def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
     sumo_uploader = MagicMock()
 
     with patch(
-        "fmu.dataio._workflows.case.main.get_stratigraphy_mappings_table",
+        "fmu.dataio._workflows.fmu_pre_sim.main.get_stratigraphy_mappings_table",
         return_value=None,
     ):
         _queue_stratigraphy_mappings("ensemble", workflow_config, sumo_uploader)
@@ -280,7 +272,7 @@ def test_queue_stratigraphy_mappings_does_nothing_when_table_is_none(
 
 
 def test_queue_stratigraphy_mappings_queue_table_when_present(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """When a table is returned it should be queued with generated metadata."""
 
@@ -291,11 +283,11 @@ def test_queue_stratigraphy_mappings_queue_table_when_present(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main.get_stratigraphy_mappings_table",
+            "fmu.dataio._workflows.fmu_pre_sim.main.get_stratigraphy_mappings_table",
             return_value=fake_table,
         ),
         patch(
-            "fmu.dataio._workflows.case.main.generate_metadata",
+            "fmu.dataio._workflows.fmu_pre_sim.main.generate_metadata",
             return_value=fake_metadata,
         ) as generate_metadata,
     ):
@@ -307,7 +299,7 @@ def test_queue_stratigraphy_mappings_queue_table_when_present(
 
 
 def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """With fmu_dir present, all queues including stratigraphy are called."""
     ensemble_name = "ens"
@@ -319,23 +311,23 @@ def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            "fmu.dataio._workflows.fmu_pre_sim.main._get_ensemble_name",
             return_value=ensemble_name,
         ),
         patch(
-            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_parameters"
         ) as queue_parameters,
         patch(
-            "fmu.dataio._workflows.case.main._queue_ert_observations_seismic"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_observations_seismic"
         ) as queue_seismic_observations,
         patch(
-            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_horizons"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_model_stratigraphy_horizons"
         ) as queue_model_horizons,
         patch(
-            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_zones"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_model_stratigraphy_zones"
         ) as queue_model_zones,
         patch(
-            "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_stratigraphy_mappings"
         ) as queue_stratigraphy,
     ):
         _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
@@ -358,8 +350,48 @@ def test_upload_files_to_sumo_queues_stratigraphy_when_fmu_dir_present(
     sumo_uploader.upload.assert_called_once_with()
 
 
+@pytest.mark.parametrize("use_legacy_config", [False, True], ids=["pre-sim", "case"])
+def test_upload_files_to_sumo_accepts_both_workflow_configs(
+    workflow_config: PreSimulationConfig,
+    use_legacy_config: bool,
+) -> None:
+    """Both workflow config types can use the shared Sumo upload implementation."""
+    if use_legacy_config:
+        upload_config = CaseWorkflowConfig(
+            casepath=workflow_config.casepath,
+            ert_config_path=Path("../../ert/model/"),
+            register_on_sumo=True,
+            verbosity="WARNING",
+            global_config=workflow_config.global_config,
+            fmu_dir=None,
+        )
+    else:
+        upload_config = replace(workflow_config, fmu_dir=None)
+
+    ensemble = MagicMock()
+    run_paths = MagicMock()
+    sumo_uploader = MagicMock()
+
+    with (
+        patch(
+            "fmu.dataio._workflows.fmu_pre_sim.main._get_ensemble_name",
+            return_value="ens",
+        ),
+        patch("fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_parameters"),
+        patch("fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_observations_rft"),
+        patch("fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_observations_summary"),
+        patch(
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_observations_breakthrough"
+        ),
+        patch("fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_observations_seismic"),
+    ):
+        _upload_files_to_sumo(ensemble, run_paths, upload_config, sumo_uploader)
+
+    sumo_uploader.upload.assert_called_once_with()
+
+
 def test_upload_files_to_sumo_skips_stratigraphy_when_fmu_dir_missing(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """With no fmu_dir, stratigraphy mappings are not queued."""
     ensemble_name = "ens"
@@ -372,20 +404,20 @@ def test_upload_files_to_sumo_skips_stratigraphy_when_fmu_dir_missing(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            "fmu.dataio._workflows.fmu_pre_sim.main._get_ensemble_name",
             return_value=ensemble_name,
         ),
         patch(
-            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_parameters"
         ) as queue_parameters,
         patch(
-            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_horizons"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_model_stratigraphy_horizons"
         ) as queue_model_horizons,
         patch(
-            "fmu.dataio._workflows.case.main._queue_model_stratigraphy_zones"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_model_stratigraphy_zones"
         ) as queue_model_zones,
         patch(
-            "fmu.dataio._workflows.case.main._queue_stratigraphy_mappings"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_stratigraphy_mappings"
         ) as queue_stratigraphy,
     ):
         _upload_files_to_sumo(
@@ -402,7 +434,7 @@ def test_upload_files_to_sumo_skips_stratigraphy_when_fmu_dir_missing(
 
 
 def test_queue_wellbore_mappings_does_nothing_when_table_is_none(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """
     When get_wellbore_mappings_table returns None queue_table
@@ -411,7 +443,7 @@ def test_queue_wellbore_mappings_does_nothing_when_table_is_none(
     sumo_uploader = MagicMock()
 
     with patch(
-        "fmu.dataio._workflows.case.main.get_wellbore_mappings_table",
+        "fmu.dataio._workflows.fmu_pre_sim.main.get_wellbore_mappings_table",
         return_value=None,
     ):
         _queue_wellbore_mappings("ensemble", workflow_config, sumo_uploader)
@@ -420,7 +452,7 @@ def test_queue_wellbore_mappings_does_nothing_when_table_is_none(
 
 
 def test_queue_wellbore_mappings_queue_table_when_present(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """When a table is returned it should be queued with generated metadata."""
 
@@ -431,11 +463,11 @@ def test_queue_wellbore_mappings_queue_table_when_present(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main.get_wellbore_mappings_table",
+            "fmu.dataio._workflows.fmu_pre_sim.main.get_wellbore_mappings_table",
             return_value=fake_table,
         ),
         patch(
-            "fmu.dataio._workflows.case.main.generate_metadata",
+            "fmu.dataio._workflows.fmu_pre_sim.main.generate_metadata",
             return_value=fake_metadata,
         ) as generate_metadata,
     ):
@@ -447,7 +479,7 @@ def test_queue_wellbore_mappings_queue_table_when_present(
 
 
 def test_upload_files_to_sumo_queues_wellbore_when_fmu_dir_present(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """With fmu_dir present, all queues including wellbore are called."""
     ensemble_name = "ens"
@@ -459,14 +491,14 @@ def test_upload_files_to_sumo_queues_wellbore_when_fmu_dir_present(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            "fmu.dataio._workflows.fmu_pre_sim.main._get_ensemble_name",
             return_value=ensemble_name,
         ),
         patch(
-            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_parameters"
         ) as queue_parameters,
         patch(
-            "fmu.dataio._workflows.case.main._queue_wellbore_mappings"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_wellbore_mappings"
         ) as queue_wellbore,
     ):
         _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
@@ -481,7 +513,7 @@ def test_upload_files_to_sumo_queues_wellbore_when_fmu_dir_present(
 
 
 def test_upload_files_to_sumo_skips_wellbore_when_fmu_dir_missing(
-    workflow_config: CaseWorkflowConfig,
+    workflow_config: PreSimulationConfig,
 ) -> None:
     """With no fmu_dir, wellbore mappings are not queued."""
     ensemble_name = "ens"
@@ -494,14 +526,14 @@ def test_upload_files_to_sumo_skips_wellbore_when_fmu_dir_missing(
 
     with (
         patch(
-            "fmu.dataio._workflows.case.main._get_ensemble_name",
+            "fmu.dataio._workflows.fmu_pre_sim.main._get_ensemble_name",
             return_value=ensemble_name,
         ),
         patch(
-            "fmu.dataio._workflows.case.main._queue_ert_parameters"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_parameters"
         ) as queue_parameters,
         patch(
-            "fmu.dataio._workflows.case.main._queue_wellbore_mappings"
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_wellbore_mappings"
         ) as queue_wellbore,
     ):
         _upload_files_to_sumo(
