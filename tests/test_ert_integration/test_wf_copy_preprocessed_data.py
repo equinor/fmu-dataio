@@ -184,7 +184,7 @@ def test_copy_preprocessed_requires_sumo_casepath(
 
     mocker.patch(
         "sys.argv",
-        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ["ert", "test_run", "snakeoil.ert"],
     )
     ert.__main__.main()
 
@@ -212,7 +212,7 @@ def test_copy_preprocessed_rejects_relative_sumo_casepath(
 
     mocker.patch(
         "sys.argv",
-        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ["ert", "test_run", "snakeoil.ert"],
     )
     ert.__main__.main()
 
@@ -241,7 +241,7 @@ def test_copy_preprocessed_no_casemeta(
 
     mocker.patch(
         "sys.argv",
-        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ["ert", "test_run", "snakeoil.ert"],
     )
     with pytest.warns(UserWarning, match="metadata"):
         ert.__main__.main()
@@ -270,7 +270,7 @@ def test_copy_preprocessed_no_preprocessed_files(
 
     mocker.patch(
         "sys.argv",
-        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ["ert", "test_run", "snakeoil.ert"],
     )
 
     ert.__main__.main()
@@ -295,7 +295,7 @@ def test_inpath_absolute_path_raises(
 
     mocker.patch(
         "sys.argv",
-        ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"],
+        ["ert", "test_run", "snakeoil.ert"],
     )
 
     ert.__main__.main()
