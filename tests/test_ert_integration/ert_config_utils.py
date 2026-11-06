@@ -85,6 +85,16 @@ def add_create_case_workflow(
         )
 
 
+def add_fmu_pre_sim_workflow(
+    ert_config_path: Path,
+) -> None:
+    with open(ert_config_path, "a", encoding="utf-8") as f:
+        f.write(
+            "HOOK_WORKFLOW_JOB xhook_wf_fmu_pre_sim "
+            "WF_FMU_PRE_SIMULATION PRE_SIMULATION\n"
+        )
+
+
 def add_copy_preprocessed_workflow(
     ert_config_path: Path,
     inpath: str = "../../share/preprocessed",
