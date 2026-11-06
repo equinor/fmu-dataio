@@ -1,4 +1,4 @@
-"""Create FMU case metadata and register case on Sumo (optional).
+"""Create FMU case metadata and register case on Sumo.
 
 This script is intended to be run through an Ert HOOK PRE_SIMULATION workflow.
 """
@@ -50,10 +50,10 @@ logger.setLevel(logging.CRITICAL)
 
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
-WF_FMU_PRE_SIMULATION will create case metadata with fmu-dataio for storing on disk
-and on Sumo. When Sumo upload is enabled, the workflow also uploads Ert parameters
-and observations, including summary, RFT, breakthrough, and seismic observations. The
-workflow uses Ert storage directly, so the relevant case metadata, parameters, and
+WF_FMU_PRE_SIMULATION will create case metadata with fmu-dataio, store it on disk,
+and register the case on Sumo. The workflow also uploads Ert parameters and
+observations to Sumo, including summary, RFT, breakthrough, and seismic observations.
+The workflow uses Ert storage directly, so the relevant case metadata, parameters, and
 observations are collected automatically from the active Ert run.
 """
 
@@ -63,8 +63,6 @@ hook in your Ert config. No separate workflow file is needed::
 
 HOOK_WORKFLOW_JOB xhook_wf_fmu_pre WF_FMU_PRE_SIMULATION PRE_SIMULATION
 
-The workflow takes no arguments. Run WF_FMU_PRE_SIMULATION  as a PRE_SIMULATION
-hook first to register the case on Sumo.
 
 Note that ``<SUMO_CASEPATH>`` must be defined in the Ert config for this workflow to
 run::
@@ -409,7 +407,6 @@ def _upload_files_to_sumo(
 
 def _run_workflow(
     ensemble: ErtEnsemble,
-    run_paths: ErtRunpaths,
     workflow_config: PreSimulationConfig,
 ) -> None:
     """Main workflow entry point."""
@@ -422,7 +419,7 @@ def _run_workflow(
     sumo_uploader = SumoUploaderInterface.from_new_case(Path(case_metadata_path))
     _upload_files_to_sumo(
         ensemble=ensemble,
-        run_paths=run_paths,
+        run_paths=workflow_config.run_paths,
         workflow_config=workflow_config,
         sumo_uploader=sumo_uploader,
     )
@@ -472,7 +469,7 @@ class WfFmuPreSimulation(ert.ErtScript):
             run_paths=run_paths, casepath=casepath, fmu_dir=fmu_dir
         )
 
-        _run_workflow(ensemble, run_paths, cfg)
+        _run_workflow(ensemble, cfg)
 
 
 @ert.plugin(name="fmu_dataio")

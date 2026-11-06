@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 class PreSimulationConfig:
     """Validated configuration for the PRE_SIMULATION workflow."""
 
+    run_paths: ErtRunpaths
     casepath: Path
     global_config: GlobalConfiguration
     fmu_dir: ProjectFMUDirectory | None
@@ -47,6 +48,7 @@ class PreSimulationConfig:
             / RELATIVE_GLOBAL_VARIABLES_PATH
         )
         return cls(
+            run_paths=run_paths,
             casepath=casepath,
             global_config=load_global_config(config_path),
             fmu_dir=fmu_dir,

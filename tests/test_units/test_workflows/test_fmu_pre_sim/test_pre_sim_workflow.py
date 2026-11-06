@@ -54,10 +54,12 @@ def mock_run_paths() -> Callable[[str], MagicMock]:
 @pytest.fixture
 def workflow_config(
     runpath_prehook: Path,
+    mock_run_paths: Callable[[], MagicMock],
     mock_global_config_validated: GlobalConfiguration,
 ) -> PreSimulationConfig:
     """Create a mock pre-simulation workflow config."""
     return PreSimulationConfig(
+        run_paths=mock_run_paths(),
         casepath=runpath_prehook,
         global_config=mock_global_config_validated,
         fmu_dir=get_fmu_directory(runpath_prehook),
