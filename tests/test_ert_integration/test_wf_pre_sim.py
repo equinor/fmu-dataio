@@ -40,11 +40,11 @@ from packaging.version import Version
 from pytest import MonkeyPatch
 
 from fmu.dataio._interfaces import SumoUploaderInterface
-from fmu.dataio._workflows.case.main import CaseWorkflowConfig
-from fmu.dataio._workflows.fmu_pre_sim._observations import (
+from fmu.dataio._workflows.case._observations import (
     ObservationType,
     get_ert_observations_table,
 )
+from fmu.dataio._workflows.case.main import CaseWorkflowConfig
 from fmu.dataio._workflows.fmu_pre_sim._parameters import (
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
@@ -1021,7 +1021,7 @@ def test_create_case_metadata_collects_rft_observations_as_expected(
             spec=SumoUploaderInterface,
         ) as mock_uploader_interface,
         patch(
-            "fmu.dataio._workflows.fmu_pre_sim.main.get_ert_observations_table",
+            "fmu.dataio._workflows.case.main.get_ert_observations_table",
             side_effect=capture_observation_tables,
         ),
         patch(
@@ -1080,7 +1080,7 @@ def test_create_case_metadata_with_no_observations(
             spec=SumoUploaderInterface,
         ) as mock_uploader_interface,
         patch(
-            "fmu.dataio._workflows.fmu_pre_sim.main.get_ert_observations_table",
+            "fmu.dataio._workflows.case.main.get_ert_observations_table",
             side_effect=capture_observation_tables,
         ),
         patch(

@@ -19,7 +19,6 @@ from fmu.dataio._workflows.case._config import CaseWorkflowConfig
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
 from fmu.datamodels.standard_results.enums import (
-    ErtObservations,
     ModelStratigraphy,
     StandardResultName,
 )
@@ -36,7 +35,6 @@ from ._model_stratigraphy import (
     get_model_stratigraphy_horizons_table,
     get_model_stratigraphy_zones_table,
 )
-from ._observations import ObservationType, get_ert_observations_table
 from ._parameters import get_ert_parameters_table
 from .export_case_metadata import ExportCaseMetadata
 
@@ -51,17 +49,21 @@ logger.setLevel(logging.CRITICAL)
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
 WF_FMU_PRE_SIMULATION will create case metadata with fmu-dataio, store it on disk,
-and register the case on Sumo. The workflow also uploads Ert parameters and
-observations to Sumo, including summary, RFT, breakthrough, and seismic observations.
-The workflow uses Ert storage directly, so the relevant case metadata, parameters, and
-observations are collected automatically from the active Ert run.
+and register the case on Sumo. The workflow also uploads Ert parameters to Sumo,
+together with model stratigraphy and stratigraphy/wellbore mappings when a ``.fmu``
+directory is present in the project. The workflow uses Ert storage directly, so the
+relevant case metadata and parameters are collected automatically from the active Ert
+run.
+
+Observations are not uploaded by this workflow. They will be uploaded together with
+their responses by a dedicated post-simulation workflow.
 """
 
 PRE_SIMULATION_EXAMPLES = """
 Hook the ``WF_FMU_PRE_SIMULATION`` workflow job directly as a PRE_SIMULATION
 hook in your Ert config. No separate workflow file is needed::
 
-HOOK_WORKFLOW_JOB xhook_wf_fmu_pre WF_FMU_PRE_SIMULATION PRE_SIMULATION
+    HOOK_WORKFLOW_JOB xhook_wf_fmu_pre WF_FMU_PRE_SIMULATION PRE_SIMULATION
 
 
 Note that ``<SUMO_CASEPATH>`` must be defined in the Ert config for this workflow to
@@ -115,132 +117,6 @@ def _queue_ert_parameters(
             casepath=workflow_config.casepath,
         )
         .standard_result(StandardResultName.parameters)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_ert_observations_breakthrough(
-    ensemble: ErtEnsemble,
-    ensemble_name: str,
-    workflow_config: PreSimulationConfig | CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export breakthrough observation table using fmu-dataio."""
-
-    table = get_ert_observations_table(ensemble, ObservationType.breakthrough)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.observations)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=ErtObservations.BreakthroughColumns.index_columns())
-        .file_config(name=StandardResultName.observations_breakthrough.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .flags(is_observation=True)
-        .standard_result(StandardResultName.observations_breakthrough)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_ert_observations_rft(
-    ensemble: ErtEnsemble,
-    ensemble_name: str,
-    workflow_config: PreSimulationConfig | CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export rft observation table using fmu-dataio."""
-    table = get_ert_observations_table(ensemble, ObservationType.rft)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.observations)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=ErtObservations.RftColumns.index_columns())
-        .file_config(name=StandardResultName.observations_rft.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .flags(is_observation=True)
-        .standard_result(StandardResultName.observations_rft)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_ert_observations_summary(
-    ensemble: ErtEnsemble,
-    ensemble_name: str,
-    workflow_config: PreSimulationConfig | CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export summary observation table using fmu-dataio."""
-
-    table = get_ert_observations_table(ensemble, ObservationType.summary)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.observations)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=ErtObservations.SummaryColumns.index_columns())
-        .file_config(name=StandardResultName.observations_summary.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .flags(is_observation=True)
-        .standard_result(StandardResultName.observations_summary)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_ert_observations_seismic(
-    ensemble: ErtEnsemble,
-    ensemble_name: str,
-    workflow_config: PreSimulationConfig | CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export seismic observation table using fmu-dataio."""
-    table = get_ert_observations_table(ensemble, ObservationType.seismic)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.observations)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=ErtObservations.SeismicColumns.index_columns())
-        .file_config(name=StandardResultName.observations_seismic.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .flags(is_observation=True)
-        .standard_result(StandardResultName.observations_seismic)
         .build()
     )
     metadata = generate_metadata(export_config, table)
@@ -375,24 +251,16 @@ def _upload_files_to_sumo(
     workflow_config: PreSimulationConfig | CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
-    """Establishes a case on Sumo, uploading initial case and ensemble data as well."""
+    """Establishes a case on Sumo, uploading initial case and ensemble data as well.
+
+    Any tables already queued on ``sumo_uploader`` by the caller are uploaded in the
+    same batch. Observations are intentionally not queued here; they belong to the
+    legacy WF_CREATE_CASE_METADATA workflow and, in the future, a post-simulation
+    workflow.
+    """
     ensemble_name = _get_ensemble_name(ensemble, run_paths, workflow_config.casepath)
 
     _queue_ert_parameters(ensemble, ensemble_name, workflow_config, sumo_uploader)
-
-    _queue_ert_observations_rft(ensemble, ensemble_name, workflow_config, sumo_uploader)
-
-    _queue_ert_observations_summary(
-        ensemble, ensemble_name, workflow_config, sumo_uploader
-    )
-
-    _queue_ert_observations_breakthrough(
-        ensemble, ensemble_name, workflow_config, sumo_uploader
-    )
-
-    _queue_ert_observations_seismic(
-        ensemble, ensemble_name, workflow_config, sumo_uploader
-    )
 
     if workflow_config.fmu_dir:
         _queue_model_stratigraphy_horizons(
