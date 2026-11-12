@@ -190,7 +190,7 @@ def get_horizons_in_folder(
         rms_object = horizon[horizon_folder]
         if isinstance(rms_object, rmsapi.Surface) and not rms_object.is_empty():
             surfaces.append(
-                xtgeo.surface_from_roxar(
+                xtgeo.surface_from_rms(
                     project, horizon.name, horizon_folder, stype="horizons"
                 )
             )
@@ -212,7 +212,7 @@ def get_zones_in_folder(project: Any, zone_folder: str) -> list[xtgeo.RegularSur
         rms_object = zone[zone_folder]
         if isinstance(rms_object, rmsapi.Surface) and not rms_object.is_empty():
             surfaces.append(
-                xtgeo.surface_from_roxar(project, zone.name, zone_folder, stype="zones")
+                xtgeo.surface_from_rms(project, zone.name, zone_folder, stype="zones")
             )
     if not surfaces:
         raise RuntimeError(
@@ -234,7 +234,7 @@ def get_polygons_in_folder(
         rms_object = horizon[horizon_folder]
         if isinstance(rms_object, rmsapi.Polylines) and not rms_object.is_empty():
             polygons.append(
-                xtgeo.polygons_from_roxar(
+                xtgeo.polygons_from_rms(
                     project,
                     horizon.name,
                     horizon_folder,
@@ -289,7 +289,7 @@ def get_surfaces_in_general2d_folder(
     for item in folder_items:
         if isinstance(item, rmsapi.Surface) and not item.is_empty():
             surfaces.append(
-                xtgeo.surface_from_roxar(
+                xtgeo.surface_from_rms(
                     project, item.name, "/".join(folder_path), stype="general2d_data"
                 )
             )
@@ -311,7 +311,7 @@ def get_polygons_in_general2d_folder(
     for item in folder_items:
         if isinstance(item, rmsapi.Polylines) and not item.is_empty():
             polygons.append(
-                xtgeo.polygons_from_roxar(
+                xtgeo.polygons_from_rms(
                     project, item.name, "/".join(folder_path), stype="general2d_data"
                 )
             )

@@ -109,9 +109,9 @@ def test_get_horizons_in_folder(mock_project_variable: MagicMock) -> None:
         horizon2,
         horizon3,
     ]
-    # Mock xtgeo.surface_from_roxar to return just the surface name
+    # Mock xtgeo.surface_from_rms to return just the surface name
     with mock.patch(
-        "xtgeo.surface_from_roxar",
+        "xtgeo.surface_from_rms",
         side_effect=lambda _project, name, _category, stype: name,
     ):
         surfaces = get_horizons_in_folder(mock_project_variable, horizon_folder)
@@ -184,9 +184,9 @@ def test_get_zones_in_folder(mock_project_variable: MagicMock) -> None:
     zone3.name = "Below"
 
     mock_project_variable.zones.__iter__.return_value = [zone1, zone2, zone3]
-    # Mock xtgeo.surface_from_roxar to return just the surface name
+    # Mock xtgeo.surface_from_rms to return just the surface name
     with mock.patch(
-        "xtgeo.surface_from_roxar",
+        "xtgeo.surface_from_rms",
         side_effect=lambda _project, name, _category, stype: name,
     ):
         zones = get_zones_in_folder(mock_project_variable, zone_folder)
@@ -384,9 +384,9 @@ def test_get_surfaces_in_general2d_folder(mock_project_variable: MagicMock) -> N
 
     mock_project_variable.general2d_data.folders = {folder: mock_folder}
 
-    # Mock xtgeo.surface_from_roxar to return just the surface name
+    # Mock xtgeo.surface_from_rms to return just the surface name
     with mock.patch(
-        "xtgeo.surface_from_roxar",
+        "xtgeo.surface_from_rms",
         side_effect=lambda _project, name, _category, stype: name,
     ):
         surfaces = get_surfaces_in_general2d_folder(mock_project_variable, folder)
@@ -437,9 +437,9 @@ def test_get_polygons_in_general2d_folder(mock_project_variable: MagicMock) -> N
 
     mock_project_variable.general2d_data.folders = {folder: mock_folder}
 
-    # Mock xtgeo.polygons_from_roxar to return just the polygon name
+    # Mock xtgeo.polygons_from_rms to return just the polygon name
     with mock.patch(
-        "xtgeo.polygons_from_roxar",
+        "xtgeo.polygons_from_rms",
         side_effect=lambda _project, name, _category, stype: name,
     ):
         polygons = get_polygons_in_general2d_folder(mock_project_variable, folder)

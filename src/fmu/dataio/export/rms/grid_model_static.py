@@ -226,11 +226,11 @@ class _ExportGridModelStatic:
 
     def load_grid(self) -> xtgeo.Grid:
         """Load the grid from RMS."""
-        return xtgeo.grid_from_roxar(self.project, self.gridname)
+        return xtgeo.grid_from_rms(self.project, self.gridname)
 
     def load_property(self, name: str) -> xtgeo.GridProperty:
         """Load a grid property from RMS."""
-        return xtgeo.gridproperty_from_roxar(self.project, self.gridname, name)
+        return xtgeo.gridproperty_from_rms(self.project, self.gridname, name)
 
     def export(self) -> ExportResult:
         exported_items = []

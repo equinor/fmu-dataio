@@ -203,7 +203,7 @@ ExportData instance inside the loop. Example below:
       )
 
       for surf_name in SURFACES:
-          surface = xtgeo.surface_from_roxar(project, surf_name, SURFACE_FOLDER)
+          surface = xtgeo.surface_from_rms(project, surf_name, SURFACE_FOLDER)
           exd.export(surface, name=surfname)    # ⛔️ no longer allowed!
 
 
@@ -219,7 +219,7 @@ Change to this instead 👇:
     def export_surfaces():
 
       for surf_name in SURFACES:
-          surface = xtgeo.surface_from_roxar(project, surf_name, SURFACE_FOLDER)
+          surface = xtgeo.surface_from_rms(project, surf_name, SURFACE_FOLDER)
 
           exd = ExportData(
               content='time',

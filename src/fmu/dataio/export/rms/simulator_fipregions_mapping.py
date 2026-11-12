@@ -92,7 +92,7 @@ def _load_discrete_gridproperty(
     project: Any, grid_name: str, property_name: str
 ) -> xtgeo.GridProperty:
     """Load a grid property from RMS and validate that it is discrete."""
-    prop = xtgeo.gridproperty_from_roxar(project, grid_name, property_name)
+    prop = xtgeo.gridproperty_from_rms(project, grid_name, property_name)
 
     if not prop.isdiscrete:
         raise ValueError(f"The property {property_name} must be discrete.")
@@ -109,7 +109,7 @@ def _create_fipnum_in_project(
 
     fipnum, mapping_table = _create_fipnum_from_region_and_zone(zone, region)
 
-    fipnum.to_roxar(project, grid_name, FIPNAME)
+    fipnum.to_rms(project, grid_name, FIPNAME)
 
     return mapping_table
 

@@ -73,7 +73,7 @@ def _create_zone_layer_mapping_table(grid: xtgeo.Grid) -> pa.Table:
 def _extract_zone_layer_mapping_from_grid(project: Any, grid_name: str) -> pa.Table:
     """Create a layer / zone mapping table from a grid in RMS."""
 
-    grid = xtgeo.grid_from_roxar(project, grid_name)
+    grid = xtgeo.grid_from_rms(project, grid_name)
     return _create_zone_layer_mapping_table(grid)
 
 

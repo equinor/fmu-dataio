@@ -63,11 +63,11 @@ def mock_export_class(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.grid_model_static.xtgeo.grid_from_roxar",
+            "fmu.dataio.export.rms.grid_model_static.xtgeo.grid_from_rms",
             return_value=xtgeo_grid,
         ),
         mock.patch(
-            "fmu.dataio.export.rms.grid_model_static.xtgeo.gridproperty_from_roxar"
+            "fmu.dataio.export.rms.grid_model_static.xtgeo.gridproperty_from_rms"
         ) as mock_prop,
     ):
 
@@ -397,11 +397,11 @@ def test_net_to_gross_export_sets_metadata_from_property_type(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.grid_model_static.xtgeo.grid_from_roxar",
+            "fmu.dataio.export.rms.grid_model_static.xtgeo.grid_from_rms",
             return_value=xtgeo_grid,
         ),
         mock.patch(
-            "fmu.dataio.export.rms.grid_model_static.xtgeo.gridproperty_from_roxar"
+            "fmu.dataio.export.rms.grid_model_static.xtgeo.gridproperty_from_rms"
         ) as mock_prop,
     ):
 

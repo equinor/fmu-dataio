@@ -169,7 +169,7 @@ def test_load_discrete_gridproperty_raises_on_continuous_property(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.gridproperty_from_roxar",
+            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.gridproperty_from_rms",
             return_value=continuous_property,
         ),
         pytest.raises(ValueError, match="must be discrete"),
@@ -183,7 +183,7 @@ def test_create_fipnum_in_project(
     region_property: xtgeo.GridProperty,
     mapping_table: pa.Table,
 ) -> None:
-    """Test that the to_roxar method is called with correct arguments."""
+    """Test that the to_rms method is called with correct arguments."""
 
     from fmu.dataio.export.rms.simulator_fipregions_mapping import (
         _create_fipnum_in_project,
@@ -193,19 +193,17 @@ def test_create_fipnum_in_project(
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.gridproperty_from_roxar",
+            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.gridproperty_from_rms",
             side_effect=[region_property, zone_property],
         ),
         mock.patch(
-            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.GridProperty.to_roxar"
-        ) as mock_to_roxar,
+            "fmu.dataio.export.rms.simulator_fipregions_mapping.xtgeo.GridProperty.to_rms"
+        ) as mock_to_rms,
     ):
         mapping_table = _create_fipnum_in_project(
             mock_project_variable, "Simgrid", "Region", "Zone"
         )
-        mock_to_roxar.assert_called_once_with(
-            mock_project_variable, "Simgrid", "FIPNUM"
-        )
+        mock_to_rms.assert_called_once_with(mock_project_variable, "Simgrid", "FIPNUM")
 
         assert mapping_table == expected_mapping_table
 
