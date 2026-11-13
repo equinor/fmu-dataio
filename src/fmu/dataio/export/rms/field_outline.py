@@ -36,7 +36,7 @@ class _ExportFieldOutline(SimpleExportBase):
     def _get_field_outline_from_rms(self, project: Any) -> xtgeo.Polygons:
         """Fetch the field outline polygon from RMS."""
         try:
-            return xtgeo.polygons_from_roxar(
+            return xtgeo.polygons_from_rms(
                 project, "field_outline", category="", stype="general2d_data"
             )
         except Exception as err:

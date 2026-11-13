@@ -46,10 +46,10 @@ def mock_export_class(
     )
 
     with mock.patch(
-        "fmu.dataio.export.rms.field_outline.xtgeo.polygons_from_roxar"
-    ) as mock_polygons_from_roxar:
-        # Mock the return value of xtgeo.polygons_from_roxar
-        mock_polygons_from_roxar.return_value = xtgeo_fault_lines[0]
+        "fmu.dataio.export.rms.field_outline.xtgeo.polygons_from_rms"
+    ) as mock_polygons_from_rms:
+        # Mock the return value of xtgeo.polygons_from_rms
+        mock_polygons_from_rms.return_value = xtgeo_fault_lines[0]
 
         yield _ExportFieldOutline(mock_project_variable)
 

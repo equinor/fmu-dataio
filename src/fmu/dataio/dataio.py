@@ -72,7 +72,7 @@ class ExportData:
     .. code-block:: python
 
        for name in ["TopOne", "TopTwo", "TopThree"]:
-           poly = xtgeo.polygons_from_roxar(project, name, POL_FOLDER)
+           poly = xtgeo.polygons_from_rms(project, name, POL_FOLDER)
 
            ed = dataio.ExportData(
                content="depth",

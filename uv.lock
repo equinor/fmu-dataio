@@ -1667,7 +1667,7 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'" },
     { name = "types-requests", marker = "extra == 'dev'" },
     { name = "urllib3", marker = "extra == 'docs'" },
-    { name = "xtgeo", specifier = ">=2.16" },
+    { name = "xtgeo", specifier = ">=4.27.0" },
 ]
 provides-extras = ["dev", "docs"]
 

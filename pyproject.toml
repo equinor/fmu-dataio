@@ -38,7 +38,7 @@ dependencies = [
     "pandas",
     "pyarrow",
     "pydantic",
-    "xtgeo>=2.16",
+    "xtgeo>=4.27.0",
 ]
 
 [project.urls]

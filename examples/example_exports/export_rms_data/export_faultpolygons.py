@@ -40,7 +40,7 @@ def export_fault_lines():
 
         for name in HORIZON_NAMES:
             # RMS: read the polygon directly from RMS
-            # poly = xtgeo.polygons_from_roxar(project, name, RMS_POL_CATEGORY)
+            # poly = xtgeo.polygons_from_rms(project, name, RMS_POL_CATEGORY)
 
             # From an already exported polygon
             pol_file = POL_DIR / f"{name.lower()}.pol"

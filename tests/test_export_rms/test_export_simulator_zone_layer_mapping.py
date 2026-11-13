@@ -117,9 +117,9 @@ def test_extract_zone_layer_mapping_from_grid_calls_dependencies() -> None:
 
     with (
         mock.patch(
-            "fmu.dataio.export.rms.simulator_zone_layer_mapping.xtgeo.grid_from_roxar",
+            "fmu.dataio.export.rms.simulator_zone_layer_mapping.xtgeo.grid_from_rms",
             return_value=mock_grid,
-        ) as mock_grid_from_roxar,
+        ) as mock_grid_from_rms,
         mock.patch(
             "fmu.dataio.export.rms.simulator_zone_layer_mapping._create_zone_layer_mapping_table",
             return_value=expected_table,
@@ -127,7 +127,7 @@ def test_extract_zone_layer_mapping_from_grid_calls_dependencies() -> None:
     ):
         result = _extract_zone_layer_mapping_from_grid(mock_project, "Simgrid")
 
-    mock_grid_from_roxar.assert_called_once_with(mock_project, "Simgrid")
+    mock_grid_from_rms.assert_called_once_with(mock_project, "Simgrid")
     mock_create_table.assert_called_once_with(mock_grid)
     assert result is expected_table
 
