@@ -44,16 +44,17 @@ from fmu.dataio._workflows.case._observations import (
     ObservationType,
     get_ert_observations_table,
 )
-from fmu.dataio._workflows.case._parameters import (
+from fmu.dataio._workflows.case.main import CaseWorkflowConfig
+from fmu.dataio._workflows.fmu_pre_sim._parameters import (
     ErtParameterMetadataAdapter,
     _genkw_to_metadata,
     get_ert_parameters_table,
 )
-from fmu.dataio._workflows.case.main import CaseWorkflowConfig
 
 from .ert_config_utils import (
     add_create_case_workflow,
     add_design_matrix,
+    add_fmu_pre_sim_workflow,
     add_globvar_parameters,
     add_multregt_parameters,
     add_observation_config,
@@ -677,7 +678,7 @@ def test_create_case_metadata_collects_ert_parameters_as_expected(
             spec=SumoUploaderInterface,
         ),
         patch(
-            "fmu.dataio._workflows.case.main._queue_ert_parameters",
+            "fmu.dataio._workflows.fmu_pre_sim.main._queue_ert_parameters",
             side_effect=capture_params,
         ),
     ):
@@ -1446,3 +1447,27 @@ def test_create_case_metadata_dotfmu_without_stratigraphy_mappings(
             "model_stratigraphy_horizons",
             "model_stratigraphy_zones",
         }
+
+
+def test_fmu_pre_simulation_workflow_runs_successfully(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+    add_fmu_pre_sim_workflow(ert_config_path)
+
+    with (
+        patch("sys.argv", ["ert", "test_run", "snakeoil.ert", "--disable-monitoring"]),
+        patch(
+            "fmu.dataio._workflows.fmu_pre_sim.main.SumoUploaderInterface"
+        ) as uploader_interface,
+    ):
+        ert.__main__.main()
+
+    uploader_interface.from_new_case.assert_called_once()
+    uploader_interface.from_new_case.return_value.upload.assert_called_once()
+    fmu_case_yml = (
+        fmu_snakeoil_project / "scratch/user/snakeoil/share/metadata/fmu_case.yml"
+    )
+    assert fmu_case_yml.exists()

@@ -15,7 +15,9 @@ import yaml
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from pytest import MonkeyPatch
 
-from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
+from fmu.dataio._workflows.fmu_pre_sim.export_case_metadata import (
+    ExportCaseMetadata,
+)
 from fmu.dataio.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)

@@ -12,12 +12,13 @@ from fmu.dataio._global_config import (
     build_global_configuration,
 )
 from fmu.dataio._logging import null_logger
+from fmu.dataio._workflows.case._config import CaseWorkflowConfig
 from fmu.dataio.version import __version__
 from fmu.datamodels.common import Access, Tracklog, User
 from fmu.datamodels.fmu_results import enums, fields, global_configuration
 from fmu.datamodels.fmu_results.fmu_results import CaseMetadata
 
-from ._config import CaseWorkflowConfig
+from ._config import PreSimulationConfig
 
 logger: Final = null_logger(__name__)
 
@@ -137,7 +138,9 @@ class ExportCaseMetadata:
         return str(self._metafile)
 
     @classmethod
-    def from_workflow_config(cls, workflow_config: CaseWorkflowConfig) -> Self:
+    def from_workflow_config(
+        cls, workflow_config: CaseWorkflowConfig | PreSimulationConfig
+    ) -> Self:
         """Instantiate from a workflow configuration."""
         return cls(
             config=workflow_config.global_config,

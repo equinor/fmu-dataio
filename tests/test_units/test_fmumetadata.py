@@ -18,7 +18,7 @@ from fmu.dataio._metadata._fmu import (
     FmuMetadata,
 )
 from fmu.dataio._runcontext import FMUEnvironment, RunContext
-from fmu.dataio._workflows.case.export_case_metadata import ExportCaseMetadata
+from fmu.dataio._workflows.fmu_pre_sim.export_case_metadata import ExportCaseMetadata
 from fmu.dataio.exceptions import InvalidMetadataError
 
 logger = logging.getLogger(__name__)
