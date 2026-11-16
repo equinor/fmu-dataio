@@ -31,32 +31,13 @@ logger: Final = null_logger(__name__)
 def _validate_input_table_index(
     table_index: list[str],
     table_columns: list[str],
-    content: Content | None = None,
 ) -> None:
-    """
-    Check that all provided table index columns are present in the table, and warn if
-    non-standard table indexes are used or some standard ones are missing.
-    """
-
+    """Check that all provided table index columns are present in the table"""
     missing_columns = [col for col in table_index if col not in table_columns]
     if missing_columns:
         raise KeyError(
             f"The table index columns {missing_columns} are not present in the table"
         )
-
-    if content in STANDARD_TABLE_INDEX_COLUMNS:
-        standard_index = STANDARD_TABLE_INDEX_COLUMNS[content]
-
-        has_all_required = all(col in table_index for col in standard_index.required)
-        has_non_standard = any(col not in standard_index.columns for col in table_index)
-
-        if not has_all_required or has_non_standard:
-            warnings.warn(
-                "The table index provided does not fully comply with the standard. "
-                f"Standard columns: {standard_index.columns}, with required ones: "
-                f"{standard_index.required}. This may not be allowed in the future.",
-                FutureWarning,
-            )
 
 
 def _derive_index_from_standard(
@@ -70,20 +51,11 @@ def _derive_index_from_standard(
     standard_index = STANDARD_TABLE_INDEX_COLUMNS[content]
 
     table_index = [col for col in standard_index.columns if col in table_columns]
-    has_all_required = all(col in table_index for col in standard_index.required)
-
     if not table_index:
         warnings.warn(
             "Could not detect any standard index columns in table: "
             f"{standard_index.columns}. If the table has index columns they "
             "should be provided as input through the 'table_index' argument."
-        )
-    elif not has_all_required:
-        warnings.warn(
-            "The table provided does not contain all required standard "
-            f"table index columns for this content: {standard_index.required}. "
-            "This may not be allowed in the future.",
-            FutureWarning,
         )
     return table_index
 
@@ -116,7 +88,7 @@ def _derive_index(
     """
     if table_index:
         logger.debug("Table index provided, validating input...")
-        _validate_input_table_index(table_index, table_columns, content)
+        _validate_input_table_index(table_index, table_columns)
         return table_index
 
     logger.debug("No table index provided")

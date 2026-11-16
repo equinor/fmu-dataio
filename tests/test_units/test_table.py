@@ -212,8 +212,7 @@ def test_set_from_exportdata(
         content="timeseries",
         name="baretull",
     )
-    with pytest.warns(FutureWarning, match="table index"):
-        path = exd.export(mock_volumes)
+    path = exd.export(mock_volumes)
     assert_correct_table_index(path, index)
 
 
@@ -237,8 +236,7 @@ def test_set_from_export(
         table_index=index,
         name="baretull",
     )
-    with pytest.warns(FutureWarning, match="table index"):
-        path = exd.export(mock_volumes)
+    path = exd.export(mock_volumes)
     assert_correct_table_index(path, index)
 
 
@@ -310,9 +308,7 @@ def test_table_index_rft_from_standard(drogon_global_config: dict[str, Any]) -> 
     meta = exd.generate_metadata(mock_rft_table)
     assert set(meta["data"]["table_index"]) == {"DATE", "WELL"}
 
-    # now drop the WELL column will give FutureWarning
-    with pytest.warns(FutureWarning, match="standard"):
-        meta = exd.generate_metadata(mock_rft_table.drop(columns="WELL"))
+    meta = exd.generate_metadata(mock_rft_table.drop(columns="WELL"))
     assert set(meta["data"]["table_index"]) == {"DATE"}
 
 
@@ -461,12 +457,11 @@ def test_derive_index_from_input_invalid() -> None:
 
 
 def test_derive_index_from_input_non_standard() -> None:
-    """Test that warning is given if a column that a non-standard column is provided"""
+    """Test that a non-standard table index provided as input is accepted"""
     content = Content.volumes
     table_index = ["col1"]
     table_columns = STANDARD_TABLE_INDEX_COLUMNS[content].columns + ["col1"]
-    with pytest.warns(FutureWarning, match="standard"):
-        result = _derive_index(table_columns, table_index, content)
+    result = _derive_index(table_columns, table_index, content)
     assert result == table_index
 
 
@@ -484,15 +479,14 @@ def test_derive_index_from_standard() -> None:
 
 def test_derive_index_from_standard_missing_columns() -> None:
     """
-    Test that when table index is not provided a Futurewarning is given
-    if not all columns standard index columns are present in the table
+    Test that when table index is not provided the standard index columns
+    present in the table are used, even if not all are present
     """
     content = Content.volumes
     assert content in STANDARD_TABLE_INDEX_COLUMNS
     table_index = None
     table_columns = ["ZONE"]  # only subset of required
-    with pytest.warns(FutureWarning, match="standard"):
-        result = _derive_index(table_columns, table_index, content)
+    result = _derive_index(table_columns, table_index, content)
     assert result == table_columns
 
 
@@ -516,13 +510,12 @@ def test_table_index_in_metadata_with_table_index(
 ) -> None:
     """Test providing a valid table index"""
     table_index = ["ZONE"]
-    with pytest.warns(FutureWarning, match="standard"):
-        meta = ExportData(
-            config=drogon_global_config,
-            content="volumes",
-            name="geogrid",
-            table_index=table_index,
-        ).generate_metadata(mock_volumes)
+    meta = ExportData(
+        config=drogon_global_config,
+        content="volumes",
+        name="geogrid",
+        table_index=table_index,
+    ).generate_metadata(mock_volumes)
 
     assert meta["data"]["table_index"] == table_index
 
