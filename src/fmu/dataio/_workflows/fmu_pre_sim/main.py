@@ -1,6 +1,7 @@
 """Create FMU case metadata and register case on Sumo.
 
-This script is intended to be run through an Ert HOOK PRE_SIMULATION workflow.
+FMU ECOSYSTEM  is responsible for adding this PRE_SIMULATION workflow to the Ert
+config. Users should not configure it themselves.
 """
 
 from __future__ import annotations
@@ -46,32 +47,10 @@ if TYPE_CHECKING:
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
-# This documentation is compiled into ert's internal docs
-DESCRIPTION = """
-WF_FMU_PRE_SIMULATION will create case metadata with fmu-dataio, store it on disk,
-and register the case on Sumo. The workflow also uploads Ert parameters to Sumo,
-together with model stratigraphy and stratigraphy/wellbore mappings when a ``.fmu``
-directory is present in the project. The workflow uses Ert storage directly, so the
-relevant case metadata and parameters are collected automatically from the active Ert
-run.
-
-Observations are not uploaded by this workflow. They will be uploaded together with
-their responses by a dedicated post-simulation workflow.
-"""
-
-PRE_SIMULATION_EXAMPLES = """
-Hook the ``WF_FMU_PRE_SIMULATION`` workflow job directly as a PRE_SIMULATION
-hook in your Ert config. No separate workflow file is needed::
-
-    HOOK_WORKFLOW_JOB xhook_wf_fmu_pre WF_FMU_PRE_SIMULATION PRE_SIMULATION
-
-
-Note that ``<SUMO_CASEPATH>`` must be defined in the Ert config for this workflow to
-run::
-
-    DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>
-
-"""  # noqa: E501
+DESCRIPTION = (
+    "FMU ECOSYSTEM is responsible for adding this PRE_SIMULATION workflow to the Ert "
+    "config. Users should not configure it themselves."
+)
 
 
 def _get_ensemble_name(
@@ -311,10 +290,8 @@ def _copy_fmu_directory(casepath: Path) -> ProjectFMUDirectory | None:
 
 
 class WfFmuPreSimulation(ert.ErtScript):
-    """A class with a run() function that can be registered as an ERT plugin.
-
-    This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
-    potential naming collisions in fmu-dataio."""
+    # Older Ert versions override the registered description with the class docstring.
+    __doc__ = DESCRIPTION
 
     # Ensure ERT execution stops if the workflow fails
     stop_on_fail = True
@@ -342,11 +319,10 @@ class WfFmuPreSimulation(ert.ErtScript):
 
 @ert.plugin(name="fmu_dataio")
 def ertscript_workflow(config: ert.WorkflowConfigs) -> None:
-    """Hook the WfFmuPreSimulation class with documentation into ERT."""
+    """Internal pre-simulation workflow for FMU ECOSYSTEM."""
     config.add_workflow(
         WfFmuPreSimulation,
         "WF_FMU_PRE_SIMULATION",
         description=DESCRIPTION,
-        examples=PRE_SIMULATION_EXAMPLES,
         category="export",
     )

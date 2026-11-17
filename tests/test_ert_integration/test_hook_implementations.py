@@ -67,6 +67,10 @@ def test_hook_implementations_docs() -> None:
     wf_docs = plugin_manager.get_documentation_for_workflows()
     assert set(wf_docs) == set(installable_workflow_jobs)
     for wf_name in installable_workflow_jobs:
-        assert wf_docs[wf_name]["description"] != ""
-        assert wf_docs[wf_name]["examples"] != ""
+        if wf_name == "WF_FMU_PRE_SIMULATION":
+            assert wf_docs[wf_name]["description"] == fmu_pre_sim.DESCRIPTION
+            assert wf_docs[wf_name]["examples"] is None
+        else:
+            assert wf_docs[wf_name]["description"] != ""
+            assert wf_docs[wf_name]["examples"] != ""
         assert wf_docs[wf_name]["category"] != "other"

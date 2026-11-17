@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pyarrow as pa
 import pytest
+from ert.config import ConfigWarning
 from fmu.datamodels.fmu_results.global_configuration import GlobalConfiguration
 from fmu.settings import get_fmu_directory
 
@@ -189,10 +190,30 @@ def test_queue_ert_observations_seismic_does_nothing_when_table_is_none(
     sumo_uploader.queue_table.assert_not_called()
 
 
-def test_case_workflow_is_deprecated(
+@pytest.mark.parametrize("args", [[], ["--sumo"]])
+def test_case_workflow_validation_warns_about_deprecation(args: list[str]) -> None:
+    """Validation exposes the migration warning as an Ert deprecation warning."""
+    with pytest.warns(
+        ConfigWarning,
+        match=(
+            "WF_CREATE_CASE_METADATA workflow is deprecated.*"
+            "Remove WF_CREATE_CASE_METADATA from your Ert configuration and use "
+            "FMU Ecosystem instead.*"
+            "FMU Ecosystem manages the replacement workflow, "
+            "WF_FMU_PRE_SIMULATION, which registers the case in Sumo.*"
+            "Do not add WF_FMU_PRE_SIMULATION to your Ert configuration manually"
+        ),
+    ) as warnings:
+        WfExportCaseMetadata.validate(args)
+
+    assert len(warnings) == 1
+    assert warnings[0].message.info.is_deprecation
+
+
+def test_case_workflow_run_delegates_to_workflow(
     workflow_config: CaseWorkflowConfig,
 ) -> None:
-    """Running WF_CREATE_CASE_METADATA warns and points to WF_FMU_PRE_SIMULATION."""
+    """Running WF_CREATE_CASE_METADATA warns and points to FMU Ecosystem."""
     ensemble = MagicMock()
     run_paths = MagicMock()
 
@@ -204,13 +225,6 @@ def test_case_workflow_is_deprecated(
             return_value=workflow_config,
         ),
         patch("fmu.dataio._workflows.case.main._run_workflow") as run_workflow,
-        pytest.warns(
-            FutureWarning,
-            match=(
-                "WF_CREATE_CASE_METADATA workflow is deprecated.*"
-                "Use the WF_FMU_PRE_SIMULATION workflow instead"
-            ),
-        ),
     ):
         resolve_casepath.return_value = workflow_config.casepath
         WfExportCaseMetadata().run([], ensemble, run_paths)

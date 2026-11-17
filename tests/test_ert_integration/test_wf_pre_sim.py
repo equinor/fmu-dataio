@@ -17,8 +17,9 @@ import polars as pl
 import pyarrow as pa
 import pytest
 import yaml
-from ert.config import GenKwConfig
+from ert.config import ConfigWarning, ErtConfig, GenKwConfig
 from ert.config.distribution import DistributionSettings
+from ert.plugins import get_site_plugins
 from fmu.datamodels import (
     ErtObservationsRftSchema,
 )
@@ -148,6 +149,31 @@ def parse_field_metadata(field: pa.Field) -> ErtParameterMetadata:
         for k, v in field.metadata.items()
     }
     return ErtParameterMetadataAdapter.validate_python(decoded)
+
+
+def test_create_case_metadata_warns_during_config_loading(
+    fmu_snakeoil_project: Path, monkeypatch: MonkeyPatch
+) -> None:
+    ert_model_path = fmu_snakeoil_project / "ert/model"
+    monkeypatch.chdir(ert_model_path)
+    ert_config_path = ert_model_path / "snakeoil.ert"
+    add_create_case_workflow(ert_config_path)
+
+    with (
+        patch("fmu.dataio._workflows.case.main._run_workflow") as run_workflow,
+        pytest.warns(
+            ConfigWarning, match="WF_CREATE_CASE_METADATA workflow is deprecated"
+        ) as warnings,
+    ):
+        ErtConfig.with_plugins(get_site_plugins()).from_file(str(ert_config_path))
+
+    assert any(
+        isinstance(warning.message, ConfigWarning)
+        and "WF_CREATE_CASE_METADATA workflow is deprecated" in str(warning.message)
+        and warning.message.info.is_deprecation
+        for warning in warnings
+    )
+    run_workflow.assert_not_called()
 
 
 def test_create_case_metadata_runs_successfully(

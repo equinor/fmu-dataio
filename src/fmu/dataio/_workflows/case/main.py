@@ -7,11 +7,11 @@ from __future__ import annotations
 
 import argparse
 import logging
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 import ert
+from ert.config import ConfigWarning
 
 from fmu.dataio._export import ExportConfig
 from fmu.dataio._interfaces import SumoUploaderInterface
@@ -33,6 +33,8 @@ from ._config import CaseWorkflowConfig
 from ._observations import ObservationType, get_ert_observations_table
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ert.runpaths import Runpaths as ErtRunpaths
     from ert.storage import Ensemble as ErtEnsemble
 
@@ -42,31 +44,27 @@ logger.setLevel(logging.CRITICAL)
 
 DEPRECATION_MESSAGE = (
     "The WF_CREATE_CASE_METADATA workflow is deprecated and will be removed in a "
-    "future version of fmu-dataio. Use the WF_FMU_PRE_SIMULATION workflow instead, "
-    "hooked directly as a PRE_SIMULATION hook in your Ert config: "
-    "HOOK_WORKFLOW_JOB xhook_wf_fmu_pre WF_FMU_PRE_SIMULATION PRE_SIMULATION"
+    "future version of fmu-dataio. Remove WF_CREATE_CASE_METADATA from your Ert "
+    "configuration and use FMU Ecosystem instead. FMU Ecosystem manages the "
+    "replacement workflow, WF_FMU_PRE_SIMULATION, which registers the case in Sumo. "
+    "Do not add WF_FMU_PRE_SIMULATION to your Ert configuration manually."
 )
 
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
-**Deprecated:** WF_CREATE_CASE_METADATA is deprecated and will be removed in a future
-version of fmu-dataio. Use ``WF_FMU_PRE_SIMULATION`` instead, which is hooked directly
-as a PRE_SIMULATION hook (see examples below). Note that ``WF_FMU_PRE_SIMULATION`` does
-not upload observations; these will be uploaded together with their responses by a
-dedicated post-simulation workflow.
+**Deprecated:** ``WF_CREATE_CASE_METADATA`` will be removed in a future version of
+fmu-dataio.
 
-WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio for storing on disk
-and on Sumo. When Sumo upload is enabled, the workflow also uploads Ert parameters
-and observations, including summary, RFT, breakthrough, and seismic observations. The
-workflow uses Ert storage directly, so the relevant case metadata, parameters, and
-observations are collected automatically from the active Ert run.
+Remove ``WF_CREATE_CASE_METADATA`` from your Ert configuration and use FMU Ecosystem
+instead. FMU Ecosystem manages the replacement workflow, ``WF_FMU_PRE_SIMULATION``,
+which registers the case in Sumo. Do not add ``WF_FMU_PRE_SIMULATION`` to your Ert
+configuration manually.
 """
 
 EXAMPLES = """
-**Deprecated.** Migrate to ``WF_FMU_PRE_SIMULATION`` by replacing the workflow file and
-``LOAD_WORKFLOW``/``HOOK_WORKFLOW`` lines with a single line in your Ert config::
-
-    HOOK_WORKFLOW_JOB xhook_wf_fmu_pre WF_FMU_PRE_SIMULATION PRE_SIMULATION
+**Migration:** Remove the workflow entry that invokes ``WF_CREATE_CASE_METADATA``
+and its associated ``LOAD_WORKFLOW`` and ``HOOK_WORKFLOW`` entries from your Ert
+configuration. Use FMU Ecosystem to manage case registration in Sumo..
 
 Legacy usage: create an Ert workflow e.g. called
 ``ert/bin/workflows/xhook_create_case_metadata`` with::
@@ -335,6 +333,11 @@ class WfExportCaseMetadata(ert.ErtScript):
     # Ensure ERT execution stops if the workflow fails
     stop_on_fail = True
 
+    @staticmethod
+    def validate(args: list[Any]) -> None:
+        """Warn about deprecation when Ert validates the configured workflow."""
+        ConfigWarning.deprecation_warn(DEPRECATION_MESSAGE)
+
     def run(
         self,
         workflow_args: list[str],
@@ -342,8 +345,6 @@ class WfExportCaseMetadata(ert.ErtScript):
         run_paths: ErtRunpaths,
     ) -> None:
         """Parse arguments and run the workflow."""
-        warnings.warn(DEPRECATION_MESSAGE, FutureWarning, stacklevel=2)
-
         parser = get_parser()
         args = parser.parse_args(workflow_args)
 
