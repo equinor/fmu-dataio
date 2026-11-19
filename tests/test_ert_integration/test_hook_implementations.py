@@ -7,6 +7,7 @@ from packaging.version import Version
 import fmu.dataio._workflows.jobs
 from fmu.dataio._workflows import copy_preprocessed
 from fmu.dataio._workflows.case import main as create_case_metadata
+from fmu.dataio._workflows.fmu_pre_sim import main as fmu_pre_sim
 
 
 def test_hook_implementations() -> None:
@@ -14,6 +15,7 @@ def test_hook_implementations() -> None:
         plugins=[
             fmu.dataio._workflows.jobs,
             create_case_metadata,
+            fmu_pre_sim,
             copy_preprocessed,
         ]
     )
@@ -25,7 +27,11 @@ def test_hook_implementations() -> None:
         installable_fms = plugin_manager.forward_model_steps
     assert set(installable_fms) == expected_forward_models
 
-    expected_workflow_jobs = {"WF_CREATE_CASE_METADATA", "WF_COPY_PREPROCESSED_DATAIO"}
+    expected_workflow_jobs = {
+        "WF_CREATE_CASE_METADATA",
+        "WF_COPY_PREPROCESSED_DATAIO",
+        "WF_FMU_PRE_SIMULATION",
+    }
     installable_workflow_jobs = plugin_manager.get_ertscript_workflows().get_workflows()
     for wf_name, _ in installable_workflow_jobs.items():
         assert wf_name in expected_workflow_jobs
@@ -38,6 +44,7 @@ def test_hook_implementations_docs() -> None:
         plugins=[
             fmu.dataio._workflows.jobs,
             create_case_metadata,
+            fmu_pre_sim,
             copy_preprocessed,
         ]
     )
@@ -60,6 +67,10 @@ def test_hook_implementations_docs() -> None:
     wf_docs = plugin_manager.get_documentation_for_workflows()
     assert set(wf_docs) == set(installable_workflow_jobs)
     for wf_name in installable_workflow_jobs:
-        assert wf_docs[wf_name]["description"] != ""
-        assert wf_docs[wf_name]["examples"] != ""
+        if wf_name == "WF_FMU_PRE_SIMULATION":
+            assert wf_docs[wf_name]["description"] == fmu_pre_sim.DESCRIPTION
+            assert wf_docs[wf_name]["examples"] is None
+        else:
+            assert wf_docs[wf_name]["description"] != ""
+            assert wf_docs[wf_name]["examples"] != ""
         assert wf_docs[wf_name]["category"] != "other"

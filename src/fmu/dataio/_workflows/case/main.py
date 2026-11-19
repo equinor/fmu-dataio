@@ -7,40 +7,34 @@ from __future__ import annotations
 
 import argparse
 import logging
-import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 import ert
+from ert.config import ConfigWarning
 
 from fmu.dataio._export import ExportConfig
 from fmu.dataio._interfaces import SumoUploaderInterface
 from fmu.dataio._metadata import generate_metadata
+from fmu.dataio._workflows.fmu_pre_sim.export_case_metadata import (
+    ExportCaseMetadata,
+)
+from fmu.dataio._workflows.fmu_pre_sim.main import (
+    _copy_fmu_directory,
+    _get_ensemble_name,
+    _upload_files_to_sumo,
+)
 from fmu.datamodels.common.enums import Classification
 from fmu.datamodels.fmu_results.enums import Content, FMUContext
-from fmu.datamodels.standard_results.enums import (
-    ErtObservations,
-    ModelStratigraphy,
-    StandardResultName,
-)
-from fmu.settings import (
-    ProjectFMUDirectory,
-    find_nearest_fmu_directory,
-    get_fmu_directory,
-)
+from fmu.datamodels.standard_results.enums import ErtObservations, StandardResultName
 
 from .._utils import resolve_casepath
 from ._config import CaseWorkflowConfig
-from ._mappings import get_stratigraphy_mappings_table, get_wellbore_mappings_table
-from ._model_stratigraphy import (
-    get_model_stratigraphy_horizons_table,
-    get_model_stratigraphy_zones_table,
-)
 from ._observations import ObservationType, get_ert_observations_table
-from ._parameters import get_ert_parameters_table
-from .export_case_metadata import ExportCaseMetadata
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ert.runpaths import Runpaths as ErtRunpaths
     from ert.storage import Ensemble as ErtEnsemble
 
@@ -48,17 +42,32 @@ if TYPE_CHECKING:
 logger: Final = logging.getLogger(__name__)
 logger.setLevel(logging.CRITICAL)
 
+DEPRECATION_MESSAGE = (
+    "The WF_CREATE_CASE_METADATA workflow is deprecated and will be removed in a "
+    "future version of fmu-dataio. Remove WF_CREATE_CASE_METADATA from your Ert "
+    "configuration and use FMU Ecosystem instead. FMU Ecosystem manages the "
+    "replacement workflow, WF_FMU_PRE_SIMULATION, which registers the case in Sumo. "
+    "Do not add WF_FMU_PRE_SIMULATION to your Ert configuration manually."
+)
+
 # This documentation is compiled into ert's internal docs
 DESCRIPTION = """
-WF_CREATE_CASE_METADATA will create case metadata with fmu-dataio for storing on disk
-and on Sumo. When Sumo upload is enabled, the workflow also uploads Ert parameters
-and observations, including summary, RFT, breakthrough, and seismic observations. The
-workflow uses Ert storage directly, so the relevant case metadata, parameters, and
-observations are collected automatically from the active Ert run.
+**Deprecated:** ``WF_CREATE_CASE_METADATA`` will be removed in a future version of
+fmu-dataio.
+
+Remove ``WF_CREATE_CASE_METADATA`` from your Ert configuration and use FMU Ecosystem
+instead. FMU Ecosystem manages the replacement workflow, ``WF_FMU_PRE_SIMULATION``,
+which registers the case in Sumo. Do not add ``WF_FMU_PRE_SIMULATION`` to your Ert
+configuration manually.
 """
 
 EXAMPLES = """
-Create an Ert workflow e.g. called ``ert/bin/workflows/xhook_create_case_metadata`` with::
+**Migration:** Remove the workflow entry that invokes ``WF_CREATE_CASE_METADATA``
+and its associated ``LOAD_WORKFLOW`` and ``HOOK_WORKFLOW`` entries from your Ert
+configuration. Use FMU Ecosystem to manage case registration in Sumo..
+
+Legacy usage: create an Ert workflow e.g. called
+``ert/bin/workflows/xhook_create_case_metadata`` with::
 
     WF_CREATE_CASE_METADATA "--sumo"
 
@@ -70,55 +79,6 @@ Note that ``<SUMO_CASEPATH>`` must be defined in the Ert config for this workflo
     DEFINE <SUMO_CASEPATH>  <SCRATCH>/<USER>/<CASE_DIR>
 
 """  # noqa: E501
-
-
-def _get_ensemble_name(
-    ensemble: ErtEnsemble,
-    run_paths: ErtRunpaths,
-    casepath: Path,
-) -> str:
-    """Determine ensemble name from run path.
-
-    Users attribute the ensemble runpath directory as the ensemble name. This differs
-    from the Ert internal view of the name. This function will collect the ensemble path
-    from the first realization (since all realizations are placed within an ensemble).
-    But if no ensemble directory is used the runpath would then be equal to the
-    casepath. In this case use a default "iter-0".
-    """
-    runpath = Path(
-        run_paths.get_paths(realizations=[0], iteration=ensemble.iteration)[0]
-    )
-    return str(runpath.name) if runpath.parent != casepath else "iter-0"
-
-
-def _queue_ert_parameters(
-    ensemble: ErtEnsemble,
-    ensemble_name: str,
-    workflow_config: CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export parameter table using fmu-dataio."""
-    table = get_ert_parameters_table(ensemble)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.parameters)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=["REAL"])
-        .file_config(name="parameters")
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .standard_result(StandardResultName.parameters)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
 
 
 def _queue_ert_observations_breakthrough(
@@ -247,137 +207,18 @@ def _queue_ert_observations_seismic(
     sumo_uploader.queue_table(table, metadata)
 
 
-def _queue_stratigraphy_mappings(
-    ensemble_name: str,
-    workflow_config: CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export stratigraphy mappings using fmu-dataio."""
-    assert workflow_config.fmu_dir is not None
-
-    table = get_stratigraphy_mappings_table(workflow_config.fmu_dir)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.mapping)
-        .access(Classification.internal, rep_include=False)
-        .file_config(name=StandardResultName.stratigraphy_mapping.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .standard_result(StandardResultName.stratigraphy_mapping)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_model_stratigraphy_horizons(
-    ensemble_name: str,
-    workflow_config: CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export model stratigraphy horizons using fmu-dataio."""
-    assert workflow_config.fmu_dir is not None
-
-    table = get_model_stratigraphy_horizons_table(workflow_config.fmu_dir)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.stratigraphy)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=ModelStratigraphy.HorizonsColumns.index_columns())
-        .file_config(name=StandardResultName.model_stratigraphy_horizons.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .standard_result(StandardResultName.model_stratigraphy_horizons)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_model_stratigraphy_zones(
-    ensemble_name: str,
-    workflow_config: CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export model stratigraphy zones using fmu-dataio."""
-    assert workflow_config.fmu_dir is not None
-
-    table = get_model_stratigraphy_zones_table(workflow_config.fmu_dir)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.stratigraphy)
-        .access(Classification.internal, rep_include=False)
-        .table_config(table_index=ModelStratigraphy.ZonesColumns.index_columns())
-        .file_config(name=StandardResultName.model_stratigraphy_zones.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .standard_result(StandardResultName.model_stratigraphy_zones)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _queue_wellbore_mappings(
-    ensemble_name: str,
-    workflow_config: CaseWorkflowConfig,
-    sumo_uploader: SumoUploaderInterface,
-) -> None:
-    """Export wellbore mappings using fmu-dataio."""
-    assert workflow_config.fmu_dir is not None
-
-    table = get_wellbore_mappings_table(workflow_config.fmu_dir)
-    if table is None:
-        return
-
-    export_config = (
-        ExportConfig.builder()
-        .content(Content.mapping)
-        .access(Classification.internal, rep_include=False)
-        .file_config(name=StandardResultName.wellbore_mapping.value)
-        .global_config(workflow_config.global_config)
-        .run_context(
-            fmu_context=FMUContext.ensemble,
-            ensemble_name=ensemble_name,
-            casepath=workflow_config.casepath,
-        )
-        .standard_result(StandardResultName.wellbore_mapping)
-        .build()
-    )
-    metadata = generate_metadata(export_config, table)
-    sumo_uploader.queue_table(table, metadata)
-
-
-def _upload_files_to_sumo(
+def _queue_ert_observations(
     ensemble: ErtEnsemble,
-    run_paths: ErtRunpaths,
+    ensemble_name: str,
     workflow_config: CaseWorkflowConfig,
     sumo_uploader: SumoUploaderInterface,
 ) -> None:
-    """Establishes a case on Sumo, uploading initial case and ensemble data as well."""
-    ensemble_name = _get_ensemble_name(ensemble, run_paths, workflow_config.casepath)
-    _queue_ert_parameters(ensemble, ensemble_name, workflow_config, sumo_uploader)
+    """Queue all Ert observation tables for upload to Sumo.
+
+    Observation upload is kept in the legacy workflow only. The replacement
+    WF_FMU_PRE_SIMULATION workflow does not upload observations; a dedicated
+    post-simulation workflow will upload observations and responses together.
+    """
     _queue_ert_observations_rft(ensemble, ensemble_name, workflow_config, sumo_uploader)
     _queue_ert_observations_summary(
         ensemble, ensemble_name, workflow_config, sumo_uploader
@@ -388,16 +229,6 @@ def _upload_files_to_sumo(
     _queue_ert_observations_seismic(
         ensemble, ensemble_name, workflow_config, sumo_uploader
     )
-
-    if workflow_config.fmu_dir:
-        _queue_model_stratigraphy_horizons(
-            ensemble_name, workflow_config, sumo_uploader
-        )
-        _queue_model_stratigraphy_zones(ensemble_name, workflow_config, sumo_uploader)
-        _queue_stratigraphy_mappings(ensemble_name, workflow_config, sumo_uploader)
-        _queue_wellbore_mappings(ensemble_name, workflow_config, sumo_uploader)
-
-    sumo_uploader.upload()
 
 
 def _run_workflow(
@@ -415,24 +246,18 @@ def _run_workflow(
 
     if workflow_config.register_on_sumo:
         sumo_uploader = SumoUploaderInterface.from_new_case(Path(case_metadata_path))
-        _upload_files_to_sumo(ensemble, run_paths, workflow_config, sumo_uploader)
-
-
-def _copy_fmu_directory(casepath: Path) -> ProjectFMUDirectory | None:
-    """Copies the .fmu/ directory from the project path, if it exists, to the case path.
-
-    If a .fmu/ directory already exists in the case path it will be overwritten.
-
-    Returns:
-        ProjectFMUDirectory instance on the case path or None.
-    """
-    try:
-        fmu_dir = find_nearest_fmu_directory()
-        shutil.copytree(fmu_dir.path, casepath / ".fmu", dirs_exist_ok=True)
-    except FileNotFoundError:
-        return None
-
-    return get_fmu_directory(casepath)
+        ensemble_name = _get_ensemble_name(
+            ensemble, run_paths, workflow_config.casepath
+        )
+        # Queue observations first; the shared pre-sim upload queues parameters and
+        # .fmu tables and then uploads everything queued in one batch.
+        _queue_ert_observations(ensemble, ensemble_name, workflow_config, sumo_uploader)
+        _upload_files_to_sumo(
+            ensemble=ensemble,
+            run_paths=run_paths,
+            workflow_config=workflow_config,
+            sumo_uploader=sumo_uploader,
+        )
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -499,13 +324,19 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 class WfExportCaseMetadata(ert.ErtScript):
-    """A class with a run() function that can be registered as an ERT plugin.
+    """Legacy ERT workflow class for creating case metadata with a run() function
+    that can be registered as an ERT plugin.
 
     This is used for the ERT workflow context. It is prefixed 'Wf' to avoid a
     potential naming collisions in fmu-dataio."""
 
     # Ensure ERT execution stops if the workflow fails
     stop_on_fail = True
+
+    @staticmethod
+    def validate(args: list[Any]) -> None:
+        """Warn about deprecation when Ert validates the configured workflow."""
+        ConfigWarning.deprecation_warn(DEPRECATION_MESSAGE)
 
     def run(
         self,
