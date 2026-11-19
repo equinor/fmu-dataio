@@ -5,6 +5,7 @@ from .grid_extracted_depth_surfaces import export_grid_extracted_depth_surfaces
 from .grid_model_static import export_grid_model_static
 from .inplace_volumes import export_inplace_volumes, export_rms_volumetrics
 from .simulator_fipregions_mapping import create_fipnum_property
+from .simulator_zone_layer_mapping import export_simulator_zone_layer_mapping
 from .structure_depth_fault_lines import export_structure_depth_fault_lines
 from .structure_depth_fault_surfaces import export_structure_depth_fault_surfaces
 from .structure_depth_isochores import export_structure_depth_isochores
@@ -12,6 +13,7 @@ from .structure_depth_surfaces import export_structure_depth_surfaces
 from .structure_time_surfaces import export_structure_time_surfaces
 
 __all__ = [
+    "export_simulator_zone_layer_mapping",
     "export_structure_depth_fault_lines",
     "export_structure_depth_fault_surfaces",
     "export_structure_depth_surfaces",
