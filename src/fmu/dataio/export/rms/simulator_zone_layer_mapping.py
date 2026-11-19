@@ -89,8 +89,9 @@ def export_simulator_zone_layer_mapping(project: Any, grid_name: str) -> ExportR
     Examples:
         Example usage in an RMS script::
 
-            from fmu.dataio.export.rms import export_simulator_zone_layer_mapping
-
+        from fmu.dataio.export.rms.simulator_zone_layer_mapping import (
+            export_simulator_zone_layer_mapping,
+        )
             export_results = export_simulator_zone_layer_mapping(
                 project, grid_name="Simgrid"
             )
