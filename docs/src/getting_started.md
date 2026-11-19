@@ -18,13 +18,12 @@ hesitate to ask for help!
 
 References to the Equinor master data are essential context for enabling other
 systems to use FMU results. Previously, these master data and key model metadata
-has been defined as part of the `global_master_config.yml` file. 
-**FMU Settings** is a new solution developed to make this process 
-easier, more robust, and less error-prone, by replacing these sections in the 
+has been defined as part of the `global_master_config.yml` file.
+**FMU Settings** is a new solution developed to make this process
+easier, more robust, and less error-prone, by replacing these sections in the
 `global_master_config.yml` with a GUI.
-See [FMU Settings documentation](https://equinor.github.io/fmu-settings/getting_started.html) 
+See [FMU Settings documentation](https://equinor.github.io/fmu-settings/getting_started.html)
 for how to get started with FMU Settings.
-
 
 ```{note}
 Master data are "data about the business entities that provide context for
@@ -42,19 +41,21 @@ no single applications shall own this definition.
 ```
 
 When you have initialized and started using **FMU Settings** for your project, the following sections
-should be removed from your `global_master_config.yml`, if they are present (this will mostly be 
+should be removed from your `global_master_config.yml`, if they are present (this will mostly be
 relevant for the early onboarders), as these are replaced by FMU Settings:
+
 - model
 - masterdata
 - access
 - stratigraphy
 
 Correspondingly, these files (in `/fmuconfig/input`) can be deleted, as they are not used anymore
-- `_masterdata.yml` 
-- `_access.yml` 
+
+- `_masterdata.yml`
+- `_access.yml`
 - `_stratigraphy.yml`
 
-**Summary:** These sections should be ***removed*** from your `global_master_config.yml`, as all this is 
+**Summary:** These sections should be **_removed_** from your `global_master_config.yml`, as all this is
 taken care of in FMU Settings:
 
 ```yaml
@@ -75,13 +76,12 @@ access: !include _access.yml
 stratigraphy: !include _stratigraphy.yml
 ```
 
-
 ## 2. Workflow for creating case metadata
 
 It is time to create the ERT workflow which will generate case metadata.
-**Case metadata** are metadata about the specific *case* you are running. A
-*case* in this context is a group of one or more ensembles, which will appear
-in the same folder structure on /scratch.  Example:
+**Case metadata** are metadata about the specific _case_ you are running. A
+_case_ in this context is a group of one or more ensembles, which will appear
+in the same folder structure on /scratch. Example:
 `/scratch/<asset>/<user>/<CASE>/...`.
 
 For each FMU case, a set of metadata is generated and stored on
@@ -114,6 +114,58 @@ should see the workflow appear in the workflows dropdown, and when you run a
 case, you should see case metadata appear in
 `scratch/<field>/<casedir>/share/metadata/fmu_case.yml`.
 
+### Upload simulated responses after simulation
+
+Within the FMU Ecosystem, `WF_FMU_POST_SIMULATION` uploads observations and
+simulated responses after simulation. It requires existing case metadata from
+`WF_FMU_PRE_SIMULATION`, which must run as a `PRE_SIMULATION` hook first to
+register the case on Sumo.
+
+```{warning}
+This workflow is dedicated only for FMU Ecosystem, Do not configure or run it
+directly from a standalone ERT configuration.
+```
+
+The post-simulation hook used within the FMU Ecosystem is:
+
+```text
+HOOK_WORKFLOW_JOB xhook_wf_fmu_post WF_FMU_POST_SIMULATION POST_SIMULATION
+```
+
+The FMU Ecosystem's ERT configuration must also define `<SUMO_CASEPATH>`, for
+example:
+
+```text
+DEFINE <SUMO_CASEPATH> <SCRATCH>/<USER>/<CASE_DIR>
+```
+
+The workflow runs after each ensemble simulation. It uploads summary and RFT
+observations and responses for completed realizations in the active ensemble;
+missing or empty tables are skipped. Observations and responses remain separate
+standard-result tables, linked by an integer `observation_id`:
+
+- IDs are zero-based observation row numbers within an experiment and observation
+  type. They are shared across its ensembles and realizations. Join the observation
+  and response tables exported by this post-simulation workflow within the same
+  experiment and type, not across unrelated experiments or types. The case
+  workflow and its pre-simulation observation exports are unchanged.
+- ERT's `get_observations_and_responses` handles matching, duplicate averaging,
+  quality checks, and optional RFT approximation. Dataio reshapes the aligned
+  values into one response row per `observation_id` and `realization`.
+- Response uploads are split into one table per realization and response type.
+  The `realization` column remains in each table. Files have distinct names such
+  as `responses_summary--realization-0.parquet` and
+  `responses_summary--realization-2.parquet`. These are ensemble-context objects
+  distinguished by their realization tag. Observation tables remain shared at
+  ensemble level rather than being duplicated for every realization.
+- All observations are kept. Unmatched raw responses and null aligned values
+  are not exported. Summary response `time` is the observation timestamp;
+  RFT `well_connection_cell` comes from ERT's realization metadata.
+
+This workflow requires fmu-datamodels with the observation `observation_id` fields and
+`responses_summary` / `responses_rft` standard-result schemas.
+The hook needs no arguments or storage configuration, and uses
+`SUMO_ENV` (default: `prod`) to select the Sumo environment.
 
 ## 3. Include a data export job
 
