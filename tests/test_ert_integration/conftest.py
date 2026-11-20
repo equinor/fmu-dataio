@@ -92,6 +92,10 @@ def fmu_snakeoil_project_with_dotfmu(fmu_snakeoil_project: Path) -> Path:
 
 @pytest.fixture
 def mock_sumo_uploader() -> Generator[dict[str, MagicMock | AsyncMock]]:
+    pytest.importorskip(
+        "fmu.sumo.uploader", reason="fmu-sumo-uploader is not installed"
+    )
+
     def register_side_effect(*args: tuple[Any], **kwargs: dict[str, Any]) -> int:
         with open("sumo_case_id", "w", encoding="utf-8") as f:
             f.write("1")
