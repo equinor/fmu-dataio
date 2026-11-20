@@ -32,7 +32,6 @@ dependencies = [
     "PyYAML",
     "fmu-datamodels~=0.27.0",
     "fmu-settings>=0.34.0",
-    "fmu-sumo",
     "jsonschema",
     "numpy",
     "pandas",
@@ -203,7 +202,6 @@ exclude-newer = "1 week"
 "fmu-config" = false
 "fmu-datamodels" = false
 "fmu-settings" = false
-"fmu-sumo" = false
 "fmu-sumo-uploader" = false
 "graphite-maps" = false
 "iterative-ensemble-smoother" = false

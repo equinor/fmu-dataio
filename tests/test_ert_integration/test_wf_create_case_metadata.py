@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import getpass
-import importlib
 import json
 import os
 import sys
@@ -507,10 +506,6 @@ def test_create_case_metadata_prefers_sumo_casepath_over_casepath_argument(
     assert not conflicting_fmu_case_yml.exists()
 
 
-@pytest.mark.skipif(
-    not importlib.util.find_spec("fmu.sumo.uploader"),
-    reason="fmu-sumo-uploader is not installed",
-)
 def test_create_case_metadata_enable_mocked_sumo(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
@@ -533,10 +528,6 @@ def test_create_case_metadata_enable_mocked_sumo(
         assert f.read() == "1"
 
 
-@pytest.mark.skipif(
-    not importlib.util.find_spec("fmu.sumo.uploader"),
-    reason="fmu-sumo-uploader is not installed",
-)
 def test_create_case_metadata_sumo_env_dev_input_fails(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
@@ -558,10 +549,6 @@ def test_create_case_metadata_sumo_env_dev_input_fails(
         ert.__main__.main()
 
 
-@pytest.mark.skipif(
-    not importlib.util.find_spec("fmu.sumo.uploader"),
-    reason="fmu-sumo-uploader is not installed",
-)
 def test_create_case_metadata_sumo_env_reads_from_environment(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
@@ -586,10 +573,6 @@ def test_create_case_metadata_sumo_env_reads_from_environment(
     assert "client_id" in mock_sumo_uploader["SumoConnection"].call_args.kwargs
 
 
-@pytest.mark.skipif(
-    not importlib.util.find_spec("fmu.sumo.uploader"),
-    reason="fmu-sumo-uploader is not installed",
-)
 def test_create_case_metadata_sumo_env_defaults_to_prod(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
@@ -612,10 +595,6 @@ def test_create_case_metadata_sumo_env_defaults_to_prod(
     assert "client_id" in mock_sumo_uploader["SumoConnection"].call_args.kwargs
 
 
-@pytest.mark.skipif(
-    not importlib.util.find_spec("fmu.sumo.uploader"),
-    reason="fmu-sumo-uploader is not installed",
-)
 def test_create_case_metadata_sumo_env_input_is_ignored(
     fmu_snakeoil_project: Path,
     monkeypatch: MonkeyPatch,
