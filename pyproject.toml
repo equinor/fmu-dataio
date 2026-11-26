@@ -68,6 +68,8 @@ dev = [
     "types-PyYAML",
     "types-requests",
 ]
+
+[dependency-groups]
 docs = [
     "Sphinx",
     "autoapi",
@@ -75,6 +77,7 @@ docs = [
     "furo",
     "myst-parser",
     "pydocstyle",
+    "soupsieve>=4.0",
     "sphinx-autodoc-typehints",
     "sphinx-copybutton",
     "sphinx-togglebutton",
@@ -196,8 +199,11 @@ warn_unused_ignores = true
 
 [tool.uv]
 exclude-newer = "1 week"
-# Exclude specific package(s) we maintain for quick iteration
 
+[tool.uv.dependency-groups]
+docs = { requires-python = ">=3.11.5" }
+
+# Exclude specific package(s) we maintain for quick iteration
 [tool.uv.exclude-newer-package]
 "fmu-config" = false
 "fmu-datamodels" = false
