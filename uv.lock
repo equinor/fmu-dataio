@@ -386,8 +386,7 @@ name = "beautifulsoup4"
 version = "4.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "soupsieve", version = "2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
-    { name = "soupsieve", version = "4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
+    { name = "soupsieve" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/65/318323f98dbee45d42dff61d8f047181bc6f2268a9068cfad035a46be5af/beautifulsoup4-4.15.0.tar.gz", hash = "sha256:288e3ca7d54b06f2ac191970bc275c1939cb46d450b255bf6718b04aa37ab4f7", size = 632571, upload-time = "2026-06-07T16:44:20.453Z" }
@@ -1609,37 +1608,39 @@ dev = [
     { name = "types-pyyaml" },
     { name = "types-requests" },
 ]
+
+[package.dev-dependencies]
 docs = [
-    { name = "autoapi" },
-    { name = "autodoc-pydantic" },
-    { name = "furo" },
-    { name = "myst-parser" },
-    { name = "pydocstyle" },
-    { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "autoapi", marker = "python_full_version >= '3.11.5'" },
+    { name = "autodoc-pydantic", marker = "python_full_version >= '3.11.5'" },
+    { name = "furo", marker = "python_full_version >= '3.11.5'" },
+    { name = "myst-parser", marker = "python_full_version >= '3.11.5'" },
+    { name = "pydocstyle", marker = "python_full_version >= '3.11.5'" },
+    { name = "soupsieve", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5' and python_full_version < '3.12'" },
     { name = "sphinx", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.12.*'" },
     { name = "sphinx", version = "9.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
-    { name = "sphinx-autodoc-typehints", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "sphinx-autodoc-typehints", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5' and python_full_version < '3.12'" },
     { name = "sphinx-autodoc-typehints", version = "3.17.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "sphinx-copybutton" },
-    { name = "sphinx-togglebutton" },
-    { name = "sphinxcontrib-apidoc" },
-    { name = "urllib3" },
+    { name = "sphinx-copybutton", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinx-togglebutton", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinxcontrib-apidoc", marker = "python_full_version >= '3.11.5'" },
+    { name = "urllib3", marker = "python_full_version >= '3.11.5'" },
 ]
+
+[package.group-requires-python]
+docs = ">=3.11.5"
 
 [package.metadata]
 requires-dist = [
-    { name = "autoapi", marker = "extra == 'docs'" },
-    { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.1" },
     { name = "ert", marker = "extra == 'dev'", specifier = ">=22" },
     { name = "fmu-datamodels", specifier = "~=0.27.0" },
     { name = "fmu-settings", specifier = ">=0.34.0" },
-    { name = "furo", marker = "extra == 'docs'" },
     { name = "hypothesis", marker = "extra == 'dev'" },
     { name = "jsonschema" },
     { name = "jsonschema", marker = "extra == 'dev'" },
     { name = "mypy", marker = "extra == 'dev'" },
-    { name = "myst-parser", marker = "extra == 'docs'" },
     { name = "numpy" },
     { name = "openpyxl", marker = "extra == 'dev'" },
     { name = "pandas" },
@@ -1648,7 +1649,6 @@ requires-dist = [
     { name = "pyarrow-stubs", marker = "extra == 'dev'" },
     { name = "pydantic" },
     { name = "pydocstyle", marker = "extra == 'dev'" },
-    { name = "pydocstyle", marker = "extra == 'docs'" },
     { name = "pyqt6", marker = "extra == 'dev'", specifier = "<6.10.0" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
@@ -1658,17 +1658,27 @@ requires-dist = [
     { name = "pyyaml" },
     { name = "rstcheck", marker = "extra == 'dev'" },
     { name = "ruff", marker = "extra == 'dev'" },
-    { name = "sphinx", marker = "extra == 'docs'" },
-    { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'" },
-    { name = "sphinx-copybutton", marker = "extra == 'docs'" },
-    { name = "sphinx-togglebutton", marker = "extra == 'docs'" },
-    { name = "sphinxcontrib-apidoc", marker = "extra == 'docs'" },
     { name = "types-pyyaml", marker = "extra == 'dev'" },
     { name = "types-requests", marker = "extra == 'dev'" },
-    { name = "urllib3", marker = "extra == 'docs'" },
     { name = "xtgeo", specifier = ">=4.27.0" },
 ]
-provides-extras = ["dev", "docs"]
+provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+docs = [
+    { name = "autoapi", marker = "python_full_version >= '3.11.5'" },
+    { name = "autodoc-pydantic", marker = "python_full_version >= '3.11.5'", specifier = ">=2.0.0" },
+    { name = "furo", marker = "python_full_version >= '3.11.5'" },
+    { name = "myst-parser", marker = "python_full_version >= '3.11.5'" },
+    { name = "pydocstyle", marker = "python_full_version >= '3.11.5'" },
+    { name = "soupsieve", marker = "python_full_version >= '3.11.5'", specifier = ">=4.0" },
+    { name = "sphinx", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinx-autodoc-typehints", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinx-copybutton", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinx-togglebutton", marker = "python_full_version >= '3.11.5'" },
+    { name = "sphinxcontrib-apidoc", marker = "python_full_version >= '3.11.5'" },
+    { name = "urllib3", marker = "python_full_version >= '3.11.5'" },
+]
 
 [[package]]
 name = "fmu-datamodels"
@@ -6164,39 +6174,8 @@ wheels = [
 
 [[package]]
 name = "soupsieve"
-version = "2.10"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/71/c3/1b817965ac12dc002d7c9cd7dfffdd7d4fbf9b45763ef2ffe7b86ee94670/soupsieve-2.10.tar.gz", hash = "sha256:49e9380d7d2905463583bafe285e818c7366a9ed7b3aee221c1ac79c905d8bc0", size = 124337, upload-time = "2026-09-24T02:36:35.048Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/87/5ed59e1d0290564e2027ed066c52b059892c4637741337fc0967183c8d4d/soupsieve-2.10-py3-none-any.whl", hash = "sha256:8596eb8967d744174820280fa62b4542a2e955bfaccca73ed8a13c6eb8e9b502", size = 38019, upload-time = "2026-09-24T02:36:33.709Z" },
-]
-
-[[package]]
-name = "soupsieve"
 version = "4.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.15' and sys_platform == 'win32'",
-    "python_full_version >= '3.15' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version == '3.14.*' and sys_platform == 'win32'",
-    "python_full_version == '3.14.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.14.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-]
 sdist = { url = "https://files.pythonhosted.org/packages/7d/5e/19b7c5d20bc2f226c44f33a9d9aab9740efed7555b96e656231fd564e514/soupsieve-4.0.tar.gz", hash = "sha256:ccd6470b256394ac44b08b86fd94b30a17d335a5335c8a3d15565f7b03d3c8cf", size = 151929, upload-time = "2026-11-03T14:28:55.388Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4f/18/d24df2f733ee0655c58717d51add4118a70e64692d0e47d403b9aac4cf98/soupsieve-4.0-py3-none-any.whl", hash = "sha256:5e7494bfce90e06676cfb4c5c2cf22243e98e5cf24646bb1ecdda46d318550a0", size = 50158, upload-time = "2026-11-03T14:28:53.988Z" },
@@ -6241,9 +6220,6 @@ resolution-markers = [
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "alabaster" },
@@ -6349,9 +6325,6 @@ resolution-markers = [
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" } },

@@ -8,13 +8,14 @@ build:
     pre_install:
       - git clone https://github.com/equinor/fmu-datamodels ../fmu-datamodels
     post_install:
+      - pip install --group docs
       - pip install ../fmu-datamodels
       - bash examples/update_examples.sh
 
 python:
   install:
     - method: pip
-      path: .[docs]
+      path: .
 
 sphinx:
   configuration: docs/src/conf.py

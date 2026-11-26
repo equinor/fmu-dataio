@@ -28,9 +28,9 @@ jobs:
       - name: Install fmu-dataio
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            uv sync --all-extras --upgrade
+            uv sync --extra dev --group docs --upgrade
           else
-            uv sync --all-extras --frozen
+            uv sync --extra dev --group docs --frozen
           fi
 
       # Install repos from their Github main branches instead of Pypi.
@@ -43,7 +43,7 @@ jobs:
           uv pip install ../fmu-datamodels
 
       - name: Generate updated examples
-        run: uv run sh examples/update_examples.sh
+        run: uv run --no-sync sh examples/update_examples.sh
 
       - name: Build documentation with sphinx
-        run: uv run sphinx-build -b html docs/src build/docs/html -j auto
+        run: uv run --no-sync sphinx-build -b html docs/src build/docs/html -j auto
